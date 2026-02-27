@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+/* En v4, para usar @apply con clases de Tailwind en un archivo CSS, 
+   asegúrate de que el @import esté al inicio */
+@layer components {
+    .btn-whatsapp {
+        @apply fixed bottom-6 right-6 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition-all z-50;
+    }
+}

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Mi Sitio{% endblock %}</title>
+    <!-- CSS Estilos -->
+</head>
+<body>
+    <header>
+        <h1>Mi Sitio Web</h1>
+    </header>
+
+    <main>
+        <!-- Aquí se insertará el contenido de las páginas hijas -->
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2026</p>
+    </footer>
+</body>
+</html>

@@ -15,8 +15,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from tours import views
 
 urlpatterns = [
+    path('jet/', include('jet.urls', 'jet')),  # URLs de JET
+    path('jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')), #
     path('admin/', admin.site.urls),
+    path('prueba-estilos/', views.prueba_tailwind, name='prueba_estilos'),
 ]
