@@ -5,4 +5,11 @@ db.sqlite3
 media/
 staticfiles/
 venv/
+env/
 .vscode/
+
+
+# Python
+*.pyc
+*.pyo
+*.pyd

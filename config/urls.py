@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 from tours import views
 
 urlpatterns = [
@@ -23,4 +25,5 @@ urlpatterns = [
     path('jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')), #
     path('admin/', admin.site.urls),
     path('prueba-estilos/', views.prueba_tailwind, name='prueba_estilos'),
-]
+    path('ckeditor/', include('ckeditor_uploader.urls')),
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

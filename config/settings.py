@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'tours',
-    'ckeditor'
+    'ckeditor',
+    'ckeditor_uploader',
 ]
 
 MIDDLEWARE = [
@@ -90,6 +91,10 @@ DATABASES = {
     }
 }
 
+# Temas disponibles: 'default', 'green', 'light-violet', 'red', 'yellow'
+
+JET_DEFAULT_THEME = 'light-violet' # Prueba este para un look más moderno
+JET_SIDE_MENU_COMPACT = True
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -133,3 +138,5 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+CKEDITOR_UPLOAD_PATH = "uploads/"
