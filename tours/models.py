@@ -27,6 +27,12 @@ class Tour(models.Model):
     imagen_principal = models.ImageField(upload_to='tours/principales/')
     activo = models.BooleanField(default=True)
 
+    destacado = models.BooleanField(
+        default=False,
+        verbose_name="Destacado",
+        help_text="Si se marca, aparecerá en la sección principal de la página de inicio."
+        )
+
     def __str__(self):
         return self.nombre
 
