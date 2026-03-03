@@ -1,0 +1,65 @@
+/* 1. FONDO GLOBAL DEL CONTENIDO (La parte blanca que ves) */
+#content, .dashboard-container, .module, #content-main {
+    background-color: #2c3e50 !important; /* Gris azulado oscuro */
+}
+
+body.admin-interface {
+    background-color: #2c3e50 !important;
+}
+
+/* 2. TARJETAS DEL DASHBOARD (Widgets) */
+.dashboard-item {
+    background-color: #34495e !important; /* Un tono un poco más claro que el fondo */
+    border: 1px solid #455a64 !important;
+    color: #ecf0f1 !important;
+}
+
+.dashboard-item-header {
+    background-color: #1a252f !important; /* Cabecera de los widgets */
+    color: #ffffff !important;
+}
+
+/* 3. CAJAS DE TEXTO E INPUTS (Para que resalten sobre el fondo oscuro) */
+input[type="text"], input[type="number"], select, textarea, .vTextField {
+    background-color: #ffffff !important; 
+    color: #333333 !important;
+    border: 2px solid #ff5722 !important; /* Borde naranja para identificar dónde escribes */
+    border-radius: 4px !important;
+}
+
+/* 4. TABLAS DE LA LISTA DE TOURS */
+#changelist-form .results table {
+    background-color: #ecf0f1 !important;
+    color: #526c73 !important;
+}
+
+#changelist table thead th {
+    background-color: #1a252f !important;
+    color: #ff5722 !important;
+}
+
+/* 5. TEXTOS GENERALES */
+#content h1, .dashboard-item-content, .sidebar-link-label {
+    color: #ffffff !important;
+}
+
+/* 6. BOTONES (Naranja Orage Travel) */
+.button, .button.default, input[type="submit"], .add-dashboard-link {
+    background-color: #ff5722 !important;
+    color: white !important;
+    border: none !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+}
+
+.button:hover, input[type="submit"]:hover {
+    background-color: #e64a19 !important;
+}
+
+/* 7. REGLA PARA EL FOOTER Y OTROS ESPACIOS BLANCOS */
+#container, #footer {
+    background-color: #1a252f !important;
+}
+
+.changelist-footer {
+    background-color: #2c3e50 !important;
+}
