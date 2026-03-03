@@ -49,6 +49,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -91,10 +92,14 @@ DATABASES = {
     }
 }
 
-# Temas disponibles: 'default', 'green', 'light-violet', 'red', 'yellow'
 
-JET_DEFAULT_THEME = 'light-violet' # Prueba este para un look más moderno
-JET_SIDE_MENU_COMPACT = True
+
+# DJANGO JET
+
+# Temas disponibles: 'default', 'green', 'light-violet', 'red', 'yellow'
+# JET_DEFAULT_THEME = 'light-violet' # Prueba este para un look más moderno
+# JET_SIDE_MENU_COMPACT = True
+
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -118,11 +123,13 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-cl'
+
 
 TIME_ZONE = 'UTC'
 
 USE_I18N = True
+USE_L10N = True
 
 USE_TZ = True
 
@@ -140,3 +147,14 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 CKEDITOR_UPLOAD_PATH = "uploads/"
+
+CKEDITOR_CONFIGS = {
+    'default': {
+        'language': 'es',
+        'toolbar': 'full',
+        # ... otras configuraciones
+    },
+}
+
+JET_INDEX_DASHBOARD = 'dashboard.CustomIndexDashboard'
+JET_APP_INDEX_DASHBOARD = 'dashboard.CustomAppIndexDashboard'
