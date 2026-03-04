@@ -5,7 +5,7 @@ from tours.models import Tour
 
 def home(request):
 
-    tours = Tour.objects.all().select_related('precio')
+    tours = Tour.objects.filter(destacado=True).select_related('precio')
 
     return render(request, 'home/index.html',{
         'tours': tours
