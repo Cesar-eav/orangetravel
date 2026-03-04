@@ -237,6 +237,9 @@
   .grid {
     display: grid;
   }
+  .inline {
+    display: inline;
+  }
   .h-48 {
     height: calc(var(--spacing) * 48);
   }
