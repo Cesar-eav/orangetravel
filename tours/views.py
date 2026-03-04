@@ -3,10 +3,10 @@ from .models import Tour
 
 # Create your views here.
 
-def index(request):
-
+def tours_home(request):
+    
     tours = Tour.objects.all().select_related('precio')
 
-    return render(request, 'home/index.html',{
-        'tours': tours
-    })
+    return render (request, 'tours/tours_home.html', {
+        'tours' : tours
+    } )

@@ -30,7 +30,7 @@ urlpatterns = [
 
     # APPLICACIONES
     path('', include('home.urls')),
-    #path('tours/', include('tours.urls')),
+    path('tours/', include('tours.urls')),
     
 
 
