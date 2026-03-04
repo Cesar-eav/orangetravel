@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'tours',
     'ckeditor',
     'ckeditor_uploader',
+    'home'
 ]
 
 MIDDLEWARE = [
