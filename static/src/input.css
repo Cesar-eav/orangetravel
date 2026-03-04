@@ -1,9 +1,13 @@
 @import "tailwindcss";
 
-/* En v4, para usar @apply con clases de Tailwind en un archivo CSS, 
-   asegúrate de que el @import esté al inicio */
-@layer components {
-    .btn-whatsapp {
-        @apply fixed bottom-6 right-6 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition-all z-50;
-    }
+@theme {
+  /* Definimos los colores de Orange Travel estilo Tailwind 4 */
+  --color-orange-50: #fff8ed;
+  --color-orange-500: #f97316;
+  --color-orange-600: #ea580c;
+  
+  /* Agregamos el azul oscuro para contraste si gustas */
+  --color-orange-dark: #1a1a1a;
 }
+
+/* Aquí puedes poner tus estilos manuales si los tienes */
