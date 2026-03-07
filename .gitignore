@@ -1,15 +1,23 @@
-*.pyc
+# Python
 __pycache__/
+*.py[cod]
+venv/
+
+
 db.sqlite3
+# Entorno
 .env
+
 media/
 staticfiles/
 venv/
 env/
 .vscode/
 
+# Archivos de SO
+.DS_Store
 
-# Python
-*.pyc
-*.pyo
-*.pyd
+# Node / Tailwind
+node_modules/
+npm-debug.log*
+
