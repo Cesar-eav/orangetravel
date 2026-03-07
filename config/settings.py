@@ -33,8 +33,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'jet.dashboard',
     'jet',
+    'jet.dashboard',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -157,5 +157,6 @@ CKEDITOR_CONFIGS = {
     },
 }
 
-JET_INDEX_DASHBOARD = 'dashboard.CustomIndexDashboard'
-JET_APP_INDEX_DASHBOARD = 'dashboard.CustomAppIndexDashboard'
+# Asegúrate de que el nombre del archivo sea exactamente dashboard.py en la raíz
+# JET_INDEX_DASHBOARD = 'dashboard.CustomIndexDashboard'
+# JET_APP_INDEX_DASHBOARD = 'dashboard.CustomAppIndexDashboard'
