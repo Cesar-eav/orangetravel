@@ -16,12 +16,12 @@ def tour(request, slug):
 
     try:
         tour = Tour.objects.get(slug=slug)
-        return HttpResponse(f"<pre>{tour.__dict__}</pre>")
         
         # 2. Traemos datos de tablas relacionadas (Reverse Relationships)
         # Aunque no los veas en el modelo Tour, existen por la ForeignKey en las otras tablas
-        galeria_fotos = tour.imagenes # Relación inversa por defecto
+        galeria_fotos = tour.imagenes.all() # Relación inversa por defecto
         precios = tour.precio        # Relación inversa por defecto
+        
 
         # 3. El Tipo de Tour es una relación directa (ForeignKey en Tour)
         tipo_de_tour = tour.tipo

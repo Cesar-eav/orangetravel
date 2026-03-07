@@ -1,4 +1,8 @@
 @import "tailwindcss";
+/* @import "@tailwindcss/typography"; */
+@plugin "../../node_modules/@tailwindcss/typography";
+
+@import url('https://fonts.googleapis.com/css2?family=Marcellus&display=swap');
 
 @theme {
   /* Definimos los colores de Orange Travel estilo Tailwind 4 */
@@ -8,6 +12,9 @@
   
   /* Agregamos el azul oscuro para contraste si gustas */
   --color-blue-dark: #293D54;
+  --font-marcellus: "Marcellus", serif;
 }
 
-/* Aquí puedes poner tus estilos manuales si los tienes */
+/* CRITICO: Tailwind 4 necesita saber qué archivos escanear para generar .prose */
+@source "../../templates/**/*.html";
+@source "../../**/templates/**/*.html";
