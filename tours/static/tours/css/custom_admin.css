@@ -1,65 +1,69 @@
-/* 1. FONDO GLOBAL DEL CONTENIDO (La parte blanca que ves) */
-#content, .dashboard-container, .module, #content-main {
-    background-color: #2c3e50 !important; /* Gris azulado oscuro */
+/* 1. FONDO GENERAL Y CONTENEDORES EN BLANCO */
+body, #container, #content, .module, fieldset.module, .inline-group, .tabular.inline-related {
+    background-color: #ffffff !important;
+    color: #1f2937 !important; /* Gris casi negro para máxima legibilidad */
 }
 
-body.admin-interface {
-    background-color: #2c3e50 !important;
+/* 2. REPARAR LAS PESTAÑAS (CHANGEFORM-TABS) */
+/* Forzamos fondo blanco y texto oscuro para que no se pierdan */
+.changeform-tabs {
+    background-color: #f3f4f6 !important; /* Un gris muy sutil para diferenciar la barra */
+    border-bottom: 1px solid #e5e7eb !important;
+    color: #1e64a9 !important;
 }
 
-/* 2. TARJETAS DEL DASHBOARD (Widgets) */
-.dashboard-item {
-    background-color: #34495e !important; /* Un tono un poco más claro que el fondo */
-    border: 1px solid #455a64 !important;
-    color: #ecf0f1 !important;
+
+
+
+.changeform-tabs-item {
+    background-color: #ffffff !important;
+    color: #374151 !important; /* Texto oscuro */
+    border: 1px solid #d1d5db !important;
+    border-bottom: none !important;
+    margin-right: 2px !important;
 }
 
-.dashboard-item-header {
-    background-color: #1a252f !important; /* Cabecera de los widgets */
-    color: #ffffff !important;
+
+/* HOVER EN PESTAÑAS: Fondo naranja suave, texto naranja fuerte */
+.changeform-tabs-item:hover {
+    background-color: #fff7ed !important;
+    color: #f97316 !important; /* Naranja Orange Travel */
 }
 
-/* 3. CAJAS DE TEXTO E INPUTS (Para que resalten sobre el fondo oscuro) */
-input[type="text"], input[type="number"], select, textarea, .vTextField {
-    background-color: #ffffff !important; 
-    color: #333333 !important;
-    border: 2px solid #ff5722 !important; /* Borde naranja para identificar dónde escribes */
-    border-radius: 4px !important;
+/* PESTAÑA SELECCIONADA: Fondo blanco, texto naranja, sin borde inferior para que "se una" al contenido */
+.changeform-tabs-item.selected {
+    background-color: #ffffff !important;
+    color: #f97316 !important;
+    border-top: 3px solid #f97316 !important;
+    font-weight: bold !important;
 }
 
-/* 4. TABLAS DE LA LISTA DE TOURS */
-#changelist-form .results table {
-    background-color: #ecf0f1 !important;
-    color: #526c73 !important;
+/* 3. REPARAR FORMULARIOS Y LABELS (Evita letra oscura en fondo oscuro) */
+.form-row, .form-row label, .form-row p, .help, .inline-group .inline-related h3 {
+    color: #111827 !important; /* Negro intenso para labels */
+    background-color: #ffffff !important;
 }
 
-#changelist table thead th {
-    background-color: #1a252f !important;
-    color: #ff5722 !important;
+/* 4. TABLAS DE LA GALERÍA E INLINES */
+.tabular.inline-related table thead th {
+    background-color: #f9fafb !important;
+    color: #4b5563 !important;
+    border-bottom: 2px solid #e5e7eb !important;
 }
 
-/* 5. TEXTOS GENERALES */
-#content h1, .dashboard-item-content, .sidebar-link-label {
-    color: #ffffff !important;
+.tabular.inline-related table tbody tr {
+    background-color: #ffffff !important;
 }
 
-/* 6. BOTONES (Naranja Orage Travel) */
-.button, .button.default, input[type="submit"], .add-dashboard-link {
-    background-color: #ff5722 !important;
-    color: white !important;
-    border: none !important;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+/* 5. FIX PARA INPUTS (Bordes más visibles) */
+input[type="text"], input[type="number"], input[type="url"], textarea, select {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #9ca3af !important; /* Borde más definido */
 }
 
-.button:hover, input[type="submit"]:hover {
-    background-color: #e64a19 !important;
-}
-
-/* 7. REGLA PARA EL FOOTER Y OTROS ESPACIOS BLANCOS */
-#container, #footer {
-    background-color: #1a252f !important;
-}
-
-.changelist-footer {
-    background-color: #2c3e50 !important;
+/* 6. ELIMINAR SOMBRAS OSCURAS DE JET QUE ENSUCIAN EL BLANCO */
+.module, .inline-group {
+    box-shadow: none !important;
+    border: 1px solid #e5e7eb !important;
 }

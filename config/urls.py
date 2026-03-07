@@ -18,21 +18,18 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from tours import views
-from home import views
+
 
 urlpatterns = [
     path('jet/', include('jet.urls', 'jet')),  # URLs de JET
     path('jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')), #
     path('admin/', admin.site.urls),
-    # path('prueba-estilos/', views.prueba_tailwind, name='prueba_estilos'),
     path('ckeditor/', include('ckeditor_uploader.urls')),
 
     # APPLICACIONES
     path('', include('home.urls')),
     path('tours/', include('tours.urls')),
-    
 
-
-
-]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

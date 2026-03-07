@@ -1,25 +1,39 @@
-     <nav class="bg-blue-dark text-white shadow-xl sticky top-0 z-50">
-        <div class="container mx-auto px-4 lg:px-8">
-            <div class="flex justify-between items-center h-20">
-                
-                <a href="{% url 'home' %}" class="flex items-center space-x-2 group">
-                    <span class="text-2xl font-black tracking-tighter uppercase italic">
-                        ORANGE <span class="text-orange-500 group-hover:text-orange-600 transition-colors">TRAVEL</span>
-                    </span>
-                </a>
+<nav class="bg-blue-dark text-white shadow-xl sticky top-0 z-50">
+    <div class="container mx-auto px-4 lg:px-8">
+        <div class="flex justify-between items-center h-20">
+            
+            <a href="{% url 'home' %}" class="flex items-center space-x-2 group">
+                <span class="text-2xl font-black tracking-tighter uppercase italic">
+                    ORANGE <span class="text-orange-500 group-hover:text-orange-600 transition-colors">TRAVEL</span>
+                </span>
+            </a>
 
-                <div class="hidden md:flex items-center space-x-8 font-semibold text-sm uppercase tracking-wider">
-                    <a href="{% url 'tours_home' %}" class="hover:text-orange-500 transition-colors py-2 border-b-2 border-transparent hover:border-orange-500">Tours</a>
-                    <a href="#" class="hover:text-orange-500 transition-colors py-2 border-b-2 border-transparent hover:border-orange-500">Nosotros</a>
-                    <a href="#" class="hover:text-orange-500 transition-colors py-2 border-b-2 border-transparent hover:border-orange-500">Contacto</a>
-                </div>
+            <div class="hidden md:flex items-center space-x-8 font-semibold text-sm uppercase tracking-wider">
+                <a href="{% url 'tours_home' %}" class="hover:text-orange-500 transition-colors">Tours</a>
+                <a href="#" class="hover:text-orange-500 transition-colors">Nosotros</a>
+                <a href="#" class="hover:text-orange-500 transition-colors text-orange-500">Reservar</a>
+            </div>
 
-                <div class="hidden md:block">
-                    <a href="#contacto" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2.5 rounded-full font-bold shadow-lg shadow-orange-500/30 transition-all transform hover:scale-105 active:scale-95 text-sm uppercase">
-                        Reservar Ahora
-                    </a>
-                </div>
-
+            <div class="md:hidden flex items-center">
+                <button id="mobile-menu-button" class="text-white focus:outline-none p-2">
+                    <i class="fa-solid fa-bars text-2xl"></i>
+                </button>
             </div>
         </div>
-    </nav>
+    </div>
+
+    <div id="mobile-menu" class="hidden md:hidden bg-blue-dark border-t border-white/10 px-4 pt-2 pb-6 space-y-4 shadow-2xl">
+        <a href="{% url 'tours_home' %}" class="block text-lg font-bold hover:text-orange-500 transition-colors py-2 border-b border-white/5">Tours</a>
+        <a href="#" class="block text-lg font-bold hover:text-orange-500 transition-colors py-2 border-b border-white/5">Nosotros</a>
+        <a href="#" class="block text-lg font-bold text-orange-500 py-2">Reservar Ahora</a>
+    </div>
+</nav>
+
+<script>
+    const btn = document.getElementById('mobile-menu-button');
+    const menu = document.getElementById('mobile-menu');
+
+    btn.addEventListener('click', () => {
+        menu.classList.toggle('hidden');
+    });
+</script>

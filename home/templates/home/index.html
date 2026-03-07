@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
+
+
 <section class="bg-white py-20 border-b border-gray-100">
     <div class="container mx-auto px-4 text-center">
         <h1 class="text-5xl font-black text-gray-900 mb-4">Descubre destinos inolvidables</h1>
@@ -38,5 +41,37 @@
         </div>
         {% endfor %}
     </div>
+
+</section>
+
+<section>
+                <i class="fa fa-home absolute"></i>
+
+    <div class="relative w-full h-56">
+        <img src="/media/home/images/lago-Chungara.jpg" 
+            class="absolute inset-0 w-full h-full object-cover">
+                <div class="absolute inset-0 bg-black/30"></div>
+            <div class="absolute top-20 inset-x-0 px-20 flex justify-between text-white">
+
+                <div class="flex flex-col items-center">
+                    <i class="fa fa-star text-2xl text-amber-300"></i>
+                    <h3 class="text-sm">Turismo confiable</h3>
+                </div>
+    
+
+                <div class="flex flex-col items-center">
+                    <i class="fa-solid  fa-plane text-2xl text-amber-300"></i>
+                    <h3 class="text-sm">Turismo confiable</h3>
+                </div>
+                
+                <div class="flex flex-col items-center">
+                    <i class="fa-solid fa-shield-halved text-2xl text-amber-300"></i>
+                    <h3 class="text-sm">Turismo confiable</h3>
+                </div>
+
+
+            </div>
+    </div>  
+
 </section>
 {% endblock %}
