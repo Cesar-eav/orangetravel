@@ -158,7 +158,7 @@ CKEDITOR_UPLOAD_PATH = "uploads/"
 CKEDITOR_CONFIGS = {
     'default': {
         'language': 'es',
-        'toolbar': 'full',
+        'toolbar': 'basic',
         # ... otras configuraciones
     },
 }
