@@ -1,33 +1,24 @@
-<footer class="bg-orange-dark text-gray-400 py-12 border-t border-gray-800 mt-auto">
+{%load static%}
+<footer class="bg-blue-dark text-gray-400 py-12 border-t border-gray-800 mt-auto">
     <div class="container mx-auto px-6">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mx-28">
             
             <div class="col-span-1 md:col-span-1">
-                <a href="{% url 'home' %}" class="inline-block mb-6">
-                    <span class="text-2xl font-black tracking-tighter text-white italic">
-                        ORANGE <span class="text-orange-500">TRAVEL</span>
-                    </span>
-                </a>
-                <p class="text-sm leading-relaxed italic">
-                    Expertos en crear recuerdos inolvidables en los rincones más mágicos del mundo. Tu aventura comienza con un clic.
+                <div>
+                    <img src="{% static 'img/Footer_logo.png' %}">
+                </div>
+                <p class="text-sm leading-relaxed font-bold text-white">
+                    Más de 20 años de experiencia en la región de Arica                
                 </p>
-            </div>
-
-            <div>
-                <h4 class="text-white font-bold uppercase text-xs tracking-[0.2em] mb-6">Explorar</h4>
-                <ul class="space-y-4 text-sm font-medium">
-                    <li><a href="#" class="hover:text-orange-500 transition-colors duration-300">Tours Populares</a></li>
-                    <li><a href="#" class="hover:text-orange-500 transition-colors duration-300">Nuevos Destinos</a></li>
-                    <li><a href="#" class="hover:text-orange-500 transition-colors duration-300">Ofertas Especiales</a></li>
                 </ul>
-            </div>
-
-            <div>
-                <h4 class="text-white font-bold uppercase text-xs tracking-[0.2em] mb-6">Ayuda</h4>
-                <ul class="space-y-4 text-sm font-medium">
-                    <li><a href="#" class="hover:text-orange-500 transition-colors duration-300">Preguntas Frecuentes</a></li>
-                    <li><a href="#" class="hover:text-orange-500 transition-colors duration-300">Políticas de Cancelación</a></li>
-                    <li><a href="#" class="hover:text-orange-500 transition-colors duration-300">Términos y Condiciones</a></li>
+                    <li class="mt-6 flex space-x-4">
+                        <a href="https://www.facebook.com/orangetravelservice" class="w-8 h-8" target="_blank" >
+                            <i class="fa-brands fa-facebook text-white text-3xl" ></i>
+                        </a>
+                        <a href="https://www.instagram.com/orange.travel.arica/" class="w-8 h-8" target="_blank">
+                            <i class="fa-brands fa-square-instagram text-white text-3xl"></i>
+                        </a>
+                    </li>
                 </ul>
             </div>
 
@@ -35,20 +26,59 @@
                 <h4 class="text-white font-bold uppercase text-xs tracking-[0.2em] mb-6">Contacto</h4>
                 <ul class="space-y-4 text-sm font-medium">
                     <li class="flex items-start">
-                        <span class="text-orange-500 mr-3">📍</span>
-                        <span>Valparaíso, Chile</span>
+                        <i class="fa-solid fa-envelope text-white text-xl pr-2"></i>
+                        <span>Agenciaorangetravel@gmail.com</span>
                     </li>
                     <li class="flex items-start">
-                        <span class="text-orange-500 mr-3">✉️</span>
-                        <span>hola@orangetravel.cl</span>
+                        <i class="fa-solid fa-phone text-white text-xl w-6 text-center"></i>
+                        <span>+56 9 8869 3991</span>
                     </li>
-                    <li class="mt-6 flex space-x-4">
-                        <a href="#" class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center hover:bg-orange-500 hover:text-white transition-all">FB</a>
-                        <a href="#" class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center hover:bg-orange-500 hover:text-white transition-all">IG</a>
-                        <a href="#" class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center hover:bg-orange-500 hover:text-white transition-all">YT</a>
+                                        <li class="flex items-start">
+                        <i class="fa-solid fa-phone text-white text-xl w-6 text-center"></i>
+                        <span>+56 9 3658 4003</span>
                     </li>
+
+              <h4 class="text-white font-bold uppercase text-xs tracking-[0.2em] mb-6">TÉRMINOS Y CONDICIONES</h4>
+                <ul class="space-y-2 text-sm font-medium">
+
+            </div>
+
+            <div>
+                <h4 class="text-white font-bold uppercase text-xs tracking-[0.2em] mb-6">Experiencias</h4>
+                <ul class="space-y-2 text-sm font-medium">
+                    <li>
+                        <i class="fa-solid fa-angles-right"></i>
+                        <a href="#" class="hover:text-orange-500 transition-colors duration-300">Tour de Socoroma y termas de Jurasi</a>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-angles-right"></i>
+                        <a href="#" class="hover:text-orange-500 transition-colors duration-300">Valle de Codpa y ruta Pitantami</a>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-angles-right"></i>
+                        <a href="#" class="hover:text-orange-500 transition-colors duration-300">Tacna compras y termas de pachia</a>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-angles-right"></i>
+                        <a href="#" class="hover:text-orange-500 transition-colors duration-300">City TOur Tacna</a>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-angles-right"></i>
+                        <a href="#" class="hover:text-orange-500 transition-colors duration-300">Caleta Camarones</a></li>
+                    <li>
+                        <i class="fa-solid fa-angles-right"></i>
+                        <a href="#" class="hover:text-orange-500 transition-colors duration-300">Tour Entre Valles a Azapa u Lluta</a></li>
+                    <li>
+                        <i class="fa-solid fa-angles-right"></i>
+                        <a href="#" class="hover:text-orange-500 transition-colors duration-300">City Tour Arica y Azapa</a></li>
+                    <li>
+                        <i class="fa-solid fa-angles-right"></i>
+                        <a href="#" class="hover:text-orange-500 transition-colors duration-300">Vacaciones Tercera Edad</a></li>
+
                 </ul>
             </div>
+
+
         </div>
 
         <div class="mt-16 pt-8 border-t border-gray-800 text-center">
