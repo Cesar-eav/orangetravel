@@ -29,6 +29,7 @@ urlpatterns = [
     # APPLICACIONES
     path('', include('home.urls')),
     path('tours/', include('tours.urls')),
+    path('blog/', include('blog.urls')),
 
 ]
 if settings.DEBUG:

@@ -42,10 +42,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'tours',
     'ckeditor',
     'ckeditor_uploader',
-    'home'
+
+    #APP ORANGE TRAVEL
+    'home',
+    'tours',
+    'blog'
 ]
 
 MIDDLEWARE = [
