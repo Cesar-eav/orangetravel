@@ -14,7 +14,7 @@ class GaleriaInline(admin.TabularInline):
 @admin.register(Tour)
 class TourAdmin(admin.ModelAdmin):
     # Lo que se ve en la tabla principal
-    list_display = ('previsualizacion', 'nombre', 'tipo', 'get_precio_adulto', 'activo', 'slug')
+    list_display = ('previsualizacion', 'nombre', 'tipo', 'get_precio_adulto', 'activo', 'slug', 'itinerario')
     list_filter = ('tipo', 'activo')
     search_fields = ('nombre',)
 
@@ -22,7 +22,7 @@ class TourAdmin(admin.ModelAdmin):
 
     # 3. Definimos el orden de los campos en el formulario de edición/creación
     # Usamos 'fields' en lugar de 'fieldsets' para evitar errores de sintaxis
-    fields = ('previsualizacion', 'nombre', 'slug', 'tipo', 'get_precio_adulto', 'activo', 'imagen_principal', 'ver_imagen_grande')
+    fields = ('previsualizacion', 'nombre', 'slug', 'tipo','itinerario','get_precio_adulto', 'activo', 'imagen_principal', 'ver_imagen_grande',)
     
     # Genera el slug automáticamente mientras escribes el nombre
     prepopulated_fields = {'slug': ('nombre',)}
