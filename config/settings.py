@@ -156,16 +156,47 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-CKEDITOR_UPLOAD_PATH = "publicaciones/" # Se guardará dentro de /media/uploads/
 
 CKEDITOR_CONFIGS = {
     'default': {
+        'skin': 'moono-lisa',
+        'toolbar': 'Custom',
+        'height': 600,
+        'width': '100%',
         'language': 'es',
-        'toolbar': 'basic',
-        # ... otras configuraciones
+        # 'image2' es el secreto para que se parezca a WordPress
+        'extraPlugins': ','.join(['image2', 'uploadimage', 'widget', 'lineutils', 'clipboard', 'dialog', 'dialogui']),
+        'removePlugins': 'image', # Quitamos el plugin de imagen viejo
+        
+        # ESTO ES LO NUEVO:
+        'disallowedContent': 'img{width,height}[width,height]', # Prohíbe anchos fijos
+        'extraConfig': {
+            'image2_disableResizer': False, # Evita que el usuario estire la imagen a mano
+        },
+        'toolbar_Custom': [
+            ['Bold', 'Italic', 'Underline', 'Strike'],
+            ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote'],
+            ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'], # Alineación de texto
+            ['Link', 'Unlink'],
+            ['Image', 'Table', 'HorizontalRule', 'SpecialChar'], # El botón de imagen ahora usará 'image2'
+            ['Format', 'FontSize'],
+            ['TextColor', 'BGColor'],
+            ['Maximize', 'Source'],
+        ],
+        # Configuración específica para que las imágenes se porten bien
+        'image2_alignClasses': ['image-left', 'image-center', 'image-right'],
+        'image2_captionedClass': 'image-captioned',
     },
 }
 
+CKEDITOR_UPLOAD_PATH = "publicaciones/" # Se guardará dentro de /media/uploads/
+# 1. Carpeta dentro de 'media' donde se guardarán las fotos del editor
+
+# 2. Motor de procesamiento de imágenes (asegúrate de tener 'Pillow' instalado)
+CKEDITOR_IMAGE_BACKEND = "pillow"
+
+# 3. (Opcional) Restringe que solo usuarios staff puedan subir archivos
+CKEDITOR_RESTRICT_BY_USER = True
 # Asegúrate de que el nombre del archivo sea exactamente dashboard.py en la raíz
 # JET_INDEX_DASHBOARD = 'dashboard.CustomIndexDashboard'
 # JET_APP_INDEX_DASHBOARD = 'dashboard.CustomAppIndexDashboard'
