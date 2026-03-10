@@ -3,10 +3,10 @@
     {% load static %}
     <section class="bg-white py-20 border-b border-gray-100">
         <div class="container mx-auto px-4 text-center">
-            <h1 class="text-5xl font-black text-gray-900 mb-4">Descubre destinos inolvidables</h1>
-            <p class="text-xl text-gray-600 max-w-2xl mx-auto">Explora los mejores tours con la confianza de Orage Travel.</p>
+            <h1 class="text-3xl font-black text-gray-900 mb-4">{{ post.titulo }}</h1>
         </div>
     </section>
-    {{ post.titulo }}
-    {{ post.contenido|safe }}
+    <section class="container px-20">
+        <article class="resena-content">{{ post.contenido|safe }}</article>
+    </section>
 {% endblock %}
