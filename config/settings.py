@@ -164,28 +164,67 @@ CKEDITOR_CONFIGS = {
         'height': 600,
         'width': '100%',
         'language': 'es',
+        'extraAllowedContent': 'img(*); div(*); figure(*); figcaption(*);',
         # 'image2' es el secreto para que se parezca a WordPress
         'extraPlugins': ','.join(['image2', 'uploadimage', 'widget', 'lineutils', 'clipboard', 'dialog', 'dialogui']),
         'removePlugins': 'image', # Quitamos el plugin de imagen viejo
         
-        # ESTO ES LO NUEVO:
+
         'disallowedContent': 'img{width,height}[width,height]', # Prohíbe anchos fijos
         'extraConfig': {
-            'image2_disableResizer': False, # Evita que el usuario estire la imagen a mano
+            'image2_disableResizer': True, # Evita que el usuario estire la imagen a mano
         },
+        'contentsCss': [
+            'https://cdn.tailwindcss.com', # Opcional: para que entienda clases base
+            '/static/css/output.css',      # <--- TU ARCHIVO COMPILADO
+        ],
+        # 2. Le decimos que el "cuerpo" del editor debe tener la clase que creamos
+        # Esto es vital para que las reglas de ".resena-content .img-blog-small" funcionen
+        'bodyClass': 'resena-content',
+        
         'toolbar_Custom': [
+            ['Styles', 'Format', 'FontSize'], # <--- Asegúrate de tener 'Styles'
             ['Bold', 'Italic', 'Underline', 'Strike'],
             ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote'],
             ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'], # Alineación de texto
             ['Link', 'Unlink'],
             ['Image', 'Table', 'HorizontalRule', 'SpecialChar'], # El botón de imagen ahora usará 'image2'
-            ['Format', 'FontSize'],
             ['TextColor', 'BGColor'],
             ['Maximize', 'Source'],
         ],
         # Configuración específica para que las imágenes se porten bien
         'image2_alignClasses': ['image-left', 'image-center', 'image-right'],
         'image2_captionedClass': 'image-captioned',
+
+    # 2. Definimos qué hace cada estilo
+'stylesSet': [
+            # PRUEBA DE TEXTO: Selecciona una palabra y mira si aparece esto
+            {
+                'name': 'Texto Alerta Naranja',
+                'element': 'span',
+                'attributes': { 'class': 'text-orange-500 font-bold' }
+            },
+            # ESTILOS DE IMAGEN (Optimizados para Image2)
+            {
+                'name': 'Imagen Pequeña (25%)',
+                'element': 'img',
+                'attributes': { 'class': 'img-blog-small' },
+                'type': 'widget', 'widget': 'image' # <--- Esto le dice que es un widget de imagen
+            },
+            {
+                'name': 'Imagen Mediana (50%)',
+                'element': 'img',
+                'attributes': { 'class': 'img-blog-medium' },
+                'type': 'widget', 'widget': 'image'
+            },
+            {
+                'name': 'Imagen Full (100%)',
+                'element': 'img',
+                'attributes': { 'class': 'img-blog-full' },
+                'type': 'widget', 'widget': 'image'
+            },
+        ],
+
     },
 }
 
