@@ -9,3 +9,11 @@ def blog_home(request):
     return render(request, 'blog/blog_home.html',{
         'posts': posts
     })
+
+def post(request, slug):
+
+    post = Post.objects.get(slug = slug)
+
+    return render(request, 'blog/post.html',{
+        'post': post
+    })
