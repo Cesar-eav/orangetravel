@@ -72,14 +72,14 @@
     <section class="bg-gray-50 py-16">
         <div class="container mx-auto px-6">
             <h2 class="text-3xl font-bold text-gray-800 mb-10 text-center">Últimas Reseñas</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="flex justify-center flex-wrap">
                 {% for post in posts %}
-                    <div class="relative h-96 w-full overflow-hidden rounded-2xl shadow-lg group">
+                    <div class="relative h-96 w-90 overflow-hidden mx-5 rounded-2xl shadow-lg group">
                         <img src="{{ post.imagen_portada.url }}"
                              class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                              alt="{{ post.titulo }}">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/90 to-transparent"></div>
-                        <div class="absolute inset-0 p-6 flex flex-col justify-start text-white">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-black/90 to-black/50"></div>
+                        <div class="absolute inset-0 p-6 flex flex-col justify-start text-white text-shadow-2xs text-shadow-taupe-900">
                             <h3 class="text-xl font-bold mb-10 leading-tight ">{{ post.titulo }}</h3>
                             <p class="text-sm opacity-90 ">{{ post.extracto }}</p>
                             <div class="mt-4">
