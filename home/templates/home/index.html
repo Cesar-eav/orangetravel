@@ -19,7 +19,7 @@
                         <h3 class="text-2xl font-bold mb-1">{{ tour.nombre }}</h3>
                         <div class="flex justify-between items-center">
                             <span class="text-2xl font-black">${{ tour.precio.valor_adulto }}</span>
-                            <a href="#"
+                            <a href="{% url 'tour' tour.slug %}"
                                class="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-lg font-bold transition">
                                 VER TOUR
                             </a>
@@ -71,10 +71,10 @@
     </section>
     <section class="bg-gray-50 py-16">
         <div class="container mx-auto px-6">
-            <h2 class="text-3xl font-bold text-gray-800 mb-10 text-center">Últimas Reseñas</h2>
+            <h2 class="text-3xl font-bold text-gray-800 mb-10 text-center">Nuestras últimas publicaciones</h2>
             <div class="flex justify-center flex-wrap">
                 {% for post in posts %}
-                    <div class="relative h-96 w-90 overflow-hidden mx-5 rounded-2xl shadow-lg group">
+                    <div class="relative h-96 w-96 overflow-hidden mx-5 rounded-2xl shadow-lg group">
                         <img src="{{ post.imagen_portada.url }}"
                              class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                              alt="{{ post.titulo }}">
@@ -92,5 +92,8 @@
                 {% endfor %}
             </div>
         </div>
+    </section>
+    {% comment %} RESEÑAS DE GOOGLE {% endcomment %}
+    <section>
     </section>
 {% endblock %}
