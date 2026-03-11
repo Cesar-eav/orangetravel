@@ -239,3 +239,5 @@ CKEDITOR_RESTRICT_BY_USER = True
 # Asegúrate de que el nombre del archivo sea exactamente dashboard.py en la raíz
 # JET_INDEX_DASHBOARD = 'dashboard.CustomIndexDashboard'
 # JET_APP_INDEX_DASHBOARD = 'dashboard.CustomAppIndexDashboard'
+
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'

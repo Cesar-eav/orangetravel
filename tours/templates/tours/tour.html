@@ -1,67 +1,61 @@
 {% extends 'base.html' %}
-
 {% block content %}
-
-<section class="relative w-full h-100 overflow-hidden group shadow-lg">
-            
-            <img src="{{ tour.imagen_principal.url }}" 
-                class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-
-            <div class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors"></div>
-
-            <div class="absolute inset-0 p-6 flex flex-col text-white uppercase justify-center align-middle">
-                <h3 class="text-3xl font-bold mb-1 text-center">{{ tour.nombre }}</h3>
-                <div class=" text-center mt-5">
-                    <a  href="{% url 'tour' tour.slug %}" class="bg-orange-500  hover:bg-orange-600 px-4 py-2  font-bold transition">
-                        RESERVAR                    
-                    </a>
-                <div>
+    <section class="relative w-full h-100 overflow-hidden group shadow-lg">
+        <img src="{{ tour.imagen_principal.url }}"
+             class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+        <div class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors"></div>
+        <div class="absolute inset-0 p-6 flex flex-col text-white uppercase justify-center align-middle">
+            <h3 class="text-3xl font-bold mb-1 text-center">{{ tour.nombre }}</h3>
+            <div class=" text-center mt-5">
+                <a href="{% url 'tour' tour.slug %}"
+                   class="bg-orange-500  hover:bg-orange-600 px-4 py-2  font-bold transition">RESERVAR</a>
+                <div></div>
+                <div class="flex absolute justify-between items-center"></div>
             </div>
-                
-                <div class="flex absolute justify-between items-center">
-
+        </section>
+        <section class="container mx-auto px-4 md:px-50 pt-20 pb-10 border-b border-gray-100">
+            <h1 class="font-marcellus text-5xl text-gray-900 mb-12 text-center">Bitácora</h1>
+            <div class="prose prose-slate max-w-none prose-headings:font-marcellus prose-p:text-lg prose-p:leading-relaxed prose-p:my-6 prose-strong:text-orange-600">
+                {{ tour.itinerario|safe }}
+            </div>
+        </section>
+        {% if tour.youtube_embed_url %}
+            <section class="container mx-auto px-4 py-8 text-center">
+                <h2 class="text-3xl font-bold mb-6 text-gray-800">Video del Tour</h2>
+                <div class="max-w-4xl mx-auto overflow-hidden rounded-2xl shadow-2xl">
+                    <iframe class="w-full aspect-video"
+                            src="{{ tour.youtube_embed_url }}"
+                            referrerpolicy="strict-origin-when-cross-origin"
+                            frameborder="0"
+                            allowfullscreen>
+                    </iframe>
                 </div>
-    </div>
-
-</section>
-<section class="container mx-auto px-4 md:px-50 pt-20 pb-10 border-b border-gray-100">
-
-        <h1 class="font-marcellus text-5xl text-gray-900 mb-12 text-center">Bitácora</h1>
-
-        <div class="prose prose-slate max-w-none 
-                prose-headings:font-marcellus 
-                prose-p:text-lg prose-p:leading-relaxed prose-p:my-6
-                prose-strong:text-orange-600">
-            {{ tour.itinerario|safe }}
-        </div>
-    
-</section>
-
-
-
-<hr class="mx-5 py-5">
-<section class="container mx-auto px-4 py-8 text-center">
-    <h2 class="text-3xl font-bold mb-6 text-gray-800">Galería de Fotos</h2>
-
-<div class="flex flex-wrap justify-center gap-3">
-
-    {%for foto in fotos%}
-    <a href="{{ foto.imagen.url }}" class="glightbox" data-gallery="gallery1">
-        <img src="{{foto.imagen.url}}" class="h-56 w-46 rounded-2xl hover:scale-110 transition-transform duration-300"  />
-        </a>
-    {%endfor%}
-
-    </div>
-</section>
-
-
-
-<script type="text/javascript">
-    const lightbox = GLightbox({
-        touchNavigation: true, // Permite deslizar en móviles
-        loop: true,           // Vuelve a la primera foto después de la última
-        autoplayVideos: true,  // Si tienes videos, los reproduce solos
-        zoomable: true         // ¡ACTIVA EL ZOOM!
-    });
-</script>
-{% endblock %}
+            </section>
+        {% else %}
+            <section class="container mx-auto px-4 py-8 text-center opacity-50">
+                <p class="italic text-gray-500">Estamos preparando un video increíble de este tour para ti.</p>
+            </section>
+        {% endif %}
+        <hr class="mx-5 py-5">
+        <section class="container mx-auto px-4 py-8 text-center">
+            <h2 class="text-3xl font-bold mb-6 text-gray-800">Galería de Fotos</h2>
+            <div class="flex flex-wrap justify-center gap-3">
+                {% for foto in fotos %}
+                    <a href="{{ foto.imagen.url }}"
+                       class="glightbox"
+                       data-gallery="gallery1">
+                        <img src="{{ foto.imagen.url }}"
+                             class="h-56 w-46 rounded-2xl hover:scale-110 transition-transform duration-300" />
+                    </a>
+                {% endfor %}
+            </div>
+        </section>
+        <script type="text/javascript">
+            const lightbox = GLightbox({
+                touchNavigation: true, // Permite deslizar en móviles
+                loop: true, // Vuelve a la primera foto después de la última
+                autoplayVideos: true, // Si tienes videos, los reproduce solos
+                zoomable: true // ¡ACTIVA EL ZOOM!
+            });
+        </script>
+    {% endblock %}

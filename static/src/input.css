@@ -112,4 +112,14 @@
         .resena-content h2 { @apply text-2xl pt-8; }
         .resena-content p { @apply text-left; } /* Mejor legibilidad en móviles */
     }
+
+    /* Contenedor del video */
+    .video-container {
+        @apply relative pb-[56.25%] h-0 overflow-hidden max-w-4xl mx-auto rounded-2xl shadow-2xl;
+    }
+
+    /* El iframe se estira para llenar el contenedor */
+    .video-container iframe {
+        @apply absolute top-0 left-0 w-full h-full border-0;
+    }
 }

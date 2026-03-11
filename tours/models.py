@@ -1,6 +1,6 @@
 from django.db import models
 from ckeditor_uploader.fields import RichTextUploadingField
-
+import re
 class TipoTour(models.Model):
     nombre = models.CharField(max_length=100, unique=True, verbose_name="Nombre del Tipo")
     descripcion = models.TextField(blank=True, verbose_name="Descripción del tipo (opcional)")
@@ -23,6 +23,16 @@ class Tour(models.Model):
     itinerario = RichTextUploadingField(verbose_name="Itinerario Detallado")
     incluye = models.TextField()
     video_youtube = models.URLField(blank=True, null=True)
+    @property
+    def youtube_embed_url(self):
+        if not self.video_youtube:
+            return None
+        # Esta lógica extrae el ID de casi cualquier formato de link de YouTube
+        regex = r'(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})'
+        match = re.search(regex, self.video_youtube)
+        if match:
+            return f"https://www.youtube.com/embed/{match.group(1)}"
+        return None
     
     imagen_principal = models.ImageField(upload_to='tours/principales/')
     activo = models.BooleanField(default=True)

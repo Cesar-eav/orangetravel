@@ -14,7 +14,7 @@ class GaleriaInline(admin.TabularInline):
 @admin.register(Tour)
 class TourAdmin(admin.ModelAdmin):
     # Lo que se ve en la tabla principal
-    list_display = ('previsualizacion', 'nombre', 'tipo', 'get_precio_adulto', 'activo', 'slug', 'itinerario','destacado', 'video_youtube')
+    list_display = ('nombre', 'tipo', 'get_precio_adulto', 'activo', 'destacado', 'video_youtube')
     list_filter = ('tipo', 'activo')
     search_fields = ('nombre',)
 
