@@ -1,48 +1,45 @@
-{%load static%}
-<footer class="bg-blue-dark text-gray-400 py-12 border-t border-gray-800 mt-auto">
-    <div class="container mx-auto px-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mx-28">
-            
+{% load static %}
+<footer class="bg-blue-dark text-gray-400  border-t border-gray-800 mt-auto">
+    <div class="container mx-auto md:px-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 md:gap-12 gap-6 m-10 md:mx-28">
             <div class="col-span-1 md:col-span-1">
-                <div>
+                <div class="md:justify-items-left justify-items-center">
                     <img src="{% static 'img/Footer_logo.png' %}">
                 </div>
-                <p class="text-sm leading-relaxed font-bold text-white">
-                    Más de 20 años de experiencia en la región de Arica                
-                </p>
-                </ul>
-                    <li class="mt-6 flex space-x-4">
-                        <a href="https://www.facebook.com/orangetravelservice" class="w-8 h-8" target="_blank" >
-                            <i class="fa-brands fa-facebook text-white text-3xl" ></i>
-                        </a>
-                        <a href="https://www.instagram.com/orange.travel.arica/" class="w-8 h-8" target="_blank">
-                            <i class="fa-brands fa-square-instagram text-white text-3xl"></i>
-                        </a>
-                    </li>
-                </ul>
+                <p class="text-sm leading-relaxed font-bold text-white">Más de 20 años de experiencia en la región de Arica</p>
+            </ul>
+            <li class="mt-6 flex space-x-4">
+                <a href="https://www.facebook.com/orangetravelservice"
+                   class="w-8 h-8"
+                   target="_blank">
+                    <i class="fa-brands fa-facebook text-white text-3xl"></i>
+                </a>
+                <a href="https://www.instagram.com/orange.travel.arica/"
+                   class="w-8 h-8"
+                   target="_blank">
+                    <i class="fa-brands fa-square-instagram text-white text-3xl"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div>
+        <h4 class="text-white font-bold uppercase text-xs tracking-[0.2em] mb-6">Contacto</h4>
+        <ul class="space-y-4 text-sm font-medium">
+            <li class="flex items-start">
+                <i class="fa-solid fa-envelope text-white text-xl pr-2"></i>
+                <span>Agenciaorangetravel@gmail.com</span>
+            </li>
+            <li class="flex items-start">
+                <i class="fa-solid fa-phone text-white text-xl w-6 text-center"></i>
+                <span>+56 9 8869 3991</span>
+            </li>
+            <li class="flex items-start">
+                <i class="fa-solid fa-phone text-white text-xl w-6 text-center"></i>
+                <span>+56 9 3658 4003</span>
+            </li>
+            <h4 class="text-white font-bold uppercase text-xs tracking-[0.2em] mb-6">TÉRMINOS Y CONDICIONES</h4>
+            <ul class="space-y-2 text-sm font-medium">
             </div>
-
-            <div>
-                <h4 class="text-white font-bold uppercase text-xs tracking-[0.2em] mb-6">Contacto</h4>
-                <ul class="space-y-4 text-sm font-medium">
-                    <li class="flex items-start">
-                        <i class="fa-solid fa-envelope text-white text-xl pr-2"></i>
-                        <span>Agenciaorangetravel@gmail.com</span>
-                    </li>
-                    <li class="flex items-start">
-                        <i class="fa-solid fa-phone text-white text-xl w-6 text-center"></i>
-                        <span>+56 9 8869 3991</span>
-                    </li>
-                                        <li class="flex items-start">
-                        <i class="fa-solid fa-phone text-white text-xl w-6 text-center"></i>
-                        <span>+56 9 3658 4003</span>
-                    </li>
-
-              <h4 class="text-white font-bold uppercase text-xs tracking-[0.2em] mb-6">TÉRMINOS Y CONDICIONES</h4>
-                <ul class="space-y-2 text-sm font-medium">
-
-            </div>
-
             <div>
                 <h4 class="text-white font-bold uppercase text-xs tracking-[0.2em] mb-6">Experiencias</h4>
                 <ul class="space-y-2 text-sm font-medium">
@@ -64,24 +61,24 @@
                     </li>
                     <li>
                         <i class="fa-solid fa-angles-right"></i>
-                        <a href="#" class="hover:text-orange-500 transition-colors duration-300">Caleta Camarones</a></li>
+                        <a href="#" class="hover:text-orange-500 transition-colors duration-300">Caleta Camarones</a>
+                    </li>
                     <li>
                         <i class="fa-solid fa-angles-right"></i>
-                        <a href="#" class="hover:text-orange-500 transition-colors duration-300">Tour Entre Valles a Azapa u Lluta</a></li>
+                        <a href="#" class="hover:text-orange-500 transition-colors duration-300">Tour Entre Valles a Azapa u Lluta</a>
+                    </li>
                     <li>
                         <i class="fa-solid fa-angles-right"></i>
-                        <a href="#" class="hover:text-orange-500 transition-colors duration-300">City Tour Arica y Azapa</a></li>
+                        <a href="#" class="hover:text-orange-500 transition-colors duration-300">City Tour Arica y Azapa</a>
+                    </li>
                     <li>
                         <i class="fa-solid fa-angles-right"></i>
-                        <a href="#" class="hover:text-orange-500 transition-colors duration-300">Vacaciones Tercera Edad</a></li>
-
+                        <a href="#" class="hover:text-orange-500 transition-colors duration-300">Vacaciones Tercera Edad</a>
+                    </li>
                 </ul>
             </div>
-
-
         </div>
-
-        <div class="mt-16 pt-8 border-t border-gray-800 text-center">
+        <div class="md:mt-16 mt-5 pt-8 pb-5 border-t border-gray-800 text-center">
             <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
                 &copy; 2026 Orange Travel - Diseñado con ❤️ para viajeros audaces
             </p>

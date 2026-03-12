@@ -39,17 +39,17 @@
             <img src="{% static 'img/lago-Chungara.jpg' %}"
                  class="absolute inset-0 w-full h-full object-cover">
             <div class="absolute inset-0 bg-black/30"></div>
-            <div class="absolute top-20 inset-x-0 px-20 flex justify-between text-white">
-                <div class="flex flex-col items-center">
-                    <i class="fa fa-star text-2xl text-amber-300"></i>
+            <div class="absolute top-20 inset-x-0 md:px-40 px-20 flex justify-between text-white text-center">
+                <div class="flex flex-col items-center ">
+                    <i class="fa fa-star text-2xl text-amber-300 pb-2"></i>
                     <h3 class="text-sm">Turismo confiable</h3>
                 </div>
                 <div class="flex flex-col items-center">
-                    <i class="fa-solid  fa-plane text-2xl text-amber-300"></i>
+                    <i class="fa-solid  fa-plane text-2xl text-amber-300 pb-2"></i>
                     <h3 class="text-sm">Turismo confiable</h3>
                 </div>
-                <div class="flex flex-col items-center">
-                    <i class="fa-solid fa-shield-halved text-2xl text-amber-300"></i>
+                <div class="flex flex-col items-center ">
+                    <i class="fa-solid fa-shield-halved text-2xl text-amber-300 pb-2"></i>
                     <h3 class="text-sm">Turismo confiable</h3>
                 </div>
             </div>
@@ -57,9 +57,9 @@
     </section>
     <section class="bg-blue-dark py-16 ">
         <div class="container mx-auto px-6 flex flex-col md:flex-row items-center text-justify gap-5">
-            <div class="md:w-1/2">
+            <div class="md:w-2/3">
                 <h2 class="font-marcellus text-white text-3xl pb-4 text-center md:text-left">¿Por qué elegirnos?</h2>
-                <p class="text-sm text-white leading-relaxed opacity-90 pr-5">
+                <p class="text-sm text-white leading-relaxed opacity-90 md:pr-5">
                     Somos un tour operador local que provee actividades turísticas en la región de Arica y Parinacota. Nuestro objetivo es potenciar el turismo en la ciudad ofreciendo alternativas, acorde a las necesidades e intereses de cada visitante. Contamos con un equipo profesional y con vocación de servicio, hacemos todos los esfuerzos para capacitar a nuestros guías, conductores y operadores para que amen su profesión y se sientan motivados a entregar una experiencia que aporte valor a nuestros pasajeros.
                 </p>
             </div>
@@ -74,7 +74,7 @@
             <h2 class="text-3xl font-bold text-gray-800 mb-10 text-center">Nuestras últimas publicaciones</h2>
             <div class="flex justify-center flex-wrap">
                 {% for post in posts %}
-                    <div class="relative h-96 w-96 overflow-hidden mx-5 rounded-2xl shadow-lg group">
+                    <div class="relative h-96 w-96 overflow-hidden m-3  rounded-2xl shadow-lg group">
                         <img src="{{ post.imagen_portada.url }}"
                              class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                              alt="{{ post.titulo }}">
