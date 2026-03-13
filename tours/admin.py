@@ -1,6 +1,48 @@
 from django.contrib import admin
-from .models import TipoTour, Tour, GaleriaTour, PrecioTour
+from .models import TipoTour, Tour, GaleriaTour, PrecioTour, Reserva
 from django.utils.html import format_html 
+
+
+@admin.register(Reserva)
+class ReservaAdmin(admin.ModelAdmin):
+    # Columnas que se verán en el listado
+    list_display = ('nombre_cliente', 'tour', 'fecha', 'columna_estado', 'columna_activa')
+    list_filter = ('estado', 'fecha', 'tour')
+    search_fields = ('nombre_cliente', 'email_cliente')
+    
+    def columna_estado(self, obj):
+        """
+        Muestra la situación actual con colores para facilitar la lectura rápida.
+        """
+        situacion = obj.situacion
+        color = "black"
+        
+        if situacion == "Realizada":
+            color = "#28a745" # Verde
+        elif situacion == "Pendiente de Confirmación":
+            color = "#fd7e14" # Naranja (Orange Travel)
+        elif situacion == "Eliminada" or situacion == "Cancelada":
+            color = "#dc3545" # Rojo
+            
+        return format_html(
+            '<span style="color: {}; font-weight: bold;">{}</span>',
+            color,
+            situacion
+        )
+    columna_estado.short_description = 'Estado Actual'
+
+    def columna_activa(self, obj):
+        """
+        Muestra un icono visual (check o cruz) si la reserva es futura y válida.
+        """
+        return obj.es_activa
+    columna_activa.boolean = True
+    columna_activa.short_description = '¿Está Vigente?'
+
+    # Para poder ver también los borrados lógicos si fuera necesario
+    def get_queryset(self, request):
+        return Reserva.all_objects.all()
+
 
 class PrecioInline(admin.StackedInline):
     model = PrecioTour

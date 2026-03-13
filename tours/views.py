@@ -1,6 +1,10 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from .models import Tour
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import ensure_csrf_cookie
+from .models import Tour, Reserva
+import json
 
 # Create your views here.
 
@@ -39,3 +43,34 @@ def tour(request, slug):
     
     except Tour.DoesNotExist:
         return redirect('home')
+
+@require_POST
+def crear_reserva(request):
+    try:
+        data = json.loads(request.body)
+        
+        # 1. Buscamos el tour (puedes pasarlo desde Vue)
+        tour = Tour.objects.get(id=data.get('tour_id'))
+        
+        # 2. Creamos la instancia de Reserva
+        reserva = Reserva.objects.create(
+            tour=tour,
+            nombre_cliente=data.get('nombre'),
+            email_cliente=data.get('email'),
+            telefono_cliente=data.get('telefono'),
+            fecha=data.get('fecha'),
+            adultos=data.get('adultos', 1),
+            ninos=data.get('ninos', 0),
+            notas_internas="Solicitud desde la web."
+        )
+        
+        # Aquí podrías agregar: send_mail(...) para avisar a Orange Travel
+        
+        return JsonResponse({
+            'status': 'success',
+            'mensaje': 'Solicitud recibida correctamente',
+            'reserva_id': reserva.id
+        })
+        
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'mensaje': str(e)}, status=400)
