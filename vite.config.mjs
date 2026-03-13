@@ -9,8 +9,8 @@ export default defineConfig({
     tailwindcss(), // Plugin oficial para Tailwind 4
   ],
   // Definimos la raíz de fuentes para Vite
-  root: path.resolve(__dirname, 'static/src'), 
-  base: '/static/',
+  root: path.resolve(__dirname), 
+  base: '/',
   build: {
     // Dónde se guardará el código compilado para producción
     outDir: path.resolve(__dirname, 'static/js/dist'),
@@ -27,5 +27,8 @@ export default defineConfig({
     port: 5173,
     origin: 'http://localhost:5173',
     cors: true,
+    watch: {
+      usePolling: true,
+    }
   }
 });

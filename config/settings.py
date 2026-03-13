@@ -79,6 +79,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.debug',
                 # 'django.contrib.messages.context_processors.context_processors.messages'
             ],
         },
@@ -241,3 +242,7 @@ CKEDITOR_RESTRICT_BY_USER = True
 # JET_APP_INDEX_DASHBOARD = 'dashboard.CustomAppIndexDashboard'
 
 SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]

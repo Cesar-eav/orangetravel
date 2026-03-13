@@ -4,6 +4,7 @@
   "description": "",
   "main": "tailwind.config.js",
   "scripts": {
+    "type": "module",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"

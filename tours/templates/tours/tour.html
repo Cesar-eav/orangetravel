@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
     <section class="relative w-full h-100 overflow-hidden group shadow-lg">
         <img src="{{ tour.imagen_principal.url }}"
@@ -13,6 +14,7 @@
                 <div class="flex absolute justify-between items-center"></div>
             </div>
         </section>
+        <div id="reservation-widget">VUE JS</div>
         <section class="container mx-auto px-4 md:px-50 pt-20 pb-10 border-b border-gray-100">
             <h1 class="font-marcellus text-5xl text-gray-900 mb-12 text-center">Bitácora</h1>
             <div class="prose prose-slate max-w-none prose-headings:font-marcellus prose-p:text-lg prose-p:leading-relaxed prose-p:my-6 prose-strong:text-orange-600">
@@ -58,4 +60,12 @@
                 zoomable: true // ¡ACTIVA EL ZOOM!
             });
         </script>
+        {% if debug %}
+            {# MODO DESARROLLO: Conectamos con el servidor de Vite #}
+            <script type="module" src="http://localhost:5173/static/src/main.js"></script>
+        {% else %}
+            {# MODO PRODUCCIÓN: Archivo compilado por npm run build #}
+            {# Nota: Después de tu primer 'build', verifica el nombre exacto en static/js/dist #}
+            <script type="module" src="{% static 'js/dist/main.js' %}"></script>
+        {% endif %}
     {% endblock %}
