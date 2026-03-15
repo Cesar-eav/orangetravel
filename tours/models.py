@@ -129,7 +129,9 @@ class Reserva(models.Model):
 
     def save(self, *args, **kwargs):
         """Calcula el total basado en precios fijos de Arica antes de guardar."""
-        self.precio_total = (self.adultos * 18000) + (self.ninos * 15000)
+# Asumiendo que en tu modelo Tour tienes campos llamados 'precio_adulto' y 'precio_nino'
+        total = (self.adultos * self.tour.valor_adulto) + (self.ninos * self.tour.valor_nino)
+        self.precio_total = total
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):

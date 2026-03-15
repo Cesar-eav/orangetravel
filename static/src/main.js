@@ -8,5 +8,11 @@ const app = createApp(BookingApp);
 const root = document.getElementById('reservation-widget');
 
 if (root) {
+    const app = createApp(BookingApp, {
+        precioAdulto: parseInt(root.dataset.precioAdulto),
+        precioNino: parseInt(root.dataset.precioNino),
+        tourId: parseInt(root.dataset.tourId)
+    });
+    app.component('booking-app', BookingApp); // REGISTRO GLOBAL
     app.mount('#reservation-widget');
 }

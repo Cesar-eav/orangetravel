@@ -24,7 +24,7 @@ def tour(request, slug):
         # 2. Traemos datos de tablas relacionadas (Reverse Relationships)
         # Aunque no los veas en el modelo Tour, existen por la ForeignKey en las otras tablas
         galeria_fotos = tour.imagenes.all() # Relación inversa por defecto
-        precios = tour.precio        # Relación inversa por defecto
+        precios = tour.precio               # Relación inversa por defecto
         
 
         # 3. El Tipo de Tour es una relación directa (ForeignKey en Tour)
@@ -33,7 +33,7 @@ def tour(request, slug):
         context = {
                 'tour': tour,
                 'fotos': galeria_fotos,
-                'lista_precios': precios,
+                'precios': precios,
                 'categoria': tipo_de_tour,
                 # Enviamos una bandera para saber que estamos en modo aprendizaje
                 'debug_mode': True 
