@@ -9,12 +9,9 @@
     </div>
 
 <div v-if="isModalOpen" 
-class="fixed inset-0 z-50 flex items-center justify-center 
-            bg-black/40 
-            backdrop-blur-md 
-            p-4">
+class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 md:p-10">
     
-    <div class="p-8 bg-white rounded-3xl shadow-2xl border border-orange-100 max-w-md w-full relative">
+    <div class="relative w-full max-w-md p-8 bg-white rounded-3xl shadow-2xl border border-orange-100 ">
         
         <button 
             @click="isModalOpen = false" 

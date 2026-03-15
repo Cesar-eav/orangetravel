@@ -7,18 +7,18 @@
         <div class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors"></div>
         
         <div class="absolute inset-0 p-6 flex flex-col text-white uppercase justify-center items-center">
-            <h3 class="text-3xl font-bold mb-1 text-center">{{ tour.nombre }} {{precios.valor_adulto}} </h3>
+            <h3 class="text-3xl font-bold mb-1 text-center">{{ tour.nombre }} </h3>
 
-        <div id="reservation-widget"
+        <div id="reservation-widget" class="t-20"
                     data-precio-adulto="{{ precios.valor_adulto|floatformat:"0" }}"
                     data-precio-nino="{{ precios.valor_nino|floatformat:"0"  }}"
                     data-tour-id="{{ tour.id }}">
                 <booking-app>
 
-                    <template v-slot:trigger>
+                    <template v-slot:trigger >
                         <div class="text-center mt-5">
                             <button type="button"
-                                class="bg-orange-500 hover:bg-orange-600 px-6 py-3 text-white font-bold transition rounded shadow-lg uppercase relative z-20">
+                                class="bg-orange-500 -z-10 hover:bg-orange-600 px-6 py-3 text-white font-bold transition rounded shadow-lg uppercase relative">
                                 RESERVAR AHORA
                             </button>
                         </div>
