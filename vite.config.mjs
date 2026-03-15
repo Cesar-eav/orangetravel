@@ -8,6 +8,12 @@ export default defineConfig({
     vue(),
     tailwindcss(), // Plugin oficial para Tailwind 4
   ],
+  resolve: {
+    alias: {
+      // ESTO ES LO QUE FALTA:
+      'vue': 'vue/dist/vue.esm-bundler.js'
+    }
+  },
   // Definimos la raíz de fuentes para Vite
   root: path.resolve(__dirname), 
   base: '/',

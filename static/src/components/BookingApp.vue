@@ -96,7 +96,16 @@
 
 <script>
 export default {
-  props: ['precioAdulto', 'precioNino', 'tourId'],
+props: ['precioAdulto', 'precioNino', 'tourId'],
+
+mounted(){
+console.log("--- DEBUG PROPS ORANGE TRAVEL ---");
+    console.log("Precio Adulto:", this.precioAdulto, "| Tipo:", typeof this.precioAdulto);
+    console.log("Precio Niño:", this.precioNino, "| Tipo:", typeof this.precioNino);
+    console.log("Tour ID:", this.tourId, "| Tipo:", typeof this.tourId);
+    console.log("---------------------------------");
+    console.log("Valor crudo:", this.precioAdulto);
+},
   data() {
     return {
       isModalOpen: false,

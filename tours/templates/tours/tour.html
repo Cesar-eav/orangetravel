@@ -7,13 +7,13 @@
         <div class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors"></div>
         
         <div class="absolute inset-0 p-6 flex flex-col text-white uppercase justify-center items-center">
-            <h3 class="text-3xl font-bold mb-1 text-center">{{ tour.nombre }}</h3>
+            <h3 class="text-3xl font-bold mb-1 text-center">{{ tour.nombre }} {{precios.valor_adulto}} </h3>
 
-        <div id="reservation-widget">
-                <booking-app
-                    :precio-adulto="{{ precios.valor_adulto|default:0 }}" 
-                    :precio-nino="{{ precios.valor_nino|default:0 }}"
-                    :tour-id="{{ tour.id }}">
+        <div id="reservation-widget"
+                    data-precio-adulto="{{ precios.valor_adulto|floatformat:"0" }}"
+                    data-precio-nino="{{ precios.valor_nino|floatformat:"0"  }}"
+                    data-tour-id="{{ tour.id }}">
+                <booking-app>
 
                     <template v-slot:trigger>
                         <div class="text-center mt-5">
