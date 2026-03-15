@@ -8,7 +8,11 @@
       </button>
     </div>
 
-<div v-if="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+<div v-if="isModalOpen" 
+class="fixed inset-0 z-50 flex items-center justify-center 
+            bg-black/40 
+            backdrop-blur-md 
+            p-4">
     
     <div class="p-8 bg-white rounded-3xl shadow-2xl border border-orange-100 max-w-md w-full relative">
         
@@ -98,13 +102,16 @@
 export default {
 props: ['precioAdulto', 'precioNino', 'tourId'],
 
-mounted(){
-console.log("--- DEBUG PROPS ORANGE TRAVEL ---");
-    console.log("Precio Adulto:", this.precioAdulto, "| Tipo:", typeof this.precioAdulto);
-    console.log("Precio Niño:", this.precioNino, "| Tipo:", typeof this.precioNino);
-    console.log("Tour ID:", this.tourId, "| Tipo:", typeof this.tourId);
-    console.log("---------------------------------");
-    console.log("Valor crudo:", this.precioAdulto);
+watch: {
+  isModalOpen(abierto) {
+    if (abierto) {
+      // Aplicamos la clase de Tailwind al body
+      document.body.classList.add('overflow-hidden');
+    } else {
+      // La quitamos al cerrar
+      document.body.classList.remove('overflow-hidden');
+    }
+  }
 },
   data() {
     return {
