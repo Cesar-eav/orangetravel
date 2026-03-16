@@ -7,6 +7,9 @@ from .models import Tour, Reserva
 import json
 from django.core.mail import send_mail
 from django.conf import settings
+from django.core.mail import EmailMultiAlternatives # Importante para enviar HTML
+from django.template.loader import render_to_string # Si prefieres usar archivos .html
+from django.utils.html import strip_tags # Par
 
 # Create your views here.
 
@@ -87,45 +90,71 @@ def crear_reserva(request):
 
 
 def enviar_notificaciones_reserva(reserva):
-    """ Función auxiliar para enviar correos a cliente y admin """
+    # --- 1. CONFIGURACIÓN PARA EL CLIENTE ---
+    asunto_cliente = f"🍊 Solicitud Recibida: {reserva.tour.nombre}"
     
-    # Email para el Cliente
-    asunto_cliente = f"🍊 Solicitud de Reserva: {reserva.tour.nombre}"
-    mensaje_cliente = (
-        f"Hola {reserva.nombre_cliente},\n\n"
-        f"Hemos recibido tu solicitud para el tour {reserva.tour.nombre} el día {reserva.fecha}.\n"
-        f"Detalles:\n- Adultos: {reserva.adultos}\n- Niños: {reserva.ninos}\n- Total estimado: ${reserva.precio_total}\n\n"
-        f"Estado actual: PENDIENTE DE CONFIRMACIÓN. Nos contactaremos contigo vía WhatsApp o Email pronto."
-    )
-    
-    # Email para el Administrador (Orange Travel)
+    html_cliente = f"""
+    <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
+        <div style="background-color: #FF8C00; padding: 20px; text-align: center;">
+            <h1 style="color: white; margin: 0;">Orange Travel</h1>
+        </div>
+        <div style="padding: 20px; color: #333;">
+            <h2>¡Hola {reserva.nombre_cliente}!</h2>
+            <p>Hemos recibido tu solicitud de reserva. Nuestro equipo la revisará y te contactará a la brevedad para confirmar la disponibilidad.</p>
+            
+            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <p><strong>Tour:</strong> {reserva.tour.nombre}</p>
+                <p><strong>Fecha:</strong> {reserva.fecha}</p>
+                <p><strong>Pasajeros:</strong> {reserva.adultos} Adultos / {reserva.ninos} Niños</p>
+                <p style="font-size: 18px; color: #FF8C00;"><strong>Total estimado: ${reserva.precio_total}</strong></p>
+            </div>
+            
+            <p style="font-style: italic; color: #666;">* Estado actual: <strong>Pendiente de Confirmación</strong>.</p>
+        </div>
+        <div style="background-color: #333; color: white; padding: 10px; text-align: center; font-size: 12px;">
+            Arica, Chile - ¡La ciudad de la eterna primavera!
+        </div>
+    </div>
+    """
+
+    # --- 2. CONFIGURACIÓN PARA EL ADMIN (TÚ) ---
     asunto_admin = f"🚨 NUEVA RESERVA - {reserva.nombre_cliente}"
-    mensaje_admin = (
-        f"Nueva solicitud recibida:\n\n"
-        f"Cliente: {reserva.nombre_cliente}\n"
-        f"Tour: {reserva.tour.nombre}\n"
-        f"Fecha: {reserva.fecha}\n"
-        f"WhatsApp: {reserva.telefono_cliente}\n"
-        f"Email: {reserva.email_cliente}"
-    )
+    
+    # Limpiamos el teléfono para el link de WhatsApp
+    tel_limpio = reserva.telefono_cliente.replace('+', '').replace(' ', '')
+    
+    html_admin = f"""
+    <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 2px solid #FF8C00; border-radius: 10px; padding: 20px;">
+        <h2 style="color: #FF8C00;">NUEVA SOLICITUD WEB</h2>
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Cliente:</strong></td><td>{reserva.nombre_cliente}</td></tr>
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Tour:</strong></td><td>{reserva.tour.nombre}</td></tr>
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Fecha:</strong></td><td>{reserva.fecha}</td></tr>
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>WhatsApp:</strong></td>
+                <td><a href="https://wa.me/{tel_limpio}" style="color: #25D366; font-weight: bold; text-decoration: none;">📱 {reserva.telefono_cliente}</a></td>
+            </tr>
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Email:</strong></td><td>{reserva.email_cliente}</td></tr>
+        </table>
+        
+        <div style="margin-top: 25px; text-align: center;">
+            <a href="http://127.0.0.1:8000/admin/tours/reserva/{reserva.id}/change/" 
+               style="background-color: #333; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+               Ver en Panel Admin
+            </a>
+        </div>
+    </div>
+    """
 
     try:
-        # Envío al cliente
-        send_mail(
-            asunto_cliente, 
-            mensaje_cliente, 
-            settings.DEFAULT_FROM_EMAIL, 
-            [reserva.email_cliente],
-            fail_silently=False
-        )
-        # Envío al admin (ajusta a tu correo real)
-        send_mail(
-            asunto_admin, 
-            mensaje_admin, 
-            settings.DEFAULT_FROM_EMAIL, 
-            ['cesar.eav@gmail.com'],
-            fail_silently=False
-        )
+        # Enviar al Cliente
+        msg_cli = EmailMultiAlternatives(asunto_cliente, "Solicitud recibida.", settings.DEFAULT_FROM_EMAIL, [reserva.email_cliente])
+        msg_cli.attach_alternative(html_cliente, "text/html")
+        msg_cli.send()
+
+        # Enviar al Admin
+        msg_adm = EmailMultiAlternatives(asunto_admin, "Nueva reserva recibida.", settings.DEFAULT_FROM_EMAIL, ['cesar.eav@gmail.com'])
+        msg_adm.attach_alternative(html_admin, "text/html")
+        msg_adm.send()
+
     except Exception as e:
-        # Esto imprimirá el error en la consola de Django si Mailgun falla
         print(f"Error enviando correos: {e}")
