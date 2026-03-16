@@ -6,9 +6,12 @@ from django.utils.html import format_html
 @admin.register(Reserva)
 class ReservaAdmin(admin.ModelAdmin):
     # Columnas que se verán en el listado
-    list_display = ('nombre_cliente', 'tour', 'fecha', 'columna_estado', 'columna_activa')
+    list_display = ('id','nombre_cliente', 'tour', 'fecha', 'creada_el', 'columna_estado','estado', 'columna_activa')
     list_filter = ('estado', 'fecha', 'tour')
+    list_editable = ('estado',)
     search_fields = ('nombre_cliente', 'email_cliente')
+
+    readonly_fields = ('precio_total', 'creada_el', 'borrado_el')
     
     def columna_estado(self, obj):
         """
@@ -42,6 +45,15 @@ class ReservaAdmin(admin.ModelAdmin):
     # Para poder ver también los borrados lógicos si fuera necesario
     def get_queryset(self, request):
         return Reserva.all_objects.all()
+    
+    # Acción para borrar de forma lógica (Soft Delete)
+    actions = ['marcar_como_borrado']
+    
+    def marcar_como_borrado(self, request, queryset):
+        for obj in queryset:
+            obj.delete() # Llama al método delete() que creamos en el modelo
+        self.message_user(request, "Las reservas seleccionadas han sido movidas a la papelera (borrado lógico).")
+    marcar_como_borrado.short_description = "Eliminar reservas seleccionadas"
 
 
 class PrecioInline(admin.StackedInline):

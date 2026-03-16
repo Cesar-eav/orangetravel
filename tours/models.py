@@ -67,55 +67,54 @@ class PrecioTour(models.Model):
         verbose_name = "Precio de Tour"
         verbose_name_plural = "Precios de Tours"
 
-
 # Manager para filtrar los borrados lógicos por defecto
 class SoftDeleteManager(models.Manager):
     def get_queryset(self):
+        # Solo devuelve registros que NO tengan fecha de borrado
         return super().get_queryset().filter(borrado_el__isnull=True)
 
 class Reserva(models.Model):
-    # Opciones de Estado
     class Estado(models.TextChoices):
         PENDIENTE = 'PENDIENTE', 'Pendiente de Confirmación'
         CONFIRMADA = 'CONFIRMADA', 'Confirmada'
         CANCELADA = 'CANCELADA', 'Cancelada'
         RECHAZADA = 'RECHAZADA', 'Rechazada'
 
-    # Relaciones y Datos del Tour
+    # --- Relaciones ---
     tour = models.ForeignKey('Tour', on_delete=models.CASCADE, related_name='reservas')
-    fecha = models.DateField("Fecha del tour")
     
-    # Datos del Cliente
+    # --- Datos del Cliente ---
     nombre_cliente = models.CharField("Nombre del cliente", max_length=100)
     email_cliente = models.EmailField("Correo electrónico")
     telefono_cliente = models.CharField("Teléfono/WhatsApp", max_length=20)
     
-    # Detalle de Pasajeros y Precios
+    # --- Detalle de la Reserva ---
+    fecha = models.DateField("Fecha del tour")
     adultos = models.PositiveIntegerField("Número de adultos", default=1)
     ninos = models.PositiveIntegerField("Número de niños (hasta 11 años)", default=0)
     precio_total = models.IntegerField("Precio Total ($)", editable=False)
     
-    # Gestión Administrativa
+    # --- Gestión Administrativa ---
     estado = models.CharField(
-        "Estado de la reserva",
+        "Estado",
         max_length=20,
         choices=Estado.choices,
         default=Estado.PENDIENTE
     )
     notas_internas = models.TextField(
-        "Notas (Clima, Vehículo, Guía)", 
+        "Notas Internas (Vehículo, Clima, etc.)", 
         blank=True, 
         null=True
     )
     
-    # Auditoría y Borrado Lógico
+    # --- Auditoría y Borrado Lógico ---
     creada_el = models.DateTimeField(auto_now_add=True)
     actualizada_el = models.DateTimeField(auto_now=True)
     borrado_el = models.DateTimeField("Fecha de borrado", null=True, blank=True, editable=False)
 
-    # Managers
-    objects = SoftDeleteManager()           # Filtra borrados automáticamente
-    all_objects = models.Manager()          # Permite ver TODO incluyendo borrados
+    # --- Managers ---
+    objects = SoftDeleteManager()
+    all_objects = models.Manager()
 
     class Meta:
         verbose_name = "Reserva"
@@ -128,29 +127,29 @@ class Reserva(models.Model):
     # --- LÓGICA DE NEGOCIO ---
 
     def save(self, *args, **kwargs):
-        """Calcula el total basado en precios fijos de Arica antes de guardar."""
-# Asumiendo que en tu modelo Tour tienes campos llamados 'precio_adulto' y 'precio_nino'
-        total = (self.adultos * self.tour.valor_adulto) + (self.ninos * self.tour.valor_nino)
-        self.precio_total = total
+        """Cálculo automático del total antes de persistir en DB."""
+        # Fallback a precios estándar de Arica si el Tour no los define explícitamente
+        p_adulto = getattr(self.tour, 'valor_adulto', 18000)
+        p_nino = getattr(self.tour, 'valor_nino', 15000)
+        self.precio_total = (self.adultos * p_adulto) + (self.ninos * p_nino)
         super().save(*args, **kwargs)
 
-    def delete(self, *args, **kwargs):
-        """Implementación de borrado lógico."""
+    def delete(self, using=None, keep_parents=False):
+        """Borrado lógico: marca la fecha pero no elimina la fila."""
         self.borrado_el = timezone.now()
         self.save()
 
     def restaurar(self):
-        """Recupera una reserva borrada por error."""
+        """Revierte el borrado lógico."""
         self.borrado_el = None
         self.save()
 
-    # --- PROPIEDADES DINÁMICAS ---
+    # --- PROPIEDADES DINÁMICAS (Consumidas por Vue/Templates) ---
 
     @property
     def situacion(self):
-        """Determina si el tour ya se realizó o si la reserva expiró."""
+        """Estado semántico histórico de la reserva."""
         hoy = date.today()
-        
         if self.borrado_el:
             return "Eliminada (Lógico)"
         
@@ -164,53 +163,7 @@ class Reserva(models.Model):
 
     @property
     def es_activa(self):
-        """Define si la reserva está vigente para el futuro."""
+        """Determina si la reserva es válida y para una fecha futura."""
         return self.borrado_el is None and self.fecha >= date.today()
 
-    class Estado(models.TextChoices):
-        PENDIENTE = 'PENDIENTE', 'Pendiente de Confirmación'
-        CONFIRMADA = 'CONFIRMADA', 'Confirmada'
-        CANCELADA = 'CANCELADA', 'Cancelada'
-        RECHAZADA = 'RECHAZADA', 'Rechazada'
 
-    tour = models.ForeignKey('Tour', on_delete=models.CASCADE, related_name='reservas')
-    
-    # Datos del Cliente
-    nombre_cliente = models.CharField("Nombre del cliente", max_length=100)
-    email_cliente = models.EmailField("Correo electrónico")
-    telefono_cliente = models.CharField("Teléfono/WhatsApp", max_length=20)
-    
-    # Detalle de la Reserva
-    fecha = models.DateField("Fecha del tour")
-    adultos = models.PositiveIntegerField("Número de adultos", default=1)
-    ninos = models.PositiveIntegerField("Número de niños (hasta 11 años)", default=0)
-    precio_total = models.IntegerField("Precio Total", editable=False)
-    
-    # Gestión de Orange Travel
-    estado = models.CharField(
-        "Estado de la reserva",
-        max_length=20,
-        choices=Estado.choices,
-        default=Estado.PENDIENTE
-    )
-    notas_internas = models.TextField(
-        "Notas internas (Clima, Vehículo, Disponibilidad)", 
-        blank=True, 
-        null=True
-    )
-    
-    creada_el = models.DateTimeField(auto_now_add=True)
-    actualizada_el = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = "Reserva"
-        verbose_name_plural = "Reservas"
-        ordering = ['-fecha']
-
-    def __str__(self):
-        return f"{self.nombre_cliente} - {self.tour.nombre} ({self.fecha})"
-
-    def save(self, *args, **kwargs):
-        # Lógica de precios: $18.000 adultos, $15.000 niños
-        self.precio_total = (self.adultos * 18000) + (self.ninos * 15000)
-        super().save(*args, **kwargs)

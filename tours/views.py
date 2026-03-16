@@ -5,6 +5,8 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
 from .models import Tour, Reserva
 import json
+from django.core.mail import send_mail
+from django.conf import settings
 
 # Create your views here.
 
@@ -49,28 +51,81 @@ def crear_reserva(request):
     try:
         data = json.loads(request.body)
         
-        # 1. Buscamos el tour (puedes pasarlo desde Vue)
-        tour = Tour.objects.get(id=data.get('tour_id'))
-        
-        # 2. Creamos la instancia de Reserva
+        # 1. Validación de existencia del Tour
+        try:
+            # Importante: Asegúrate que desde Vue envías 'tour_id'
+            tour = Tour.objects.get(id=data.get('tour_id'))
+        except Tour.DoesNotExist:
+            return JsonResponse({'status': 'error', 'mensaje': 'El tour seleccionado no existe.'}, status=404)
+
+        # 2. Creación de la Reserva
+        # El método save() de tu modelo calculará automáticamente el precio_total
         reserva = Reserva.objects.create(
             tour=tour,
             nombre_cliente=data.get('nombre'),
             email_cliente=data.get('email'),
             telefono_cliente=data.get('telefono'),
             fecha=data.get('fecha'),
-            adultos=data.get('adultos', 1),
-            ninos=data.get('ninos', 0),
-            notas_internas="Solicitud desde la web."
+            adultos=int(data.get('adultos', 1)),
+            ninos=int(data.get('ninos', 0)),
+            notas_internas=f"Solicitud web. Pasajeros: {data.get('adultos')} ADL, {data.get('ninos')} CHD."
         )
-        
-        # Aquí podrías agregar: send_mail(...) para avisar a Orange Travel
+
+        # 3. Lógica de Notificaciones por Email
+        # Llamamos a la función auxiliar definida abajo
+        enviar_notificaciones_reserva(reserva)
         
         return JsonResponse({
             'status': 'success',
-            'mensaje': 'Solicitud recibida correctamente',
-            'reserva_id': reserva.id
-        })
+            'mensaje': 'Tu solicitud ha sido recibida. Revisa tu correo.',
+            'reserva_id': reserva.id,
+            'total': reserva.precio_total 
+        }, status=201)
         
     except Exception as e:
-        return JsonResponse({'status': 'error', 'mensaje': str(e)}, status=400)
+        return JsonResponse({'status': 'error', 'mensaje': f"Error en el servidor: {str(e)}"}, status=500)
+
+
+def enviar_notificaciones_reserva(reserva):
+    """ Función auxiliar para enviar correos a cliente y admin """
+    
+    # Email para el Cliente
+    asunto_cliente = f"🍊 Solicitud de Reserva: {reserva.tour.nombre}"
+    mensaje_cliente = (
+        f"Hola {reserva.nombre_cliente},\n\n"
+        f"Hemos recibido tu solicitud para el tour {reserva.tour.nombre} el día {reserva.fecha}.\n"
+        f"Detalles:\n- Adultos: {reserva.adultos}\n- Niños: {reserva.ninos}\n- Total estimado: ${reserva.precio_total}\n\n"
+        f"Estado actual: PENDIENTE DE CONFIRMACIÓN. Nos contactaremos contigo vía WhatsApp o Email pronto."
+    )
+    
+    # Email para el Administrador (Orange Travel)
+    asunto_admin = f"🚨 NUEVA RESERVA - {reserva.nombre_cliente}"
+    mensaje_admin = (
+        f"Nueva solicitud recibida:\n\n"
+        f"Cliente: {reserva.nombre_cliente}\n"
+        f"Tour: {reserva.tour.nombre}\n"
+        f"Fecha: {reserva.fecha}\n"
+        f"WhatsApp: {reserva.telefono_cliente}\n"
+        f"Email: {reserva.email_cliente}"
+    )
+
+    try:
+        # Envío al cliente
+        send_mail(
+            asunto_cliente, 
+            mensaje_cliente, 
+            settings.DEFAULT_FROM_EMAIL, 
+            [reserva.email_cliente],
+            fail_silently=False
+        )
+        # Envío al admin (ajusta a tu correo real)
+        send_mail(
+            asunto_admin, 
+            mensaje_admin, 
+            settings.DEFAULT_FROM_EMAIL, 
+            ['cesar.eav@gmail.com'],
+            fail_silently=False
+        )
+    except Exception as e:
+        # Esto imprimirá el error en la consola de Django si Mailgun falla
+        print(f"Error enviando correos: {e}")
