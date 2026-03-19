@@ -15,13 +15,20 @@
   --font-marcellus: "Marcellus", serif;
 }
 
-/* CRITICO: Tailwind 4 necesita saber qué archivos escanear para generar .prose */
-@source "../../templates/**/*.html";
-@source "../../**/templates/**/*.html";
+/* Rutas relativas a la RAÍZ del proyecto (donde está vite.config.mjs) */
+@source "./templates/**/*.html";
+@source "./**/templates/**/*.html";
 
 /* static/src/input.css */
 
 @layer components {
+
+    .test-debug {
+    background-color: #ff0000 !important;
+    height: 50px;
+    width: 100%;
+}
+
     /* 1. Contenedor Maestro */
     .resena-content {
         @apply text-gray-800 leading-relaxed text-lg;

@@ -34,7 +34,7 @@ export default defineConfig({
     origin: 'http://localhost:5173',
     cors: true,
     watch: {
-      usePolling: true,
+ignored: ['!**/templates/**'],
     }
   }
 });
