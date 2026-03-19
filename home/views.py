@@ -13,3 +13,7 @@ def home(request):
         'tours': tours,
         'posts': posts
     })
+
+def nosotros(request):
+
+    return render(request, 'home/nosotros.html')
