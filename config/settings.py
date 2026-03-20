@@ -65,9 +65,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-INTERNAL_IPS = [
-    "127.0.0.1",
-]
 
 ROOT_URLCONF = 'config.urls'
 
@@ -239,7 +236,8 @@ CKEDITOR_IMAGE_BACKEND = "pillow"
 
 # 3. (Opcional) Restringe que solo usuarios staff puedan subir archivos
 CKEDITOR_RESTRICT_BY_USER = True
-# Asegúrate de que el nombre del archivo sea exactamente dashboard.py en la raíz
+
+
 # JET_INDEX_DASHBOARD = 'dashboard.CustomIndexDashboard'
 # JET_APP_INDEX_DASHBOARD = 'dashboard.CustomAppIndexDashboard'
 
@@ -258,4 +256,6 @@ EMAIL_USE_TLS = True
 
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')     
+
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
+EMAIL_CONTACTO_RECIBIDO = 'cesar.eav@gmail.com'
