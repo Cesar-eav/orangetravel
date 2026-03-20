@@ -21,6 +21,8 @@ def nosotros(request):
 
     return render(request, 'home/nosotros.html')
 
+def contacto(request):
+    return render(request,'home/contacto.html' )
 
 def contacto_send_email(request):
     if request.method == 'POST':
@@ -52,7 +54,7 @@ def contacto_send_email(request):
                 fail_silently=False,
             )
             messages.success(request, "¡Gracias! Te responderemos a la brevedad.")
-
+            print(f"TODO ARIBA ARIBA")
         except Exception as e:
             print(f"DEBUG ERROR EMAIL: {e}")
             messages.error(request, f"Hubo un problema al enviar el emial.")
