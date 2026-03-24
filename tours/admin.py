@@ -3,6 +3,8 @@ from .models import TipoTour, Tour, GaleriaTour, PrecioTour, Reserva
 from django.utils.html import format_html 
 
 
+
+
 @admin.register(Reserva)
 class ReservaAdmin(admin.ModelAdmin):
     # Columnas que se verán en el listado

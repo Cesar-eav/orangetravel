@@ -1,6 +1,7 @@
 from django.utils.translation import gettext_lazy as _
 from jet.dashboard import modules
 from jet.dashboard.dashboard import Dashboard, AppIndexDashboard
+from unfold.admin import ModelAdmin
 
 class CustomIndexDashboard(Dashboard):
     def init_with_context(self, context):

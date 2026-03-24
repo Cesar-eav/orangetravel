@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv 
+from django.templatetags.static import static
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -35,15 +36,18 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'debug_toolbar',
-    'jet',
-    'jet.dashboard',
+    "unfold",  # <--- DEBE SER LA PRIMERA
+    "unfold.contrib.filters", 
+    "unfold.contrib.forms",
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'debug_toolbar',
     'ckeditor',
     'ckeditor_uploader',
 
@@ -84,6 +88,22 @@ TEMPLATES = [
         },
     },
 ]
+
+# --- CONFIGURACIÓN DE UNFOLD ---
+UNFOLD = {
+    "SITE_TITLE": "Orange Travel Admin",
+    "SITE_SYMBOL": "travel_explore", # Icono de Google Fonts
+    "COLORS": {
+        "primary": {
+            "50": "255 248 237",   # Tu --color-orange-50 en RGB
+            "500": "249 115 22",   # Tu --color-orange-500 en RGB
+            "600": "234 88 12",    # Tu --color-orange-600 en RGB
+        },
+    },
+    "STYLES": [
+        lambda request: static("css/output.css"), # Inyecta tu CSS de Tailwind 4
+    ],
+}
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
