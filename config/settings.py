@@ -134,15 +134,14 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 # Si estamos en Railway, existirá la variable DATABASE_URL
-if os.getenv('DATABASE_URL'):
-    DATABASES = {
-        'default': dj_database_url.config(
-            conn_max_age=600,
-            conn_health_checks=True,
-        )
-    }
+# Intentamos obtener la base de datos de Railway primero
+db_from_env = dj_database_url.config(conn_max_age=600)
+
+if db_from_env:
+    # Si Railway nos dio una URL, la usamos
+    DATABASES = {'default': db_from_env}
 else:
-    # Si no hay DATABASE_URL, usamos tu configuración local de siempre
+    # Si no (estamos en local), usamos tu config manual
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
