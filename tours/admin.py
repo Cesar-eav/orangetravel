@@ -4,9 +4,9 @@ from django.utils.html import format_html
 
 
 
-
 @admin.register(Reserva)
 class ReservaAdmin(admin.ModelAdmin):
+    
     # Columnas que se verán en el listado
     list_display = ('id','nombre_cliente', 'tour', 'fecha', 'creada_el', 'columna_estado','estado', 'columna_activa')
     list_filter = ('estado', 'fecha', 'tour')
