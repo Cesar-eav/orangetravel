@@ -21,8 +21,7 @@ from django.conf.urls.static import static
 
 
 urlpatterns = [
-    path('jet/', include('jet.urls', 'jet')),  # URLs de JET
-    path('jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')), #
+    path('jet/', include('jet_reboot.urls', 'jet_reboot')),  # URLs de JET Reboot
     path('admin/', admin.site.urls),
     path('ckeditor/', include('ckeditor_uploader.urls')),
 

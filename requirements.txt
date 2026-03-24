@@ -1,3 +1,10 @@
 asgiref==3.11.1
 Django==6.0.2
 sqlparse==0.5.5
+django-jet-reboot
+django-ckeditor
+python-dotenv
+django-debug-toolbar
+whitenoise
+pillow
+dj-database-url
