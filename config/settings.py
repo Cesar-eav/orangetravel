@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
-
+import dj_database_url
 import os
 from pathlib import Path
 from dotenv import load_dotenv 
@@ -133,16 +133,26 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'orage_db',
-        'USER': 'cesar',
-        'PASSWORD': 'qwedsa',
-        'HOST': '127.0.0.1',
-        'PORT': 5432
+# Si estamos en Railway, existirá la variable DATABASE_URL
+if os.getenv('DATABASE_URL'):
+    DATABASES = {
+        'default': dj_database_url.config(
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
-}
+else:
+    # Si no hay DATABASE_URL, usamos tu configuración local de siempre
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'orage_db',
+            'USER': 'cesar',
+            'PASSWORD': 'qwedsa',
+            'HOST': '127.0.0.1',
+            'PORT': 5432
+        }
+    }
 
 
 
