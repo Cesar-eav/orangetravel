@@ -33,6 +33,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
+    'orangetravel-production.up.railway.app', # Tu nueva URL'
     '.railway.app',  # El punto al inicio permite cualquier subdominio de Railway
 ]
 
