@@ -8,7 +8,7 @@ from django.templatetags.static import static
 BASE_DIR = Path(__file__).resolve().parent.parent
 if os.path.exists(os.path.join(BASE_DIR, '.env')):
     load_dotenv(os.path.join(BASE_DIR, '.env'))
-    
+
 # 2. SEGURIDAD (Configuración dinámica para Railway/Local)
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-tu_53-at5s0jw-&9hkvp+c-%n+rzar(+59pxh!jckw7f!*x!dt')
 
@@ -16,6 +16,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-tu_53-at5s0jw-&9hkv
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = [
+    '*',
     '127.0.0.1',
     'localhost',
     'orangetravel-production.up.railway.app',
