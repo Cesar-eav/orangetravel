@@ -47,7 +47,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'debug_toolbar',
     'ckeditor',
     'ckeditor_uploader',
 
@@ -57,9 +56,18 @@ INSTALLED_APPS = [
     'blog'
 ]
 
+if DEBUG:
+    INSTALLED_APPS += [
+        "debug_toolbar",
+    ]
+
+    INTERNAL_IPS = [
+        "127.0.0.1",
+    ]
+
 MIDDLEWARE = [
-    'debug_toolbar.middleware.DebugToolbarMiddleware', 
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Indispensable para Railway
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -68,6 +76,13 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# Solo añadimos la Toolbar si estamos en modo desarrollo
+if DEBUG:
+    # La insertamos justo después de WhiteNoise para que capture todo
+    MIDDLEWARE.insert(2, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+
+
 
 
 ROOT_URLCONF = 'config.urls'
@@ -122,13 +137,6 @@ DATABASES = {
     }
 }
 
-
-
-# DJANGO JET
-
-# Temas disponibles: 'default', 'green', 'light-violet', 'red', 'yellow'
-# JET_DEFAULT_THEME = 'light-violet' # Prueba este para un look más moderno
-# JET_SIDE_MENU_COMPACT = True
 
 
 # Password validation
@@ -263,9 +271,7 @@ CKEDITOR_RESTRICT_BY_USER = True
 
 SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
-INTERNAL_IPS = [
-    "127.0.0.1",
-]
+
 
 # settings.py
 
@@ -279,3 +285,4 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
 EMAIL_CONTACTO_RECIBIDO = 'cesar.eav@gmail.com'
+
