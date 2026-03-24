@@ -1,2 +1,1 @@
-release: python manage.py migrate --noinput
-web: gunicorn config.wsgi --bind 0.0.0.0:$PORT --log-file - --log-level debug
+web: python manage.py migrate --noinput && gunicorn config.wsgi --bind 0.0.0.0:$PORT --timeout 600 --log-file - --log-level debug

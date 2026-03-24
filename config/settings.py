@@ -6,8 +6,9 @@ from django.templatetags.static import static
 
 # 1. RUTAS BÁSICAS
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(os.path.join(BASE_DIR, '.env'))
-
+if os.path.exists(os.path.join(BASE_DIR, '.env')):
+    load_dotenv(os.path.join(BASE_DIR, '.env'))
+    
 # 2. SEGURIDAD (Configuración dinámica para Railway/Local)
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-tu_53-at5s0jw-&9hkvp+c-%n+rzar(+59pxh!jckw7f!*x!dt')
 
