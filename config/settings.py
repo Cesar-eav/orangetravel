@@ -21,6 +21,11 @@ ALLOWED_HOSTS = [
     '.railway.app',
 ]
 
+if not DEBUG:
+    # Esto es vital para que Railway no te de 502 por SSL
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
+
 CSRF_TRUSTED_ORIGINS = [
     'https://*.railway.app',
     'https://orangetravel.cl',
