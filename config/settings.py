@@ -30,7 +30,9 @@ if not DEBUG:
 
 CSRF_TRUSTED_ORIGINS = [
     'https://*.railway.app',
+    'orangetravel-production.up.railway.app',
     'https://orangetravel.cl',
+    'http://*'
 ]
 
 # 3. APLICACIONES INSTALADAS
