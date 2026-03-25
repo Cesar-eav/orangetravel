@@ -1,6 +1,6 @@
 asgiref
 dj-database-url
-Django=
+Django
 django-ckeditor
 django-debug-toolbar
 django-js-asset
