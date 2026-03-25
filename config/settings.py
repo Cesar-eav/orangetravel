@@ -29,7 +29,6 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost',
 ]
 
-DEBUG = False
 
 if not DEBUG:
     # Esto es vital para que Railway no te de 502 por SSL
@@ -143,13 +142,13 @@ if not DEBUG and DATABASES['default']:
     DATABASES['default']['OPTIONS'] = {'sslmode': 'require'}
 
 # 8. ARCHIVOS ESTÁTICOS Y MEDIA
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Soporte para compresión de WhiteNoise en producción
 if not DEBUG:
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
