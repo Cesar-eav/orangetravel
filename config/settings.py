@@ -29,6 +29,7 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost',
 ]
 
+DEBUG = False
 
 if not DEBUG:
     # Esto es vital para que Railway no te de 502 por SSL

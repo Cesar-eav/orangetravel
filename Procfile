@@ -1,1 +1,1 @@
-web: python manage.py collectstatic && gunicorn config.wsgi
+web: python manage.py collectstatic && gunicorn config.wsgi --bind 0.0.0.0:$PORT --timeout 600 --log-file -
