@@ -18,15 +18,19 @@ export default defineConfig({
   root: path.resolve(__dirname), 
   base: '/',
   build: {
-    // Dónde se guardará el código compilado para producción
-    outDir: path.resolve(__dirname, 'static/js/dist'),
-    emptyOutDir: true,
-    manifest: true, // Genera manifest.json para que Django sepa qué archivos cargar
-    rollupOptions: {
-      // El punto de entrada principal que crearemos en el siguiente paso
-      input: path.resolve(__dirname, 'static/src/main.js'),
+      outDir: path.resolve(__dirname, 'static/js/dist'),
+      emptyOutDir: true,
+      manifest: true,
+      rollupOptions: {
+        input: path.resolve(__dirname, 'static/src/main.js'),
+        // AGREGA ESTO:
+        output: {
+          entryFileNames: `assets/[name].js`,
+          chunkFileNames: `assets/[name].js`,
+          assetFileNames: `assets/[name].[ext]`
+        }
+      },
     },
-  },
   server: {
     // Configuración para que el HMR (Hot Module Replacement) funcione con Django
     host: 'localhost',
