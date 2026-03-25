@@ -19,8 +19,13 @@ ALLOWED_HOSTS = [
     '*',
     '127.0.0.1',
     'localhost',
-    'https://orangetravel-production.up.railway.app',
+    'orangetravel-production.up.railway.app',
     '.railway.app',
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.railway.app',
+    'https://orangetravel-production.up.railway.app',
 ]
 
 if not DEBUG:
@@ -28,12 +33,7 @@ if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
 
-CSRF_TRUSTED_ORIGINS = [
-    'https://*.railway.app',
-    'orangetravel-production.up.railway.app',
-    'https://orangetravel.cl',
-    'http://*'
-]
+
 
 # 3. APLICACIONES INSTALADAS
 INSTALLED_APPS = [
