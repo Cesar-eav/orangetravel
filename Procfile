@@ -1,1 +1,1 @@
-web: python -m gunicorn config.wsgi --bind 0.0.0.0:$PORT --timeout 600
+web: /opt/venv/bin/python -m gunicorn config.wsgi --bind 0.0.0.0:$PORT --timeout 600
