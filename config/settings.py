@@ -19,7 +19,7 @@ ALLOWED_HOSTS = [
     '*',
     '127.0.0.1',
     'localhost',
-    'orangetravel-production.up.railway.app',
+    'https://orangetravel-production.up.railway.app',
     '.railway.app',
 ]
 
