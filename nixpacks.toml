@@ -1,22 +1,21 @@
 [phases.setup]
-# Aquí está el secreto: pedimos Python Y su paquete de Pip por separado
-nixPkgs = ["python311", "python311Packages.pip", "nodejs_22", "gcc", "postgresql"]
+nixPkgs = ["python311", "nodejs_22", "gcc", "postgresql"]
 
 [phases.install]
-# Ahora que Pip existe, podemos instalar todo
+# Creamos el entorno virtual y luego instalamos ahí dentro
 cmds = [
     "npm install",
-    "pip install --upgrade pip",
-    "pip install -r requirements.txt"
+    "python -m venv /opt/venv",
+    "/opt/venv/bin/pip install -r requirements.txt"
 ]
 
 [phases.build]
-# Construimos el frontend y los estáticos
+# Usamos el python del entorno virtual para los comandos de Django
 cmds = [
     "npm run build",
-    "python manage.py collectstatic --noinput"
+    "/opt/venv/bin/python manage.py collectstatic --noinput"
 ]
 
 [start]
-# Comando de inicio limpio
-cmd = "gunicorn config.wsgi --bind 0.0.0.0:$PORT --timeout 600"
+# Arrancamos Gunicorn usando el binario del entorno virtual
+cmd = "/opt/venv/bin/python -m gunicorn config.wsgi --bind 0.0.0.0:$PORT --timeout 600"
