@@ -1,20 +1,16 @@
-[phases.setup]
-nixPkgs = ["python311", "nodejs_22", "gcc", "postgresql"]
+# Le decimos a Railway: "Usa tus motores oficiales para Node y Python"
+providers = ["node", "python"]
 
 [phases.install]
-# Usamos python -m pip para evitar el "command not found"
+# Instalamos Node primero y luego Python
 cmds = [
-    "python -m pip install --upgrade pip",
-    "python -m pip install -r requirements.txt",
-    "npm install"
+    "npm install",
+    "python -m pip install -r requirements.txt"
 ]
 
 [phases.build]
+# Construimos el frontend y luego los estáticos de Django
 cmds = [
     "npm run build",
     "python manage.py collectstatic --noinput"
 ]
-
-[start]
-# Obligamos a usar gunicorn como módulo de python
-cmd = "python -m gunicorn config.wsgi --bind 0.0.0.0:$PORT --timeout 600"
