@@ -1,0 +1,13 @@
+# Forzamos a Nixpacks a usar ambos lenguajes
+[providers]
+python = {}
+node = {}
+
+[phases.setup]
+nixPkgs = ["python311", "nodejs_22", "gcc"]
+
+[phases.install]
+cmds = ["pip install -r requirements.txt", "npm i"]
+
+[phases.build]
+cmds = ["npm run build", "python manage.py collectstatic --noinput"]
