@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "tailwind.config.js",
+  "type": "module",
   "engines": {
     "node": ">=22.0.0"
   },
   "scripts": {
-    "type": "module",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
