@@ -16,11 +16,11 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-tu_53-at5s0jw-&9hkv
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = [
-    '*',
-    '127.0.0.1',
-    'localhost',
+    # '*',
+    # '127.0.0.1',
     'orangetravel-production.up.railway.app',
-    '.railway.app',
+    'localhost',
+    # '.railway.app',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
