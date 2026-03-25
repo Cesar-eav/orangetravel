@@ -1,10 +1,20 @@
 [phases.setup]
-nixPkgs = ["python311", "gcc", "postgresql"]
+nixPkgs = ["python311", "nodejs_22", "gcc", "postgresql"]
 
 [phases.install]
-# Instalamos TODO junto para que quede en el mismo PATH
-cmds = ["pip install -r requirements.txt", "npm install"]
+# Usamos python -m pip para evitar el "command not found"
+cmds = [
+    "python -m pip install --upgrade pip",
+    "python -m pip install -r requirements.txt",
+    "npm install"
+]
 
 [phases.build]
-# Primero el frontend, luego los estáticos de Django
-cmds = ["npm run build", "python manage.py collectstatic --noinput"]
+cmds = [
+    "npm run build",
+    "python manage.py collectstatic --noinput"
+]
+
+[start]
+# Obligamos a usar gunicorn como módulo de python
+cmd = "python -m gunicorn config.wsgi --bind 0.0.0.0:$PORT --timeout 600"
