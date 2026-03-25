@@ -17,7 +17,7 @@ DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = [
     # '*',
-    # '127.0.0.1',
+    '127.0.0.1',
     'orangetravel-production.up.railway.app',
     'localhost',
     # '.railway.app',
@@ -26,7 +26,9 @@ ALLOWED_HOSTS = [
 CSRF_TRUSTED_ORIGINS = [
     'https://*.railway.app',
     'https://orangetravel-production.up.railway.app',
+    'http://localhost',
 ]
+
 
 if not DEBUG:
     # Esto es vital para que Railway no te de 502 por SSL
