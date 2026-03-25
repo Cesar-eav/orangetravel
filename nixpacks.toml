@@ -1,13 +1,13 @@
-# Forzamos a Nixpacks a usar ambos lenguajes
-[providers]
-python = {}
-node = {}
+# Definimos los proveedores como una lista (secuencia)
+providers = ["python", "node"]
 
 [phases.setup]
 nixPkgs = ["python311", "nodejs_22", "gcc"]
 
 [phases.install]
+# Instalamos las dependencias de ambos mundos
 cmds = ["pip install -r requirements.txt", "npm i"]
 
 [phases.build]
+# Construimos el frontend y luego preparamos los estáticos de Django
 cmds = ["npm run build", "python manage.py collectstatic --noinput"]
