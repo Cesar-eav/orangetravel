@@ -10,6 +10,7 @@ from django.conf import settings
 from django.core.mail import EmailMultiAlternatives # Importante para enviar HTML
 from django.template.loader import render_to_string # Si prefieres usar archivos .html
 from django.utils.html import strip_tags # Par
+from datetime import date
 
 # Create your views here.
 
@@ -159,19 +160,34 @@ def enviar_notificaciones_reserva(reserva):
     except Exception as e:
         print(f"Error enviando correos: {e}")
 
-def dias_bloqueados_api(request, tour_id):
-# 1. Traer fechas de reservas confirmadas (o pagadas)
+def get_fechas_bloqueadas(request, tour_id):
+    """
+    Une los bloqueos manuales del Admin con las reservas existentes 
+    para enviarlas al calendario de Vue.
+    """
+    # 1. Traer fechas de reservas confirmadas, realizadas o pendientes
+    # Usamos .distinct() por si acaso para no enviar fechas duplicadas
     reservas = Reserva.objects.filter(
         tour_id=tour_id, 
-        estado__in=['Confirmada', 'Realizada'] # Ajusta según tus estados
-    ).values_list('fecha', flat=True)
+        estado__in=['Confirmada', 'Realizada', 'PENDIENTE']
+    ).values_list('fecha', flat=True).distinct()
 
-    # 2. Traer fechas de bloqueos manuales
+    # 2. Traer fechas de bloqueos manuales (lo que haces desde el Admin)
     bloqueos_manuales = BloqueoTour.objects.filter(
         tour_id=tour_id
-    ).values_list('fecha', flat=True)
+    ).values_list('fecha', flat=True).distinct()
 
-    # Combinamos y formateamos a string 'YYYY-MM-DD'
-    fechas_finales = [f.strftime('%Y-%m-%d') for f in list(reservas) + list(bloqueos_manuales)]
+    # --- DEBUG: El print que querías ver ---
+    print(f"--- API BLOQUEOS (Tour ID: {tour_id}) ---")
+    print(f"Reservas encontradas: {list(reservas)}")
+    print(f"Bloqueos manuales: {list(bloqueos_manuales)}")
+
+    # 3. Combinamos ambas listas en un solo Set (para evitar duplicados)
+    # y formateamos a string 'YYYY-MM-DD'
+    todas_las_fechas = set(list(reservas) + list(bloqueos_manuales))
     
-    return JsonResponse({'bloqueados': fechas_finales})
+    # ISOformat o strftime('%Y-%m-%d') dan el mismo resultado: "2026-03-27"
+    fechas_finales = [f.isoformat() for f in todas_las_fechas]
+    
+    # IMPORTANTE: La clave debe ser 'bloqueadas' para que coincida con tu Vue
+    return JsonResponse({'bloqueadas': fechas_finales})

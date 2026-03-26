@@ -5,4 +5,6 @@ urlpatterns = [
     path('', views.tours_home, name="tours_home" ),
     path('tour/<slug:slug>/', views.tour, name="tour"),
     path('api/reserva/crear/', views.crear_reserva, name='crear_reserva'),
+    path('api/bloqueos/<int:tour_id>/', views.get_fechas_bloqueadas, name='api_bloqueos'),
+    
 ]
