@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
-from .models import Tour, Reserva
+from .models import Tour, Reserva, BloqueoTour
 import json
 from django.core.mail import send_mail
 from django.conf import settings
@@ -158,3 +158,20 @@ def enviar_notificaciones_reserva(reserva):
 
     except Exception as e:
         print(f"Error enviando correos: {e}")
+
+def dias_bloqueados_api(request, tour_id):
+# 1. Traer fechas de reservas confirmadas (o pagadas)
+    reservas = Reserva.objects.filter(
+        tour_id=tour_id, 
+        estado__in=['Confirmada', 'Realizada'] # Ajusta según tus estados
+    ).values_list('fecha', flat=True)
+
+    # 2. Traer fechas de bloqueos manuales
+    bloqueos_manuales = BloqueoTour.objects.filter(
+        tour_id=tour_id
+    ).values_list('fecha', flat=True)
+
+    # Combinamos y formateamos a string 'YYYY-MM-DD'
+    fechas_finales = [f.strftime('%Y-%m-%d') for f in list(reservas) + list(bloqueos_manuales)]
+    
+    return JsonResponse({'bloqueados': fechas_finales})

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html 
-from .models import TipoTour, Tour, GaleriaTour, PrecioTour, Reserva
+from .models import TipoTour, Tour, GaleriaTour, PrecioTour, Reserva, BloqueoTour
 
 # IMPORTANTE: Importamos desde unfold.admin
 from unfold.admin import ModelAdmin, TabularInline, StackedInline
@@ -140,3 +140,10 @@ class TourAdmin(ModelAdmin): # Cambiado a Unfold ModelAdmin
 @admin.register(TipoTour)
 class TipoTourAdmin(ModelAdmin): # Cambiado a Unfold ModelAdmin
     list_display = ('nombre',)
+
+
+@admin.register(BloqueoTour)
+class BloqueoTourAdmin(ModelAdmin):
+    list_display = ('tour', 'fecha', 'motivo')
+    list_filter = ('tour', 'fecha')
+    date_hierarchy = 'fecha' # Crea una barrita de navegación por fechas arriba    

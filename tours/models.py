@@ -167,3 +167,17 @@ class Reserva(models.Model):
         return self.borrado_el is None and self.fecha >= date.today()
 
 
+class BloqueoTour(models.Model):
+    tour = models.ForeignKey(Tour, on_delete=models.CASCADE, related_name='bloqueos')
+    fecha = models.DateField()
+    motivo = models.CharField(max_length=255, blank=True, null=True)
+
+    class Meta:
+        unique_together = ('tour', 'fecha') # Evita duplicar el mismo bloqueo
+        verbose_name = "Bloqueo de Fecha"
+        verbose_name_plural = "Bloqueos de Fechas"
+
+    def __str__(self):
+        return f"Bloqueo {self.tour.nombre} - {self.fecha}"
+
+
