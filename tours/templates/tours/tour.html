@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<section class="relative w-full h-100 overflow-hidden group shadow-lg">
+<section class="relative w-full h-100 group shadow-lg">
         <img src="{{ tour.imagen_principal.url }}"
              class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
         <div class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors"></div>
@@ -14,15 +14,6 @@
                     data-precio-nino="{{ precios.valor_nino|floatformat:"0"  }}"
                     data-tour-id="{{ tour.id }}">
                 <booking-app>
-
-                    <template v-slot:trigger >
-                        <div class="text-center mt-5">
-                            <button type="button"
-                                class="bg-orange-500 -z-10 hover:bg-orange-600 px-6 py-3 text-white font-bold transition rounded shadow-lg uppercase relative">
-                                RESERVAR AHORA
-                            </button>
-                        </div>
-                    </template>
                 </booking-app>
             </div> 
         </div> </section>
@@ -77,14 +68,6 @@
 
 
         </script>
-
-
-
-
-
-
-
-
 
         {% if debug %}
             {# MODO DESARROLLO: Conectamos con el servidor de Vite #}
