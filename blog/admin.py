@@ -1,42 +1,47 @@
 from django.contrib import admin
-from .models import Post
 from django.utils.html import format_html 
+from .models import Post
 
+# IMPORTANTE: Importamos ModelAdmin desde unfold.admin
+from unfold.admin import ModelAdmin
 
-# Register your models here.
 @admin.register(Post)
-class BlogAdmin(admin.ModelAdmin):
-    list_display =('ver_miniatura','titulo', 'extracto', 'fecha_creacion')
-    list_filter=('publicado',)
-    search_fields=('titulo','extracto','contenido')
+class BlogAdmin(ModelAdmin): # Cambiado a Unfold ModelAdmin
+    # Columnas en el listado principal
+    list_display = ('ver_miniatura', 'titulo', 'extracto', 'fecha_creacion', 'publicado')
+    list_filter = ('publicado', 'fecha_creacion')
+    list_editable = ('publicado',) # Unfold hace que esto se vea genial
+    search_fields = ('titulo', 'extracto', 'contenido')
 
-    prepopulated_fields={'slug':('titulo',)}
+    prepopulated_fields = {'slug': ('titulo',)}
 
-# 3. Campos de solo lectura para previsualizar media
-    readonly_fields = ('ver_miniatura','fecha_creacion', 'fecha_actualizacion')
-# 4. Organización del formulario por secciones (Fieldsets)
+    # Campos de solo lectura
+    readonly_fields = ('ver_miniatura', 'fecha_creacion', 'fecha_actualizacion')
+
+    # Organización del formulario por secciones (Fieldsets de Unfold)
     fieldsets = (
         ('Configuración Principal', {
-            'fields': ('titulo', 'slug', 'autor', 'publicado')
+            'fields': ('titulo', 'slug', 'autor', 'publicado'),
+            # En Unfold, puedes añadir clases para iconos o estilos si quisieras
         }),
         ('Contenido de la Reseña', {
             'fields': ('extracto', 'contenido'),
             'description': 'El extracto se usa para la lista; el contenido es la reseña completa.'
         }),
         ('Multimedia y SEO', {
-            'fields': ('imagen_portada','ver_miniatura',  'video_youtube'),
+            'fields': ('imagen_portada', 'video_youtube'),
         }),
         ('Fechas de Registro', {
             'fields': ('fecha_creacion', 'fecha_actualizacion'),
-            'classes': ('collapse',), # Esto lo oculta por defecto para limpiar la vista
+            'classes': ('collapse',), # Unfold respeta el colapso nativo de Django
         }),
     )
+
     def ver_miniatura(self, obj):
-        if obj.imagen_portada: # Ojo: verifica si el nombre en tu modelo es imagen_portada
+        if obj.imagen_portada:
+            # Ajustamos un poco el estilo para que se vea más moderno en Unfold
             return format_html(
-                '<img src="{}" style="width: 200px; height: 200px; border-radius: 5px; object-fit: cover;" />', 
-                obj.imagen_portada.url)
+                '<img src="{}" style="width: 150px; height: 100px; border-radius: 12px; object-fit: cover; shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);" />', 
+                obj.imagen_portada.url
+            )
         return "Sin imagen"
-
-    ver_miniatura.short_description = 'Miniatura'
-

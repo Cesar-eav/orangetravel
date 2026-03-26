@@ -28,7 +28,7 @@ def notificar_cambio_estado(sender, instance, **kwargs):
         send_mail(asunto, mensaje, settings.DEFAULT_FROM_EMAIL, [instance.email_cliente])
 
     # Si el estado cambió a RECHAZADA o CANCELADA
-    elif reserva_previa.estado != instance.estado and instance.estado == Reserva.Estado.RECHAZADA:
+    elif reserva_previa.estado != instance.estado and instance.estado == Reserva.Estado.RECHAZADA or instance.estado == Reserva.Estado.CANCELADA:
         asunto = f"⚠️ Actualización de tu reserva - Orange Travel"
         mensaje = f"Hola {instance.nombre_cliente}, lamentamos informarte que no tenemos disponibilidad para el tour '{instance.tour.nombre}' en la fecha solicitada."
         send_mail(asunto, mensaje, settings.DEFAULT_FROM_EMAIL, [instance.email_cliente])

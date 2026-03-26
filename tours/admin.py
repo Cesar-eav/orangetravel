@@ -1,31 +1,47 @@
 from django.contrib import admin
-from .models import TipoTour, Tour, GaleriaTour, PrecioTour, Reserva
 from django.utils.html import format_html 
+from .models import TipoTour, Tour, GaleriaTour, PrecioTour, Reserva
 
+# IMPORTANTE: Importamos desde unfold.admin
+from unfold.admin import ModelAdmin, TabularInline, StackedInline
 
+# --- INLINES (Componentes dentro de otros) ---
+
+class PrecioInline(StackedInline): # Cambiado a Unfold StackedInline
+    model = PrecioTour
+    can_delete = False
+    verbose_name = "Configuración de Precios"
+    # Esto ayuda a Unfold a organizar los inlines en pestañas laterales o inferiores
+    tab = True 
+
+class GaleriaInline(TabularInline): # Cambiado a Unfold TabularInline
+    model = GaleriaTour
+    extra = 3
+    tab = True
+
+# --- ADMIN MODELS ---
 
 @admin.register(Reserva)
-class ReservaAdmin(admin.ModelAdmin):
-    
+class ReservaAdmin(ModelAdmin): # Cambiado a Unfold ModelAdmin
     # Columnas que se verán en el listado
-    list_display = ('id','nombre_cliente', 'tour', 'fecha', 'creada_el', 'columna_estado','estado', 'columna_activa')
+    list_display = (
+        'id', 'nombre_cliente', 'tour', 'fecha', 
+        'creada_el', 'columna_estado', 'estado', 'columna_activa'
+    )
     list_filter = ('estado', 'fecha', 'tour')
     list_editable = ('estado',)
     search_fields = ('nombre_cliente', 'email_cliente')
-
     readonly_fields = ('precio_total', 'creada_el', 'borrado_el')
     
+    # Lógica de colores para Unfold
     def columna_estado(self, obj):
-        """
-        Muestra la situación actual con colores para facilitar la lectura rápida.
-        """
         situacion = obj.situacion
         color = "black"
         
         if situacion == "Realizada":
             color = "#28a745" # Verde
         elif situacion == "Pendiente de Confirmación":
-            color = "#fd7e14" # Naranja (Orange Travel)
+            color = "#fd7e14" # Naranja
         elif situacion == "Eliminada" or situacion == "Cancelada":
             color = "#dc3545" # Rojo
             
@@ -37,55 +53,57 @@ class ReservaAdmin(admin.ModelAdmin):
     columna_estado.short_description = 'Estado Actual'
 
     def columna_activa(self, obj):
-        """
-        Muestra un icono visual (check o cruz) si la reserva es futura y válida.
-        """
         return obj.es_activa
     columna_activa.boolean = True
     columna_activa.short_description = '¿Está Vigente?'
 
-    # Para poder ver también los borrados lógicos si fuera necesario
     def get_queryset(self, request):
+        # Mantenemos tu lógica de ver borrados lógicos
         return Reserva.all_objects.all()
     
-    # Acción para borrar de forma lógica (Soft Delete)
     actions = ['marcar_como_borrado']
     
     def marcar_como_borrado(self, request, queryset):
         for obj in queryset:
-            obj.delete() # Llama al método delete() que creamos en el modelo
-        self.message_user(request, "Las reservas seleccionadas han sido movidas a la papelera (borrado lógico).")
+            obj.delete() 
+        self.message_user(request, "Las reservas han sido movidas a la papelera (borrado lógico).")
     marcar_como_borrado.short_description = "Eliminar reservas seleccionadas"
 
 
-class PrecioInline(admin.StackedInline):
-    model = PrecioTour
-    can_delete = False
-    verbose_name = "Configuración de Precios"
-
-class GaleriaInline(admin.TabularInline):
-    model = GaleriaTour
-    extra = 3
-
 @admin.register(Tour)
-class TourAdmin(admin.ModelAdmin):
-    # Lo que se ve en la tabla principal
+class TourAdmin(ModelAdmin): # Cambiado a Unfold ModelAdmin
     list_display = ('nombre', 'tipo', 'get_precio_adulto', 'activo', 'destacado', 'video_youtube')
     list_filter = ('tipo', 'activo')
     search_fields = ('nombre',)
-
     readonly_fields = ('previsualizacion', 'get_precio_adulto', 'ver_imagen_grande')
 
-    # 3. Definimos el orden de los campos en el formulario de edición/creación
-    # Usamos 'fields' en lugar de 'fieldsets' para evitar errores de sintaxis
-    fields = ('previsualizacion', 'nombre','destacado', 'slug', 'tipo','itinerario','get_precio_adulto', 'activo', 'imagen_principal', 'ver_imagen_grande','video_youtube')
+    # Para que Unfold active las PESTAÑAS, usamos 'fieldsets' en lugar de 'fields'
+    fieldsets = (
+        ("Información del Tour", {
+            "fields": (
+                'previsualizacion', 
+                'nombre', 
+                'destacado', 
+                'slug', 
+                'tipo', 
+                'itinerario', 
+                'get_precio_adulto', 
+                'activo'
+            ),
+        }),
+        ("Multimedia", {
+            "fields": (
+                'imagen_principal', 
+                'ver_imagen_grande', 
+                'video_youtube'
+            ),
+        }),
+    )
     
-    # Genera el slug automáticamente mientras escribes el nombre
     prepopulated_fields = {'slug': ('nombre',)}
     
-    # Unimos Precio y Galería en el formulario del Tour
+    # Inlines de Unfold (Precios y Galería aparecerán como secciones/pestañas)
     inlines = [PrecioInline, GaleriaInline]
-
 
     class Media:
         js = ('js/admin_tour_warning.js',)
@@ -96,24 +114,20 @@ class TourAdmin(admin.ModelAdmin):
         return self.prepopulated_fields
 
     def previsualizacion(self, obj):
-            if obj.imagen_principal:
-                return format_html(
-                    '<img src="{}" style="width: 80px; height: auto; border-radius: 8px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);" />',
-                    obj.imagen_principal.url
-                )
-            return "Sin imagen"
-        
-    previsualizacion.short_description = 'Imágen Pirncipal'
-
+        if obj.imagen_principal:
+            return format_html(
+                '<img src="{}" style="width: 80px; height: auto; border-radius: 8px;" />',
+                obj.imagen_principal.url
+            )
+        return "Sin imagen"
+    previsualizacion.short_description = 'Imagen Principal'
 
     def ver_imagen_grande(self, obj):
         if obj.imagen_principal:
-            return format_html('<img src="{}" style="max-width: 400px; height: auto;" />', obj.imagen_principal.url)
+            return format_html('<img src="{}" style="max-width: 400px; height: auto; border-radius: 12px;" />', obj.imagen_principal.url)
         return "No hay imagen cargada"
 
-    # Función auxiliar para mostrar el precio en la lista
     def get_precio_adulto(self, obj):
- # Intentamos obtener el precio, si no existe o falla, devolvemos un aviso
         try:
             if hasattr(obj, 'precio') and obj.precio:
                 return f"${obj.precio.valor_adulto:,.0f}"
@@ -122,7 +136,7 @@ class TourAdmin(admin.ModelAdmin):
         return "No asignado"
     get_precio_adulto.short_description = 'Precio General'
 
- # 3. Registro de las Categorías
+
 @admin.register(TipoTour)
-class TipoTourAdmin(admin.ModelAdmin):
-    list_display = ('nombre',)   
+class TipoTourAdmin(ModelAdmin): # Cambiado a Unfold ModelAdmin
+    list_display = ('nombre',)
