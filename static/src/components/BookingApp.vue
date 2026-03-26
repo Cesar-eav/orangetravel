@@ -48,9 +48,25 @@
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1 ml-1">Fecha del Tour</label>
-            <input type="date" v-model="form.fecha" :min="minDate"
-              class="w-full p-3 bg-orange-50 border border-orange-100 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none transition-all font-semibold text-orange-800" />
+           <label class="block text-xs font-bold text-slate-700 uppercase mb-1 ml-1">Fecha del Tour</label>
+  
+  <DatePicker 
+    v-model="form.fecha" 
+    :disabled-dates="diasBloqueados"
+    :min-date="new Date()"
+    is-required
+    color="orange"
+  >
+    <template #default="{ inputValue, inputEvents }">
+      <input
+        class="w-full p-3 bg-orange-50 border border-orange-100 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none transition-all font-semibold text-orange-800"
+        :value="inputValue"
+        v-on="inputEvents"
+        readonly
+        placeholder="Selecciona una  s sfecha"
+      />
+    </template>
+  </DatePicker>
           </div>
 
           <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-3">
@@ -96,8 +112,17 @@
 </template>
 
 <script>
+
+  import { DatePicker } from 'v-calendar';
+  import 'v-calendar/style.css';
+  import axios from 'axios';
+
 export default {
   props: ['precioAdulto', 'precioNino', 'tourId'],
+  
+  components: {
+    DatePicker,
+  },
 
   watch: {
     isModalOpen(abierto) {
@@ -110,8 +135,12 @@ export default {
       }
     }
   },
+  mounted() {
+    this.cargarBloqueos();
+  },
   data() {
     return {
+      diasBloqueados: [],
       isModalOpen: false,
       cargando: false,
       form: {
@@ -125,6 +154,7 @@ export default {
       }
     }
   },
+
   computed: {
     minDate() {
       return new Date().toISOString().split('T')[0];
@@ -148,6 +178,16 @@ export default {
     }
   },
   methods: {
+    async cargarBloqueos() {
+      try {
+        const response = await fetch(`/tours/api/bloqueos/${this.tourId}/`);
+        const data = await response.json();
+        // V-Calendar prefiere objetos Date o strings ISO
+        this.diasBloqueados = data.bloqueadas.map(fecha => new Date(fecha + 'T12:00:00'));
+      } catch (error) {
+        console.error("Error cargando bloqueos:", error);
+      }
+    },
     increment(tipo) { this.form[tipo]++; },
     decrement(tipo) {
       if (tipo === 'adultos' && this.form.adultos > 1) this.form.adultos--;
@@ -156,40 +196,92 @@ export default {
     formatoCLP(valor) {
       return new Intl.NumberFormat('es-CL').format(valor);
     },
-    async enviarReserva() {
-      this.cargando = true;
+async enviarReserva() {
+    console.log("--- INICIANDO ENVÍO DE RESERVA ---");
+    this.cargando = true;
 
-      // Capturamos el CSRF Token de las cookies de Django
-      const csrfToken = document.cookie
+    // 1. Capturamos el CSRF Token (Igual que antes)
+    const csrfToken = document.cookie
         .split('; ')
         .find(row => row.startsWith('csrftoken='))
         ?.split('=')[1];
 
-      try {
-        const response = await fetch('/tours/api/reserva/crear/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrfToken
-          },
-          body: JSON.stringify(this.form)
+    try {
+        // 2. DESEMPAQUETADO Y DEPURACIÓN DE DATOS
+        // Aquí extraemos cada dato y lo procesamos individualmente
+        
+        const nombreEnvio = this.form.nombre;
+        const emailEnvio = this.form.email;
+        const telefonoEnvio = this.form.telefono;
+        const adultosEnvio = this.form.adultos;
+        const ninosEnvio = this.form.ninos;
+        const tourIdEnvio = this.form.tour_id;
+
+        // TRATAMIENTO ESPECIAL DE LA FECHA (Para evitar el error de zona horaria)
+        // Convertimos el objeto Date de V-Calendar a un string YYYY-MM-DD local
+        let fechaEnvio = "";
+        if (this.form.fecha) {
+            const d = this.form.fecha;
+            // 'en-CA' genera formato YYYY-MM-DD exacto
+            fechaEnvio = d.toLocaleDateString('en-CA'); 
+        }
+
+        // 3. LOGS DE CONTROL (Aquí verás en la consola de F12 dato por dato)
+        console.log("Dato - Nombre:", nombreEnvio);
+        console.log("Dato - Email:", emailEnvio);
+        console.log("Dato - Fecha Original (Objeto):", this.form.fecha);
+        console.log("Dato - Fecha Formateada (String):", fechaEnvio);
+        console.log("Dato - Tour ID:", tourIdEnvio);
+        console.log("Dato - Total Pax:", (adultosEnvio + ninosEnvio));
+
+        // 4. CONSTRUCCIÓN DEL PAYLOAD (El paquete final)
+        const payload = {
+            nombre: nombreEnvio,
+            email: emailEnvio,
+            telefono: telefonoEnvio,
+            fecha: fechaEnvio,
+            adultos: adultosEnvio,
+            ninos: ninosEnvio,
+            tour_id: tourIdEnvio
+        };
+
+        // 5. ENVÍO CON AXIOS
+        // Axios automáticamente convierte el objeto a JSON y maneja las respuestas
+        const response = await axios.post('/tours/api/reserva/crear/', payload, {
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json'
+            }
         });
 
-        const data = await response.json();
-
-        if (data.status === 'success') {
-          alert("¡Solicitud enviada! Nos contactaremos contigo a la brevedad.");
-          // Opcional: limpiar formulario
-          this.form.fecha = '';
+        // 6. RESPUESTA EXITOSA
+        // En Axios, la respuesta del servidor está en .data
+        if (response.data.status === 'success') {
+            alert("¡Solicitud enviada! Nos contactaremos contigo a la brevedad.");
+            this.isModalOpen = false; // Cerramos el modal
+            this.form.fecha = '';     // Limpiamos
         } else {
-          alert("Error: " + data.mensaje);
+            alert("Error del servidor: " + response.data.mensaje);
         }
-      } catch (error) {
-        console.error("Error en la petición:", error);
-      } finally {
+
+    } catch (error) {
+        // Axios captura errores de red (404, 500, etc.) aquí
+        console.error("ERROR EN LA PETICIÓN:");
+        if (error.response) {
+            // El servidor respondió con un error (ej: 403 Forbidden)
+            console.error("Datos del error:", error.response.data);
+            console.error("Status del error:", error.response.status);
+        } else {
+            // Error de conexión o configuración
+            console.error("Mensaje de error:", error.message);
+        }
+    } finally {
         this.cargando = false;
-      }
+        console.log("--- FIN DEL PROCESO ---");
     }
+
+ }
+
   }
 }
-</script>s
+</script>
