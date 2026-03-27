@@ -2,25 +2,22 @@
 nixPkgs = ["python311", "nodejs_22", "gcc", "postgresql"]
 
 [phases.install]
-# Instalamos Node y creamos el entorno virtual LOCAL
+# AQUÍ ES DONDE SE DESCARGAN LAS HERRAMIENTAS
 cmds = [
-    "npm run build", 
-    "echo '--- CONTENIDO GENERADO POR VITE ---'",
-    "ls -R static/js/dist", 
-    "echo '--- CONTENIDO DE STATIC EN GENERAL ---'",
-    "ls -R static",
-    "echo '--- EJECUTANDO COLLECTSTATIC ---'",
-    "./venv/bin/python manage.py collectstatic --noinput --clear"
+    "npm install", # <--- FUNDAMENTAL: Esto trae a Vite y Tailwind
+    "python -m venv venv",
+    "./venv/bin/pip install --upgrade pip",
+    "./venv/bin/pip install -r requirements.txt"
 ]
 
 [phases.build]
-# Generamos el CSS de Tailwind 4 y recolectamos estáticos usando el venv local
+# AQUÍ ES DONDE SE COCINA EL DISEÑO
 cmds = [
     "npm run build", 
-    "ls -R static/js/dist", # Esto nos dirá en el log si Vite realmente creó los archivos,
-    "./venv/bin/python manage.py collectstatic --noinput"
+    "echo '--- VERIFICANDO ARCHIVOS ---'",
+    "ls -R static/js/dist", 
+    "./venv/bin/python manage.py collectstatic --noinput --clear"
 ]
 
 [start]
-# Migraciones y arranque usando el venv local
 cmd = "./venv/bin/python manage.py migrate && ./venv/bin/python -m gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --timeout 600"
