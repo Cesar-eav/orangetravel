@@ -2,7 +2,7 @@
 nixPkgs = ["python311", "nodejs_22", "gcc", "postgresql"]
 
 [phases.install]
-# Instalamos dependencias de Node y Python
+# Creamos el entorno virtual y luego instalamos ahí dentro
 cmds = [
     "npm install",
     "python -m venv /opt/venv",
@@ -10,12 +10,12 @@ cmds = [
 ]
 
 [phases.build]
-# Primero compilamos Tailwind 4 y luego recolectamos estáticos
+# Usamos el python del entorno virtual para los comandos de Django
 cmds = [
-    "npm run build", 
+    "npm run build",
     "/opt/venv/bin/python manage.py collectstatic --noinput"
 ]
 
 [start]
-# Usamos el Gunicorn que está dentro del entorno virtual
+# Arrancamos Gunicorn usando el binario del entorno virtual
 cmd = "/opt/venv/bin/python -m gunicorn config.wsgi --bind 0.0.0.0:$PORT --timeout 600"
