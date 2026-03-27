@@ -4,10 +4,13 @@ nixPkgs = ["python311", "nodejs_22", "gcc", "postgresql"]
 [phases.install]
 # Instalamos Node y creamos el entorno virtual LOCAL
 cmds = [
-    "npm install",
-    "python -m venv venv",
-    "./venv/bin/pip install --upgrade pip",
-    "./venv/bin/pip install -r requirements.txt"
+    "npm run build", 
+    "echo '--- CONTENIDO GENERADO POR VITE ---'",
+    "ls -R static/js/dist", 
+    "echo '--- CONTENIDO DE STATIC EN GENERAL ---'",
+    "ls -R static",
+    "echo '--- EJECUTANDO COLLECTSTATIC ---'",
+    "./venv/bin/python manage.py collectstatic --noinput --clear"
 ]
 
 [phases.build]
