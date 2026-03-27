@@ -16,7 +16,7 @@ venv/
 .venv/
 env/
 .vscode/
-static/css
+# static/css
 static/js/dist/assets
 
 # Archivos de SO
