@@ -1,7 +1,8 @@
 {
   "$schema": "https://railway.app/shorthand.schema.json",
   "build": {
-    "builder": "NIXPACKS"
+    "builder": "NIXPACKS",
+    "buildCommand": "python manage.py collectstatic --noinput"
   },
   "deploy": {
     "startCommand": "/opt/venv/bin/python -m gunicorn config.wsgi --bind 0.0.0.0:$PORT",
