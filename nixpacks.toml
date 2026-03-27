@@ -2,22 +2,22 @@
 nixPkgs = ["python311", "nodejs_22", "gcc", "postgresql"]
 
 [phases.install]
-# AQUÍ ES DONDE SE DESCARGAN LAS HERRAMIENTAS
 cmds = [
-    "npm install", # <--- FUNDAMENTAL: Esto trae a Vite y Tailwind
+    "npm install",
     "python -m venv venv",
     "./venv/bin/pip install --upgrade pip",
     "./venv/bin/pip install -r requirements.txt"
 ]
 
 [phases.build]
-# AQUÍ ES DONDE SE COCINA EL DISEÑO
+# Aquí es donde Vite hace su magia y nosotros auditamos
 cmds = [
-    "npm run build", 
-    "echo '--- VERIFICANDO ARCHIVOS ---'",
-    "ls -R static/js/dist", 
-    "./venv/bin/python manage.py collectstatic --noinput --clear"
+    "npm run build",
+    "echo '--- VERIFICANDO ARCHIVOS GENERADOS POR VITE ---'",
+    "ls -R static/js/dist",
+    "echo '--- FIN DE LA VERIFICACIÓN ---'"
 ]
 
 [start]
-cmd = "./venv/bin/python manage.py migrate && ./venv/bin/python -m gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --timeout 600"
+# Recolectamos al arrancar para asegurar que el disco esté listo
+cmd = "./venv/bin/python manage.py collectstatic --noinput && ./venv/bin/python manage.py migrate && ./venv/bin/python -m gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --timeout 600"

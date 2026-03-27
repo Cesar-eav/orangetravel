@@ -125,7 +125,7 @@ UNFOLD = {
         },
     },
     "STYLES": [
-        lambda request: static("css/output.css"), # Tu CSS de Tailwind 4
+        lambda request: static("js/dist/assets/main.css"),
     ],
 }
 
@@ -164,6 +164,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 if not DEBUG:
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    WHITENOISE_MANIFEST_STRICT = False # <--- AÑADE ESTO (evita errores si falta un archivo)
 else:
     # En local (DEBUG=True) es mejor el storage normal para no tener problemas de archivos faltantes
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
