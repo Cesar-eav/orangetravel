@@ -14,6 +14,7 @@ cmds = [
 # Generamos el CSS de Tailwind 4 y recolectamos estáticos usando el venv local
 cmds = [
     "npm run build", 
+    "ls -R static/js/dist", # Esto nos dirá en el log si Vite realmente creó los archivos,
     "./venv/bin/python manage.py collectstatic --noinput"
 ]
 

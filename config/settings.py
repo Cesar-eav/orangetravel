@@ -230,3 +230,5 @@ DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'Orange Travel <noreply@ora
 # 12. OTROS
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+
+WHITENOISE_MANIFEST_STRICT = False
