@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     "unfold",  # SIEMPRE PRIMERO
     "unfold.contrib.filters",
     "unfold.contrib.forms",
+    
+    'django.contrib.staticfiles',
 
     'cloudinary_storage', # Debe ir antes de staticfiles
     'cloudinary',
@@ -52,7 +54,6 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
 
     'ckeditor',
     'ckeditor_uploader',

@@ -12,14 +12,11 @@ cmds = [
 [phases.build]
 cmds = [
     "npm run build",
-    "echo '--- BUSCANDO ARCHIVOS CRÍTICOS (CSS y JS) ---'",
-    # Este comando busca main.css y main.js en todo el proyecto ignorando node_modules
-    "find . -path './node_modules' -prune -o -name 'main.css' -print -o -name 'main.js' -print",
-    "echo '--- RASTREO DE CARPETA STATIC ---'",
-    "ls -R static",
-    "echo '--- FIN DEL RASTREO ---'"
+    "echo '--- CONTENIDO DE DIST DESPUÉS DEL BUILD ---'",
+    "ls -R static/js/dist/assets",
+    "mkdir -p staticfiles"
 ]
 
 [start]
-# Mantenemos el collectstatic aquí para ver si después del rastreo copia algo
-cmd = "./venv/bin/python manage.py collectstatic --noinput && ./venv/bin/python manage.py migrate && ./venv/bin/python -m gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --timeout 600"
+# Añadimos un chequeo de Django antes de arrancar
+cmd = "./venv/bin/python manage.py collectstatic --noinput --clear && ./venv/bin/python manage.py migrate && ./venv/bin/python -m gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --timeout 600"

@@ -22,15 +22,18 @@ export default defineConfig({
       emptyOutDir: true,
       manifest: true,
       rollupOptions: {
-        input: path.resolve(__dirname, 'static/src/main.js'),
-        // AGREGA ESTO:
+        // FORZAMOS LOS DOS ARCHIVOS COMO ENTRADA
+        input: {
+          main: path.resolve(__dirname, 'static/src/main.js'),
+          styles: path.resolve(__dirname, 'static/src/input.css') 
+        },
         output: {
           entryFileNames: `assets/[name].js`,
           chunkFileNames: `assets/[name].js`,
-          assetFileNames: `assets/[name].[ext]`
+          assetFileNames: `assets/[name].[ext]` // Esto asegurará que sea main.css
         }
       },
-    },
+  },
   server: {
     // Configuración para que el HMR (Hot Module Replacement) funcione con Django
     host: 'localhost',
