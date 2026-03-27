@@ -39,6 +39,7 @@ if not DEBUG:
 
 # 3. APLICACIONES INSTALADAS
 INSTALLED_APPS = [
+    "whitenoise.runserver_nostatic", # Agrégalo aquí arriba
     "unfold",  # SIEMPRE PRIMERO
     "unfold.contrib.filters",
     "unfold.contrib.forms",
@@ -66,7 +67,8 @@ INSTALLED_APPS = [
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
     'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET')
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+    'STATICFILES_STORAGE': None,  # <--- AGREGA ESTA LÍNEA (Vital)
 }
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
@@ -160,7 +162,12 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Soporte para compresión de WhiteNoise en producción
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+if not DEBUG:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+else:
+    # En local (DEBUG=True) es mejor el storage normal para no tener problemas de archivos faltantes
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
