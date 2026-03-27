@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "npx @tailwindcss/cli -i ./static/src/input.css -o ./static/css/output.css",
+    "build": "vite build", //LEE EL VITE.CONFIG.MJS
     "preview": "vite preview"
   },
   "repository": {
