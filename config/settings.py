@@ -39,31 +39,29 @@ if not DEBUG:
 
 # 3. APLICACIONES INSTALADAS
 INSTALLED_APPS = [
-    "whitenoise.runserver_nostatic", # Agrégalo aquí arriba
-    "unfold",  # SIEMPRE PRIMERO
+    "whitenoise.runserver_nostatic", 
+    "unfold",  
     "unfold.contrib.filters",
     "unfold.contrib.forms",
     
 
-
-    'cloudinary_storage', # Debe ir antes de staticfiles
-    'cloudinary',
-
     'django.contrib.staticfiles',
-
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
 
-    'ckeditor',
-    'ckeditor_uploader',
+    'cloudinary_storage', 
+    'cloudinary',
 
     # APPS PROPIAS
     'home',
     'tours',
     'blog',
+
+    'ckeditor',
+    'ckeditor_uploader',
 ]
 
 # Configuración de Cloudinary
@@ -74,7 +72,6 @@ CLOUDINARY_STORAGE = {
     'STATICFILES_STORAGE': None,  # <--- AGREGA ESTA LÍNEA (Vital)
 }
 
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 if DEBUG:
     INSTALLED_APPS += ["debug_toolbar"]
@@ -128,7 +125,7 @@ UNFOLD = {
         },
     },
     "STYLES": [
-        lambda request: static("js/dist/assets/main.css"),
+        lambda request: static("js/dist/assets/styles.css"),
     ],
 }
 
@@ -160,8 +157,9 @@ if not DEBUG and DATABASES['default']:
 
 # 8. ARCHIVOS ESTÁTICOS Y MEDIA
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
 
 # Soporte para compresión de WhiteNoise en producción
 
@@ -172,6 +170,7 @@ else:
     # En local (DEBUG=True) es mejor el storage normal para no tener problemas de archivos faltantes
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
