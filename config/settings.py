@@ -44,10 +44,12 @@ INSTALLED_APPS = [
     "unfold.contrib.filters",
     "unfold.contrib.forms",
     
-    'django.contrib.staticfiles',
+
 
     'cloudinary_storage', # Debe ir antes de staticfiles
     'cloudinary',
+
+    'django.contrib.staticfiles',
 
     'django.contrib.admin',
     'django.contrib.auth',
