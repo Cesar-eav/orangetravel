@@ -44,16 +44,19 @@ INSTALLED_APPS = [
     "unfold.contrib.filters",
     "unfold.contrib.forms",
     
+    'cloudinary_storage', 
 
+    # Archivos estáticos
     'django.contrib.staticfiles',
+    'cloudinary',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
 
-    'cloudinary_storage', 
-    'cloudinary',
+
 
     # APPS PROPIAS
     'home',
@@ -161,16 +164,29 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 
-# Soporte para compresión de WhiteNoise en producción
-
+# Configuración unificada de almacenamiento (Django 4.2+)
 if not DEBUG:
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-    WHITENOISE_MANIFEST_STRICT = False # <--- AÑADE ESTO (evita errores si falta un archivo)
+    STORAGES = {
+        # Para las fotos de los tours (Cloudinary)
+        "default": {
+            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+        },
+        # Para el CSS/JS de Vite (WhiteNoise)
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
+    WHITENOISE_MANIFEST_STRICT = False
 else:
-    # En local (DEBUG=True) es mejor el storage normal para no tener problemas de archivos faltantes
-    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
-
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    # En desarrollo local
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
