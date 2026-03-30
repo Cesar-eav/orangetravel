@@ -175,7 +175,7 @@ if not DEBUG:
         },
         "staticfiles": {
             # Usamos el almacenamiento que no busca archivos faltantes
-            "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+            "BACKEND": "whitenoise.storage.StaticFilesStorage",
         },
     }
     # Compatibilidad con librerías que buscan variables antiguas
@@ -186,8 +186,8 @@ else:
         "default": { "BACKEND": "django.core.files.storage.FileSystemStorage" },
         "staticfiles": { "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage" },
     }
-    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
-    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+    STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
