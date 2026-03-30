@@ -159,35 +159,32 @@ if not DEBUG and DATABASES['default']:
     DATABASES['default']['OPTIONS'] = {'sslmode': 'require'}
 
 # 8. ARCHIVOS ESTÁTICOS Y MEDIA
+# 8. ARCHIVOS ESTÁTICOS Y MEDIA
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
+# Configuración de WhiteNoise para ser menos estricto
+WHITENOISE_MANIFEST_STRICT = False
+WHITENOISE_IGNORE_MISSING_FILES = True  # <--- ESTO ES VITAL para CKEditor
 
-# Configuración unificada de almacenamiento (Django 4.2+)
 if not DEBUG:
     STORAGES = {
         "default": {
             "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
         },
         "staticfiles": {
-            # CAMBIAMOS 'CompressedManifestStaticFilesStorage' por 'CompressedStaticFilesStorage'
+            # Usamos el almacenamiento que no busca archivos faltantes
             "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
         },
     }
-    # ACTUALIZAMOS LAS VARIABLES DE COMPATIBILIDAD
+    # Compatibilidad con librerías que buscan variables antiguas
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    
-    WHITENOISE_MANIFEST_STRICT = False
 else:
     STORAGES = {
-        "default": {
-            "BACKEND": "django.core.files.storage.FileSystemStorage",
-        },
-        "staticfiles": {
-            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-        },
+        "default": { "BACKEND": "django.core.files.storage.FileSystemStorage" },
+        "staticfiles": { "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage" },
     }
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
