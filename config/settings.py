@@ -176,6 +176,10 @@ if not DEBUG:
             "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
         },
     }
+    # --- AGREGA ESTAS DOS LÍNEAS PARA COMPATIBILIDAD CON CLOUDINARY ---
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    # ----------------------------------------------------------------
     WHITENOISE_MANIFEST_STRICT = False
 else:
     # En desarrollo local
@@ -187,6 +191,9 @@ else:
             "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
         },
     }
+    # --- TAMBIÉN EN LOCAL PARA EVITAR ERRORES SI CORRES COLLECTSTATIC ---
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
