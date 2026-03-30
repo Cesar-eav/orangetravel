@@ -179,7 +179,7 @@ if not DEBUG:
         },
     }
     # Compatibilidad con librerías que buscan variables antiguas
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+    STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 else:
     STORAGES = {
