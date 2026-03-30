@@ -9,18 +9,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 if os.path.exists(os.path.join(BASE_DIR, '.env')):
     load_dotenv(os.path.join(BASE_DIR, '.env'))
 
-# 2. SEGURIDAD (Configuración dinámica para Railway/Local)
+# 2. SEGURIDAD
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-tu_53-at5s0jw-&9hkvp+c-%n+rzar(+59pxh!jckw7f!*x!dt')
-
-# IMPORTANTE: En Railway, crea una variable DEBUG = False
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = [
-    # '*',
     '127.0.0.1',
     'orangetravel-production.up.railway.app',
     'localhost',
-    # '.railway.app',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -29,25 +25,22 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost',
 ]
 
-
 if not DEBUG:
-    # Esto es vital para que Railway no te de 502 por SSL
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
 
-
-
-# 3. APLICACIONES INSTALADAS
+# 3. APLICACIONES INSTALADAS (Orden corregido para WhiteNoise vs Cloudinary)
 INSTALLED_APPS = [
     "whitenoise.runserver_nostatic", 
     "unfold",  
     "unfold.contrib.filters",
     "unfold.contrib.forms",
     
-    'cloudinary_storage', 
-
-    # Archivos estáticos
+    # Archivos estáticos (Primero WhiteNoise/Django)
     'django.contrib.staticfiles',
+    
+    # Multimedia (Cloudinary DESPUÉS de staticfiles para que no toque el CSS)
+    'cloudinary_storage', 
     'cloudinary',
 
     'django.contrib.admin',
@@ -56,9 +49,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
 
-
-
-    # APPS PROPIAS
     'home',
     'tours',
     'blog',
@@ -67,23 +57,21 @@ INSTALLED_APPS = [
     'ckeditor_uploader',
 ]
 
-# Configuración de Cloudinary
+# Configuración de Cloudinary (Solo para Media)
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
     'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
     'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
-    'STATICFILES_STORAGE': None,  # <--- AGREGA ESTA LÍNEA (Vital)
 }
-
 
 if DEBUG:
     INSTALLED_APPS += ["debug_toolbar"]
     INTERNAL_IPS = ["127.0.0.1"]
 
-# 4. MIDDLEWARE (Orden crítico para WhiteNoise y DebugToolbar)
+# 4. MIDDLEWARE
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Segundo lugar para estáticos
+    'whitenoise.middleware.WhiteNoiseMiddleware', 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -94,7 +82,6 @@ MIDDLEWARE = [
 ]
 
 if DEBUG:
-    # Se inserta en la posición 3 para no interferir con WhiteNoise
     MIDDLEWARE.insert(2, 'debug_toolbar.middleware.DebugToolbarMiddleware')
 
 ROOT_URLCONF = 'config.urls'
@@ -116,14 +103,14 @@ TEMPLATES = [
     },
 ]
 
-# 6. CONFIGURACIÓN DE UNFOLD (Tailwind 4 Integration)
+# 6. CONFIGURACIÓN DE UNFOLD
 UNFOLD = {
     "SITE_TITLE": "Orange Travel Admin",
     "SITE_SYMBOL": "travel_explore",
     "COLORS": {
         "primary": {
             "50": "255 248 237",
-            "500": "249 115 22", # Naranja Orange Travel
+            "500": "249 115 22", 
             "600": "234 88 12",
         },
     },
@@ -134,7 +121,7 @@ UNFOLD = {
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# 7. BASE DE DATOS (Conexión Inteligente)
+# 7. BASE DE DATOS
 DATABASES = {
     'default': dj_database_url.config(
         default=os.getenv('DATABASE_URL'),
@@ -143,7 +130,6 @@ DATABASES = {
     )
 }
 
-# Si no hay DATABASE_URL (Estamos en local), usamos tu Postgres manual
 if not DATABASES['default']:
     DATABASES['default'] = {
         'ENGINE': 'django.db.backends.postgresql',
@@ -154,19 +140,16 @@ if not DATABASES['default']:
         'PORT': 5432,
     }
 
-# Obligar SSL en producción (Railway)
 if not DEBUG and DATABASES['default']:
     DATABASES['default']['OPTIONS'] = {'sslmode': 'require'}
 
-# 8. ARCHIVOS ESTÁTICOS Y MEDIA
-# 8. ARCHIVOS ESTÁTICOS Y MEDIA
+# 8. ARCHIVOS ESTÁTICOS Y MEDIA (Configuración Django 5.2 Clean)
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
-# Configuración de WhiteNoise para ser menos estricto
 WHITENOISE_MANIFEST_STRICT = False
-WHITENOISE_IGNORE_MISSING_FILES = True  # <--- ESTO ES VITAL para CKEditor
+WHITENOISE_IGNORE_MISSING_FILES = True 
 
 if not DEBUG:
     STORAGES = {
@@ -174,28 +157,21 @@ if not DEBUG:
             "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
         },
         "staticfiles": {
-            # Usamos el almacenamiento que no busca archivos faltantes
             "BACKEND": "whitenoise.storage.StaticFilesStorage",
         },
     }
-    # Compatibilidad con librerías que buscan variables antiguas
-    STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 else:
     STORAGES = {
         "default": { "BACKEND": "django.core.files.storage.FileSystemStorage" },
         "staticfiles": { "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage" },
     }
-    STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# 9. CKEDITOR (Configuración avanzada para Tailwind)
+# 9. CKEDITOR
 CKEDITOR_UPLOAD_PATH = "publicaciones/"
 CKEDITOR_IMAGE_BACKEND = "pillow"
-
 CKEDITOR_CONFIGS = {
     'default': {
         'skin': 'moono-lisa',
@@ -205,27 +181,12 @@ CKEDITOR_CONFIGS = {
         'language': 'es',
         'extraPlugins': ','.join(['image2', 'uploadimage', 'widget', 'lineutils', 'clipboard', 'dialog']),
         'removePlugins': 'image',
-        'extraAllowedContent': 'img(*); div(*); figure(*); figcaption(*);',
-        'contentsCss': [
-            'https://cdn.tailwindcss.com',
-            '/static/css/output.css',
-        ],
-        'bodyClass': 'resena-content', # Clase padre de tus estilos
         'toolbar_Custom': [
             ['Styles', 'Format', 'FontSize'],
             ['Bold', 'Italic', 'Underline', 'Strike'],
             ['NumberedList', 'BulletedList', '-', 'Blockquote'],
-            ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
             ['Link', 'Unlink'],
-            ['Image', 'Table', 'HorizontalRule'],
-            ['TextColor', 'BGColor'],
-            ['Maximize', 'Source'],
-        ],
-        'stylesSet': [
-            {'name': 'Texto Naranja', 'element': 'span', 'attributes': {'class': 'text-orange-500 font-bold'}},
-            {'name': 'Imagen 25%', 'element': 'img', 'attributes': {'class': 'img-blog-small'}, 'type': 'widget', 'widget': 'image'},
-            {'name': 'Imagen 50%', 'element': 'img', 'attributes': {'class': 'img-blog-medium'}, 'type': 'widget', 'widget': 'image'},
-            {'name': 'Imagen 100%', 'element': 'img', 'attributes': {'class': 'img-blog-full'}, 'type': 'widget', 'widget': 'image'},
+            ['Image', 'Source'],
         ],
     },
 }
@@ -237,18 +198,12 @@ TIME_ZONE = 'America/Santiago'
 USE_I18N = True
 USE_TZ = True
 
-# 11. EMAIL (Mailgun)
+# 11. EMAIL
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.mailgun.org'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-EMAIL_CONTACTO_RECIBIDO = 'cesar.eav@gmail.com'
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'Orange Travel <noreply@orangetravel.cl>')
 
-# 12. OTROS
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
-
-WHITENOISE_MANIFEST_STRICT = False
