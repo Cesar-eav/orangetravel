@@ -167,22 +167,20 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 # Configuración unificada de almacenamiento (Django 4.2+)
 if not DEBUG:
     STORAGES = {
-        # Para las fotos de los tours (Cloudinary)
         "default": {
             "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
         },
-        # Para el CSS/JS de Vite (WhiteNoise)
         "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+            # CAMBIAMOS 'CompressedManifestStaticFilesStorage' por 'CompressedStaticFilesStorage'
+            "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
         },
     }
-    # --- AGREGA ESTAS DOS LÍNEAS PARA COMPATIBILIDAD CON CLOUDINARY ---
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    # ACTUALIZAMOS LAS VARIABLES DE COMPATIBILIDAD
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    # ----------------------------------------------------------------
+    
     WHITENOISE_MANIFEST_STRICT = False
 else:
-    # En desarrollo local
     STORAGES = {
         "default": {
             "BACKEND": "django.core.files.storage.FileSystemStorage",
@@ -191,7 +189,6 @@ else:
             "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
         },
     }
-    # --- TAMBIÉN EN LOCAL PARA EVITAR ERRORES SI CORRES COLLECTSTATIC ---
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
