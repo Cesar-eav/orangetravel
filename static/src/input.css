@@ -18,6 +18,8 @@
 /* Rutas relativas a la RAÍZ del proyecto (donde está vite.config.mjs) */
 @source "./templates/**/*.html";
 @source "./**/templates/**/*.html";
+@source "../../templates/**/*.html"; 
+@source "../../**/templates/**/*.html"; /* Para apps de Django */
 
 /* static/src/input.css */
 
