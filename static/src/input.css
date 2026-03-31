@@ -21,6 +21,11 @@
 @source "../../templates/**/*.html"; 
 @source "../../**/templates/**/*.html"; /* Para apps de Django */
 
+@source "../../tours/templates/**/*.html";
+@source "../../home/templates/**/*.html";
+@source "../../blog/templates/**/*.html";
+
+
 /* Opcional: si tienes clases en archivos JS de Vue */
 @source "./components/**/*.vue";
 @source "./main.js";
