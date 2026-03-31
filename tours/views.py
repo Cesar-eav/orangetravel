@@ -22,6 +22,10 @@ def tours_home(request):
         'tours' : tours
     } )
 
+def tercera_edad(request):
+    
+    return render (request, 'tours/tercera_edad.html')
+
 def tour(request, slug):
 
     try:

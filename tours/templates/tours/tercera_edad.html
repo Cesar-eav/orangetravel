@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<section class="relative w-full h-100 group shadow-lg">
+        <img src="{{ tour.imagen_principal.url }}"
+             class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+        <div class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors"></div>
+        
+        <div class="absolute inset-0 p-6 flex flex-col text-white uppercase justify-center items-center">
+            <h3 class="text-3xl font-bold mb-1 text-center">Vacaciones Tercera Edad </h3>
+
+                    </div>
+        </section>
+        <script type="text/javascript">
+            
+            const lightbox = GLightbox({
+                touchNavigation: true, // Permite deslizar en móviles
+                loop: true, // Vuelve a la primera foto después de la última
+                autoplayVideos: true, // Si tienes videos, los reproduce solos
+                zoomable: true // ¡ACTIVA EL ZOOM!
+            });
+
+
+
+        </script>
+
+        {% if debug %}
+            {# MODO DESARROLLO: Conectamos con el servidor de Vite #}
+            <script type="module" src="http://localhost:5173/static/src/main.js"></script>
+        {% else %}
+            {# MODO PRODUCCIÓN: Archivo compilado por npm run build #}
+            {# Nota: Después de tu primer 'build', verifica el nombre exacto en static/js/dist #}
+            <script type="module" src="{% static 'js/dist/main.js' %}"></script>
+        {% endif %}
+
+    {% endblock %}
