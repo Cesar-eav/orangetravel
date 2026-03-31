@@ -13,6 +13,7 @@
 
             <div class="hidden md:flex items-center space-x-8 font-semibold text-sm uppercase tracking-wider">
                 <a href="{% url 'tours_home' %}" class="hover:text-orange-500 transition-colors">Tours</a>
+                <a href="#" class="font-bold hover:text-orange-500 transition-colors py-2 border-b border-white/5">Tercera Edad</a>
                 <a href="{% url 'nosotros' %}" class="hover:text-orange-500 transition-colors">Nosotros</a>
                 <a href="{% url 'contacto' %}" class="hover:text-orange-500 transition-colors">Contacto</a>
                 <a href="#" class="hover:text-orange-500 transition-colors text-orange-500">Reservar</a>
@@ -28,8 +29,11 @@
 
     <div id="mobile-menu" class="hidden md:hidden bg-blue-dark border-t border-white/10 px-4 pt-2 pb-6 space-y-4 shadow-2xl">
         <a href="{% url 'tours_home' %}" class="block text-lg font-bold hover:text-orange-500 transition-colors py-2 border-b border-white/5">Tours</a>
-        <a href="#" class="block text-lg font-bold hover:text-orange-500 transition-colors py-2 border-b border-white/5">Nosotros</a>
-        <a href="#" class="block text-lg font-bold text-orange-500 py-2">Reservar Ahora</a>
+        <a href="#" class="block text-lg font-bold hover:text-orange-500 transition-colors py-2 border-b border-white/5">Tercera Edad</a>
+        <a href="{% url 'nosotros'  %}" class="block text-lg font-bold hover:text-orange-500 transition-colors py-2 border-b border-white/5">Nosotros</a>
+        <a href="{% url 'contacto' %}" class="text-lg font-bold hover:text-orange-500 transition-colors">Contacto</a>
+
+
     </div>
 </nav>
 
