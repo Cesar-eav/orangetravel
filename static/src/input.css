@@ -21,6 +21,10 @@
 @source "../../templates/**/*.html"; 
 @source "../../**/templates/**/*.html"; /* Para apps de Django */
 
+/* Opcional: si tienes clases en archivos JS de Vue */
+@source "./components/**/*.vue";
+@source "./main.js";
+
 /* static/src/input.css */
 
 @layer components {
