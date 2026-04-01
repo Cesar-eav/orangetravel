@@ -49,28 +49,36 @@
                 {% for foto in fotos %}
                     <a href="{{ foto.imagen.url }}"
                        class="glightbox"
-                       data-gallery="gallery1">
+                       data-gallery="gallery1"
+                       data-type="image"
+                       >
                         <img src="{{ foto.imagen.url }}"
                              class="h-56 w-46 rounded-2xl hover:scale-110 transition-transform duration-300 object-cover" />
                     </a>
                 {% endfor %}
             </div>
         </section>
-        <script type="text/javascript">
-            
+<script type="text/javascript">
+    // Esta función se asegura de que GLightbox exista antes de intentar usarlo
+    function initLightbox() {
+        if (typeof GLightbox !== 'undefined') {
+            console.log("✅ GLightbox detectado, inicializando...");
             const lightbox = GLightbox({
-                selector: '.glightbox', // Especificamos el selector exacto
-                touchNavigation: true, // Permite deslizar en móviles
-                loop: true, // Vuelve a la primera foto después de la última
-                autoplayVideos: true, // Si tienes videos, los reproduce solos
-                zoomable: true // ¡ACTIVA EL ZOOM!
-
+                selector: '.glightbox',
+                touchNavigation: true,
+                loop: true,
+                zoomable: true
             });
+        } else {
+            console.error("❌ Error: GLightbox no está definido aún. Reintentando...");
+            // Si no está listo, espera 500ms y vuelve a intentar (plan B)
+            setTimeout(initLightbox, 500);
+        }
+    }
 
-
-
-        </script>
-
+    // Ejecutar al cargar el DOM
+    document.addEventListener('DOMContentLoaded', initLightbox);
+</script>
         {% comment %} {% if debug %}
             {# MODO DESARROLLO: Conectamos con el servidor de Vite #}
             <script type="module" src="http://localhost:5173/static/src/main.js"></script>
