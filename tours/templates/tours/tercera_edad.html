@@ -2,129 +2,120 @@
 {% load static %}
 
 {% block content %}
-<section class="bg-gray-50 py-20">
+<section class="py-16 bg-white overflow-hidden">
     <div class="container mx-auto px-6 max-w-6xl">
-        <div class="flex flex-col md:flex-row items-center gap-12">
-            <div class="md:w-1/2 space-y-6">
-                <div class="inline-block px-3 py-1 bg-orange-100 text-orange-600 rounded-full text-sm font-bold tracking-wider uppercase">
-                    Programas Sernatur
-                </div>
-                <h1 class="font-marcellus text-4xl md:text-5xl text-gray-900 leading-tight">
-                    ¿Qué es Vacaciones <br><span class="text-orange-500">Tercera Edad?</span>
+        <div class="flex flex-col lg:flex-row items-center gap-16">
+            <div class="lg:w-3/5">
+                <span class="text-orange-500 font-bold tracking-widest uppercase text-sm">Información del Programa</span>
+                <h1 class="font-marcellus text-4xl md:text-5xl text-gray-900 mt-2 mb-8 leading-tight">
+                    ¿Qué es Vacaciones Tercera Edad?
                 </h1>
-                <div class="space-y-4 text-gray-600 text-lg leading-relaxed">
+                
+                <div class="space-y-6 text-gray-700 text-lg leading-relaxed text-justify">
                     <p>
-                        Es un programa de <strong>Sernatur</strong> que promueve el turismo interno en temporadas de baja y media demanda, es decir, entre marzo y diciembre.
+                        Es un programa de <strong>Sernatur</strong> que promueve el turismo interno en temporadas de baja y media demanda, es decir, entre los meses de marzo a diciembre, a través de la oferta de paquetes turísticos subsidiados por Sernatur en un porcentaje respecto a su valor total.
                     </p>
                     <p>
-                        Se basa en paquetes turísticos <strong>subsidiados por Sernatur</strong> en un porcentaje respecto a su valor total, permitiendo acceder a viajes de calidad a un bajo precio.
+                        Estos paquetes de viaje se desarrollan bajo dos modalidades: <strong>Clásico y Escapadas</strong>, las que presentan diferentes características en su composición; todas ellas especialmente diseñadas para personas mayores, jubilados/as, pensionados/as, montepiados/as y personas en situación de discapacidad mayores de 18 años, quienes pueden acceder a los beneficios físicos y sicológicos que entrega la actividad turística.
                     </p>
-                    <p class="font-medium text-gray-800">
-                        ¡Descubre esta oportunidad única de recorrer nuestro país con estándares de bienestar y comodidad!
+                    <p class="italic border-l-4 border-orange-500 pl-4 py-2 bg-orange-50 text-gray-800 font-medium">
+                        ¡Viaja a través del programa Vacaciones Tercera Edad y descubre esta oportunidad única de disfrutar y recorrer nuestro país con estándares de calidad y bienestar a un bajo precio!
                     </p>
                 </div>
             </div>
-            <div class="md:w-1/2 relative">
-                <div class="absolute -top-4 -left-4 w-24 h-24 bg-orange-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-                <img src="{% static 'img/tercera_edad_2.jpg' %}" 
-                     class="relative rounded-3xl shadow-2xl w-full h-[400px] object-cover border-8 border-white">
+            
+            <div class="lg:w-2/5">
+                <div class="aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl border-[12px] border-gray-100 transform rotate-2 hover:rotate-0 transition-transform duration-500">
+                    <img src="{% static 'img/tercera_edad_2.jpg' %}" class="w-full h-full object-cover">
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<section class="py-20">
+<section class="py-20 bg-gray-50 border-y border-gray-200">
     <div class="container mx-auto px-6 max-w-6xl">
-        <div class="flex flex-col-reverse md:flex-row items-center gap-12">
-            <div class="md:w-1/2">
-                <img src="{% static 'img/tercera_edad_1.jpg' %}" 
-                     class="rounded-3xl shadow-2xl w-full h-[400px] object-cover">
-            </div>
-            <div class="md:w-1/2 space-y-6">
-                <h2 class="font-marcellus text-4xl text-gray-900">
-                    ¿Quiénes pueden acceder?
+        <div class="flex flex-col lg:flex-row-reverse items-start gap-16">
+            <div class="lg:w-3/5">
+                <h2 class="font-marcellus text-4xl text-gray-900 mb-8 leading-tight">
+                    ¿Quiénes pueden acceder al programa Vacaciones Tercera Edad?
                 </h2>
-                <ul class="space-y-4">
-                    <li class="flex gap-4">
-                        <div class="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
-                        <p class="text-gray-600">Ciudadanos chilenos o extranjeros <strong>mayores de 60 años</strong> con cédula vigente.</p>
-                    </li>
-                    <li class="flex gap-4">
-                        <div class="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold">2</div>
-                        <p class="text-gray-600">Jubilados, pensionados o montepiados <strong>mayores de 18 años</strong> (acreditando liquidación de pago).</p>
-                    </li>
-                    <li class="flex gap-4">
-                        <div class="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold">3</div>
-                        <p class="text-gray-600">Personas con <strong>discapacidad mayor de 18 años</strong>, quienes pueden viajar con un acompañante.</p>
-                    </li>
-                </ul>
+                
+                <div class="space-y-8">
+                    <div class="flex gap-6">
+                        <div class="flex-shrink-0 w-12 h-12 bg-orange-500 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6">
+                            <i class="fas fa-id-card text-white text-xl"></i>
+                        </div>
+                        <p class="text-gray-700 text-lg leading-relaxed">
+                            Pueden viajar quienes sean ciudadanos chilenos o extranjeros <strong>mayores de 60 años</strong>, con cédula de identidad chilena vigente.
+                        </p>
+                    </div>
+
+                    <div class="flex gap-6 border-t border-gray-200 pt-6">
+                        <div class="flex-shrink-0 w-12 h-12 bg-orange-500 rounded-2xl flex items-center justify-center shadow-lg transform rotate-6">
+                            <i class="fas fa-file-invoice-dollar text-white text-xl"></i>
+                        </div>
+                        <p class="text-gray-700 text-lg leading-relaxed">
+                            También ciudadanos chilenos o extranjeros <strong>mayores de 18 años</strong> con cédula de identidad chilena que estén jubilados, pensionados o montepiados de cualquier sistema previsional. Deben acreditar esta condición, mediante la última liquidación de pago u otro documento equivalente.
+                        </p>
+                    </div>
+
+                    <div class="flex gap-6 border-t border-gray-200 pt-6">
+                        <div class="flex-shrink-0 w-12 h-12 bg-orange-500 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-3">
+                            <i class="fas fa-wheelchair text-white text-xl"></i>
+                        </div>
+                        <p class="text-gray-700 text-lg leading-relaxed">
+                            Ciudadanos chilenos o extranjeros <strong>mayores de 18 años</strong> con cédula de identidad chilena que presenten situación de discapacidad. Estas personas podrán viajar individualmente acompañados por una persona que les facilite el acceso a todas las actividades del viaje y del diario vivir. Al momento de reservar su viaje en la agencia, deberán mostrar su identificación otorgada por <strong>Compín, Senadis</strong> u otro certificado que acredite su calidad.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:w-2/5 sticky top-10">
+                <div class="aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl border-[12px] border-white transform -rotate-2 hover:rotate-0 transition-transform duration-500">
+                    <img src="{% static 'img/tercera_edad_1.jpg' %}" class="w-full h-full object-cover">
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<section class="bg-gray-900 text-white py-20">
+<section class="py-20 bg-white">
     <div class="container mx-auto px-6 max-w-6xl">
-        <div class="bg-gray-800 rounded-3xl p-8 md:p-12 shadow-inner border border-gray-700">
-            <div class="flex flex-col md:flex-row gap-8 items-center mb-12">
-                <img src="{% static 'img/logo_tercera_edad.png' %}" class="h-24 md:h-32 object-contain bg-white p-4 rounded-2xl">
-                <div>
-                    <h2 class="text-orange-500 font-bold text-xl tracking-widest mb-2">MODALIDAD 2</h2>
-                    <h3 class="font-marcellus text-4xl mb-4">ESCAPADAS</h3>
-                    <p class="text-gray-300 text-lg leading-relaxed">
-                        Paquetes turísticos "todo incluido" desarrollados dentro de la región de origen o contiguas. Con una estadía de <strong>2 a 3 noches</strong>, incluyen alojamiento, traslados, alimentación, guía, seguro de viaje y excursiones.
+        <div class="bg-gray-900 rounded-[3rem] p-10 md:p-16 shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
+            
+            <div class="flex flex-col md:flex-row gap-12 items-center mb-16 relative z-10">
+                <div class="bg-white p-6 rounded-3xl shadow-xl transform hover:scale-105 transition-transform">
+                    <img src="{% static 'img/logo_tercera_edad.png' %}" class="h-32 object-contain">
+                </div>
+                <div class="flex-1 text-center md:text-left">
+                    <h3 class="text-orange-500 font-bold text-2xl mb-2 tracking-widest uppercase">2. ESCAPADAS</h3>
+                    <p class="text-gray-300 text-xl leading-relaxed text-justify">
+                        Son paquetes turísticos desarrollados dentro de la región de origen o contiguas, en formato todo incluido para personas mayores de 60 años. Las escapadas tienen una estadía de <strong>2 a 3 noches</strong>, dependiendo del destino y cuentan con servicio de alojamiento, traslados terrestre o aéreo (según el destino), servicio de alimentación, guía turístico, seguro de asistencia en viaje, actividades recreativas y excursiones, es decir, todo incluido. 
+                        <br><br>
+                        <span class="text-white italic">¡Si tienes poco tiempo, lo tuyo es una escapada con los viajes de corta estadía del programa Vacaciones Tercera Edad!</span>
                     </p>
                 </div>
             </div>
 
-<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-    
-    <a href="{% static 'img/escapadas_codpa.jpeg' %}" 
-       class="glightbox group relative block overflow-hidden rounded-3xl shadow-xl bg-gray-800" 
-       data-gallery="escapadas" 
-       data-type="image">
-        <div class="aspect-[4/5] w-full overflow-hidden">
-            <img src="{% static 'img/escapadas_codpa.jpeg' %}" 
-                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-80 group-hover:opacity-100 transition-opacity"></div>
-            <div class="absolute bottom-6 left-6">
-                <p class="text-orange-500 font-bold tracking-widest text-xs mb-1">ARICA Y PARINACOTA</p>
-                <h4 class="text-2xl font-marcellus text-white">Codpa</h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
+                <a href="{% static 'img/escapadas_codpa.jpeg' %}" class="glightbox group block overflow-hidden rounded-2xl shadow-xl" data-gallery="escapadas" data-type="image">
+                    <div class="aspect-[4/5]">
+                        <img src="{% static 'img/escapadas_codpa.jpeg' %}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    </div>
+                </a>
+                <a href="{% static 'img/escapadas_iquique.jpeg' %}" class="glightbox group block overflow-hidden rounded-2xl shadow-xl" data-gallery="escapadas" data-type="image">
+                    <div class="aspect-[4/5]">
+                        <img src="{% static 'img/escapadas_iquique.jpeg' %}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    </div>
+                </a>
+                <a href="{% static 'img/escapadas_iquique2.jpeg' %}" class="glightbox group block overflow-hidden rounded-2xl shadow-xl" data-gallery="escapadas" data-type="image">
+                    <div class="aspect-[4/5]">
+                        <img src="{% static 'img/escapadas_iquique2.jpeg' %}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    </div>
+                </a>
             </div>
-        </div>
-    </a>
-
-    <a href="{% static 'img/escapadas_iquique.jpeg' %}" 
-       class="glightbox group relative block overflow-hidden rounded-3xl shadow-xl bg-gray-800" 
-       data-gallery="escapadas" 
-       data-type="image">
-        <div class="aspect-[4/5] w-full overflow-hidden">
-            <img src="{% static 'img/escapadas_iquique.jpeg' %}" 
-                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-80 group-hover:opacity-100 transition-opacity"></div>
-            <div class="absolute bottom-6 left-6">
-                <p class="text-orange-500 font-bold tracking-widest text-xs mb-1">TARAPACÁ</p>
-                <h4 class="text-2xl font-marcellus text-white">Iquique</h4>
-            </div>
-        </div>
-    </a>
-
-    <a href="{% static 'img/escapadas_iquique2.jpeg' %}" 
-       class="glightbox group relative block overflow-hidden rounded-3xl shadow-xl bg-gray-800" 
-       data-gallery="escapadas" 
-       data-type="image">
-        <div class="aspect-[4/5] w-full overflow-hidden">
-            <img src="{% static 'img/escapadas_iquique2.jpeg' %}" 
-                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-80 group-hover:opacity-100 transition-opacity"></div>
-            <div class="absolute bottom-6 left-6">
-                <p class="text-orange-500 font-bold tracking-widest text-xs mb-1">CAVANCHA</p>
-                <h4 class="text-2xl font-marcellus text-white">Borde Costero</h4>
-            </div>
-        </div>
-    </a>
-
-</div>
         </div>
     </div>
 </section>
@@ -132,14 +123,8 @@
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function () {
         if (typeof GLightbox !== 'undefined') {
-            const lightbox = GLightbox({
-                selector: '.glightbox',
-                touchNavigation: true,
-                loop: true,
-                zoomable: true
-            });
+            GLightbox({ selector: '.glightbox', loop: true });
         }
     });
 </script>
-
 {% endblock %}
