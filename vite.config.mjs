@@ -4,10 +4,6 @@ import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
 
 export default defineConfig({
-  define: {
-    // Esto obliga a Vue a habilitar las devtools incluso en modo producción
-    __VUE_PROD_DEVTOOLS__: true,
-  },
   plugins: [
     vue(),
     tailwindcss(), // Plugin oficial para Tailwind 4
@@ -23,6 +19,7 @@ export default defineConfig({
   base: '/',
   build: {
       outDir: path.resolve(__dirname, 'static/js/dist'),
+      assetsDir: 'assets',
       emptyOutDir: true,
       manifest: true,
       rollupOptions: {
