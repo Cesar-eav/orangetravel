@@ -15,7 +15,7 @@ venv/
 env/
 .vscode/
 # static/css
-static/js/dist/assets
+static/js/dist/
 
 # Archivos de SO
 .DS_Store
