@@ -37,7 +37,7 @@
 {% if debug %}
         <script type="module" src="http://localhost:5173/static/src/main.js"></script>
     {% else %}
-        <script type="module" src="{% static 'js/dist/assets/main.js' %}?v=1.1"></script>
+        <script type="module" src="{% static 'js/dist/assets/main.js' %}?v={% now 'U' %}"></script>
     {% endif %}
     <style>
         .whatsapp-float {
