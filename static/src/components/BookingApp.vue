@@ -137,7 +137,7 @@ export default {
   },
   mounted() {
     this.cargarBloqueos();
-    console.log("Bloqueos ", this.cargarBloqueos);
+
   },
   data() {
     return {
@@ -183,6 +183,7 @@ export default {
       try {
         const response = await fetch(`/tours/api/bloqueos/${this.tourId}/`);
         const data = await response.json();
+        console.log("Bloqueos", data.bloqueadas);
         // V-Calendar prefiere objetos Date o strings ISO
         this.diasBloqueados = data.bloqueadas.map(fecha => new Date(fecha + 'T12:00:00'));
       } catch (error) {
