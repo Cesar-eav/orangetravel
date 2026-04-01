@@ -69,13 +69,13 @@
 
         </script>
 
-        {% if debug %}
+        {% comment %} {% if debug %}
             {# MODO DESARROLLO: Conectamos con el servidor de Vite #}
             <script type="module" src="http://localhost:5173/static/src/main.js"></script>
         {% else %}
             {# MODO PRODUCCIÓN: Archivo compilado por npm run build #}
             {# Nota: Después de tu primer 'build', verifica el nombre exacto en static/js/dist #}
             <script type="module" src="{% static 'js/dist/main.js' %}"></script>
-        {% endif %}
+        {% endif %} {% endcomment %}
 
     {% endblock %}
