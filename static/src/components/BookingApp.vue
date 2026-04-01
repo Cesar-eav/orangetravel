@@ -191,28 +191,38 @@ mounted() {
 
     // --- CAMBIO: De async/await a .then() para enviar reserva ---
     enviarReserva() {
-      this.cargando = true;
-      console.log("🚀 Enviando reserva...");
+this.cargando = true;
 
-      // 1. Obtener CSRF Token de las cookies
-      const csrfToken = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('csrftoken='))
-        ?.split('=')[1];
+  // 1. EL FORMATEO MANUAL (Seguro y sin fallas de zona horaria)
+  let fechaParaDjango = "";
+  if (this.form.fecha instanceof Date) {
+    const d = this.form.fecha;
+    const year = d.getFullYear();
+    // month + 1 porque en JS enero es 0
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    
+    fechaParaDjango = `${year}-${month}-${day}`; // Resultado: "2026-04-10"
+  }
 
-      // 2. Formatear la fecha a YYYY-MM-DD
-      const fechaLimpia = this.form.fecha ? this.form.fecha.toLocaleDateString('en-CA') : '';
+  // 2. LOG DE CONTROL (Esto DEBE aparecer en tu consola de Railway)
+  console.log("📅 Fecha que saldrá hacia Django:", fechaParaDjango);
 
-      // 3. Preparar el objeto final (Payload)
-      const payload = {
-        nombre: this.form.nombre,
-        email: this.form.email,
-        telefono: this.form.telefono,
-        fecha: fechaLimpia,
-        adultos: this.form.adultos,
-        ninos: this.form.ninos,
-        tour_id: this.tourId // Usamos la prop directamente
-      };
+  const csrfToken = document.cookie
+    .split('; ')
+    .find(row => row.startsWith('csrftoken='))
+    ?.split('=')[1];
+
+  // 3. EL PAYLOAD (Asegúrate de usar 'fechaParaDjango')
+  const payload = {
+    nombre: this.form.nombre,
+    email: this.form.email,
+    telefono: this.form.telefono,
+    fecha: fechaParaDjango, // <--- AQUÍ ESTABA EL ERROR
+    adultos: this.form.adultos,
+    ninos: this.form.ninos,
+    tour_id: this.tourId
+  };
 
       // 4. Petición con Axios usando Promesas
       axios.post('/tours/api/reserva/crear/', payload, {
