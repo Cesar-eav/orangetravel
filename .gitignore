@@ -4,8 +4,6 @@ __pycache__/
 venv/
 node_modules/
 
-
-
 db.sqlite3
 # Entorno
 .env
@@ -26,4 +24,3 @@ static/js/dist/assets
 node_modules/
 npm-debug.log*
 
-staticfiles/
