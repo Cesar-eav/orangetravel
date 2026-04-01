@@ -1,3 +1,8 @@
+console.log(
+  "%c🚀 ORANGE TRAVEL - V1.2.5 - DEPLOY: 01-04-2026", 
+  "background: #f97316; color: white; padding: 5px 10px; border-radius: 5px; font-weight: bold;"
+);
+
 import { createApp } from 'vue';
 import BookingApp from './components/BookingApp.vue';
 
