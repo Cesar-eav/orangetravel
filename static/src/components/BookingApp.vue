@@ -113,32 +113,18 @@
 
 <script>
 
-  import { DatePicker } from 'v-calendar';
-  import 'v-calendar/style.css';
-  import axios from 'axios';
+import { DatePicker } from 'v-calendar';
+import 'v-calendar/style.css';
+import axios from 'axios';
 
 export default {
+  // Recibimos los datos desde Django (main.js)
   props: ['precioAdulto', 'precioNino', 'tourId'],
   
   components: {
     DatePicker,
   },
 
-  watch: {
-    isModalOpen(abierto) {
-      if (abierto) {
-        // Aplicamos la clase de Tailwind al body
-        document.body.classList.add('overflow-hidden');
-      } else {
-        // La quitamos al cerrar
-        document.body.classList.remove('overflow-hidden');
-      }
-    }
-  },
-  mounted() {
-    this.cargarBloqueos();
-
-  },
   data() {
     return {
       diasBloqueados: [],
@@ -151,23 +137,24 @@ export default {
         fecha: '',
         adultos: 1,
         ninos: 0,
-        tour_id: this.tourId // Este ID debe venir dinámicamente de Django después
       }
     }
   },
 
+  mounted() {
+    // Verificamos si el tourId llegó antes de disparar la API
+    if (this.tourId) {
+      this.cargarBloqueos();
+    } else {
+      console.warn("⚠️ Advertencia: BookingApp se montó sin tourId.");
+    }
+  },
+
   computed: {
-    minDate() {
-      return new Date().toISOString().split('T')[0];
-    },
     totalReserva() {
-      let total = this.form.adultos * this.precioAdulto;
-
-      if (this.form.ninos > 0) {
-        total += this.form.ninos * this.precioNino;
-      }
-      return total;
-
+      const totalAdultos = this.form.adultos * this.precioAdulto;
+      const totalNinos = this.form.ninos * (this.precioNino || 0);
+      return totalAdultos + totalNinos;
     },
     formularioValido() {
       return (
@@ -178,18 +165,79 @@ export default {
       );
     }
   },
+
   methods: {
-    async cargarBloqueos() {
-      try {
-        const response = await fetch(`/tours/api/bloqueos/${this.tourId}/`);
-        const data = await response.json();
-        console.log("Bloqueos", data.bloqueadas);
-        // V-Calendar prefiere objetos Date o strings ISO
-        this.diasBloqueados = data.bloqueadas.map(fecha => new Date(fecha + 'T12:00:00'));
-      } catch (error) {
-        console.error("Error cargando bloqueos:", error);
-      }
+    // --- CAMBIO: De async/await a .then() para cargar bloqueos ---
+    cargarBloqueos() {
+      console.log(`📡 Solicitando bloqueos para Tour ID: ${this.tourId}...`);
+      
+      // Usamos fetch con promesas tradicionales
+      fetch(`/tours/api/bloqueos/${this.tourId}/`)
+        .then(response => {
+          if (!response.ok) throw new Error("Error en la respuesta de la red");
+          return response.json();
+        })
+        .then(data => {
+          console.log("✅ Datos recibidos:", data.bloqueadas);
+          // Mapeamos las fechas a objetos Date (Mediodía para evitar desfases)
+          this.diasBloqueados = data.bloqueadas.map(f => new Date(f + 'T12:00:00'));
+        })
+        .catch(error => {
+          console.error("❌ Error al cargar bloqueos:", error);
+        });
     },
+
+    // --- CAMBIO: De async/await a .then() para enviar reserva ---
+    enviarReserva() {
+      this.cargando = true;
+      console.log("🚀 Enviando reserva...");
+
+      // 1. Obtener CSRF Token de las cookies
+      const csrfToken = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('csrftoken='))
+        ?.split('=')[1];
+
+      // 2. Formatear la fecha a YYYY-MM-DD
+      const fechaLimpia = this.form.fecha ? this.form.fecha.toLocaleDateString('en-CA') : '';
+
+      // 3. Preparar el objeto final (Payload)
+      const payload = {
+        nombre: this.form.nombre,
+        email: this.form.email,
+        telefono: this.form.telefono,
+        fecha: fechaLimpia,
+        adultos: this.form.adultos,
+        ninos: this.form.ninos,
+        tour_id: this.tourId // Usamos la prop directamente
+      };
+
+      // 4. Petición con Axios usando Promesas
+      axios.post('/tours/api/reserva/crear/', payload, {
+          headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => {
+          if (response.data.status === 'success') {
+            alert("¡Éxito! Tu reserva ha sido recibida.");
+            this.isModalOpen = false;
+            this.resetFormulario();
+          } else {
+            alert("Atención: " + response.data.mensaje);
+          }
+        })
+        .catch(error => {
+          console.error("❌ Error crítico en el envío:", error.response || error);
+          alert("Hubo un error al conectar con el servidor.");
+        })
+        .finally(() => {
+          this.cargando = false;
+        });
+    },
+
+    // Métodos auxiliares
     increment(tipo) { this.form[tipo]++; },
     decrement(tipo) {
       if (tipo === 'adultos' && this.form.adultos > 1) this.form.adultos--;
@@ -198,92 +246,9 @@ export default {
     formatoCLP(valor) {
       return new Intl.NumberFormat('es-CL').format(valor);
     },
-async enviarReserva() {
-    console.log("--- INICIANDO ENVÍO DE RESERVA ---");
-    this.cargando = true;
-
-    // 1. Capturamos el CSRF Token (Igual que antes)
-    const csrfToken = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('csrftoken='))
-        ?.split('=')[1];
-
-    try {
-        // 2. DESEMPAQUETADO Y DEPURACIÓN DE DATOS
-        // Aquí extraemos cada dato y lo procesamos individualmente
-        
-        const nombreEnvio = this.form.nombre;
-        const emailEnvio = this.form.email;
-        const telefonoEnvio = this.form.telefono;
-        const adultosEnvio = this.form.adultos;
-        const ninosEnvio = this.form.ninos;
-        const tourIdEnvio = this.form.tour_id;
-
-        // TRATAMIENTO ESPECIAL DE LA FECHA (Para evitar el error de zona horaria)
-        // Convertimos el objeto Date de V-Calendar a un string YYYY-MM-DD local
-        let fechaEnvio = "";
-        if (this.form.fecha) {
-            const d = this.form.fecha;
-            // 'en-CA' genera formato YYYY-MM-DD exacto
-            fechaEnvio = d.toLocaleDateString('en-CA'); 
-        }
-
-        // 3. LOGS DE CONTROL (Aquí verás en la consola de F12 dato por dato)
-        console.log("Dato - Nombre:", nombreEnvio);
-        console.log("Dato - Email:", emailEnvio);
-        console.log("Dato - Fecha Original (Objeto):", this.form.fecha);
-        console.log("Dato - Fecha Formateada (String):", fechaEnvio);
-        console.log("Dato - Tour ID:", tourIdEnvio);
-        console.log("Dato - Total Pax:", (adultosEnvio + ninosEnvio));
-
-        // 4. CONSTRUCCIÓN DEL PAYLOAD (El paquete final)
-        const payload = {
-            nombre: nombreEnvio,
-            email: emailEnvio,
-            telefono: telefonoEnvio,
-            fecha: fechaEnvio,
-            adultos: adultosEnvio,
-            ninos: ninosEnvio,
-            tour_id: tourIdEnvio
-        };
-
-        // 5. ENVÍO CON AXIOS
-        // Axios automáticamente convierte el objeto a JSON y maneja las respuestas
-        const response = await axios.post('/tours/api/reserva/crear/', payload, {
-            headers: {
-                'X-CSRFToken': csrfToken,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        // 6. RESPUESTA EXITOSA
-        // En Axios, la respuesta del servidor está en .data
-        if (response.data.status === 'success') {
-            alert("¡Solicitud enviada! Nos contactaremos contigo a la brevedad.");
-            this.isModalOpen = false; // Cerramos el modal
-            this.form.fecha = '';     // Limpiamos
-        } else {
-            alert("Error del servidor: " + response.data.mensaje);
-        }
-
-    } catch (error) {
-        // Axios captura errores de red (404, 500, etc.) aquí
-        console.error("ERROR EN LA PETICIÓN:");
-        if (error.response) {
-            // El servidor respondió con un error (ej: 403 Forbidden)
-            console.error("Datos del error:", error.response.data);
-            console.error("Status del error:", error.response.status);
-        } else {
-            // Error de conexión o configuración
-            console.error("Mensaje de error:", error.message);
-        }
-    } finally {
-        this.cargando = false;
-        console.log("--- FIN DEL PROCESO ---");
+    resetFormulario() {
+      this.form = { nombre: '', email: '', telefono: '', fecha: '', adultos: 1, ninos: 0 };
     }
-
- }
-
   }
 }
 </script>
