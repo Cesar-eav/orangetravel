@@ -118,7 +118,6 @@ import 'v-calendar/style.css';
 import axios from 'axios';
 
 export default {
-  // Recibimos los datos desde Django (main.js)
   props: ['precioAdulto', 'precioNino', 'tourId'],
   
   components: {
@@ -141,22 +140,17 @@ export default {
     }
   },
 
-mounted() {
-    console.log("🔍 Intentando montar BookingApp...");
-    console.log("🆔 Valor de tourId recibido:", this.tourId);
-
+  mounted() {
+    console.log("🚀 BookingApp montado. ID del Tour:", this.tourId);
     if (this.tourId) {
-        this.cargarBloqueos();
-    } else {
-        console.error("❌ ERROR: El componente se montó pero tourId está VACÍO.");
+      this.cargarBloqueos();
     }
-},
+  },
 
   computed: {
     totalReserva() {
-      const totalAdultos = this.form.adultos * this.precioAdulto;
-      const totalNinos = this.form.ninos * (this.precioNino || 0);
-      return totalAdultos + totalNinos;
+      const total = (this.form.adultos * this.precioAdulto) + (this.form.ninos * (this.precioNino || 0));
+      return total;
     },
     formularioValido() {
       return (
@@ -169,62 +163,55 @@ mounted() {
   },
 
   methods: {
-    // --- CAMBIO: De async/await a .then() para cargar bloqueos ---
+    // 1. Cargar bloqueos usando AXIOS
     cargarBloqueos() {
-      console.log(`📡 Solicitando bloqueos para Tour ID: ${this.tourId}...`);
+      console.log("📡 Pidiendo fechas bloqueadas...");
       
-      // Usamos fetch con promesas tradicionales
-      fetch(`/tours/api/bloqueos/${this.tourId}/`)
+      axios.get(`/tours/api/bloqueos/${this.tourId}/`)
         .then(response => {
-          if (!response.ok) throw new Error("Error en la respuesta de la red");
-          return response.json();
-        })
-        .then(data => {
-          console.log("✅ Datos recibidos:", data.bloqueadas);
-          // Mapeamos las fechas a objetos Date (Mediodía para evitar desfases)
-          this.diasBloqueados = data.bloqueadas.map(f => new Date(f + 'T12:00:00'));
+          // Con Axios, los datos ya vienen procesados en 'response.data'
+          const fechas = response.data.bloqueadas;
+          console.log("✅ Fechas recibidas:", fechas);
+          
+          this.diasBloqueados = fechas.map(f => new Date(f + 'T12:00:00'));
         })
         .catch(error => {
           console.error("❌ Error al cargar bloqueos:", error);
         });
     },
 
-    // --- CAMBIO: De async/await a .then() para enviar reserva ---
+    // 2. Enviar reserva usando AXIOS
     enviarReserva() {
-this.cargando = true;
+      this.cargando = true;
+      
+      // Formateo de fecha seguro
+      let fechaLimpia = "";
+      if (this.form.fecha instanceof Date) {
+        const d = this.form.fecha;
+        fechaLimpia = d.getFullYear() + '-' + 
+                      String(d.getMonth() + 1).padStart(2, '0') + '-' + 
+                      String(d.getDate()).padStart(2, '0');
+      }
 
-  // 1. EL FORMATEO MANUAL (Seguro y sin fallas de zona horaria)
-  let fechaParaDjango = "";
-  if (this.form.fecha instanceof Date) {
-    const d = this.form.fecha;
-    const year = d.getFullYear();
-    // month + 1 porque en JS enero es 0
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    
-    fechaParaDjango = `${year}-${month}-${day}`; // Resultado: "2026-04-10"
-  }
+      // Preparar Token CSRF (Seguridad de Django)
+      const csrfToken = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('csrftoken='))
+        ?.split('=')[1];
 
-  // 2. LOG DE CONTROL (Esto DEBE aparecer en tu consola de Railway)
-  console.log("📅 Fecha que saldrá hacia Django:", fechaParaDjango);
+      // El paquete de datos
+      const payload = {
+        nombre: this.form.nombre,
+        email: this.form.email,
+        telefono: this.form.telefono,
+        fecha: fechaLimpia,
+        adultos: this.form.adultos,
+        ninos: this.form.ninos,
+        tour_id: this.tourId
+      };
 
-  const csrfToken = document.cookie
-    .split('; ')
-    .find(row => row.startsWith('csrftoken='))
-    ?.split('=')[1];
+      console.log("🚀 Enviando datos a Django:", payload);
 
-  // 3. EL PAYLOAD (Asegúrate de usar 'fechaParaDjango')
-  const payload = {
-    nombre: this.form.nombre,
-    email: this.form.email,
-    telefono: this.form.telefono,
-    fecha: fechaParaDjango, // <--- AQUÍ ESTABA EL ERROR
-    adultos: this.form.adultos,
-    ninos: this.form.ninos,
-    tour_id: this.tourId
-  };
-
-      // 4. Petición con Axios usando Promesas
       axios.post('/tours/api/reserva/crear/', payload, {
           headers: {
             'X-CSRFToken': csrfToken,
@@ -232,24 +219,25 @@ this.cargando = true;
           }
         })
         .then(response => {
+          // Axios pone la respuesta de Django en response.data
           if (response.data.status === 'success') {
             alert("¡Éxito! Tu reserva ha sido recibida.");
             this.isModalOpen = false;
             this.resetFormulario();
           } else {
-            alert("Atención: " + response.data.mensaje);
+            alert("Error: " + response.data.mensaje);
           }
         })
         .catch(error => {
-          console.error("❌ Error crítico en el envío:", error.response || error);
-          alert("Hubo un error al conectar con el servidor.");
+          console.error("❌ Error en el envío:", error);
+          alert("Hubo un problema al conectar con el servidor.");
         })
         .finally(() => {
           this.cargando = false;
         });
     },
 
-    // Métodos auxiliares
+    // Helpers
     increment(tipo) { this.form[tipo]++; },
     decrement(tipo) {
       if (tipo === 'adultos' && this.form.adultos > 1) this.form.adultos--;

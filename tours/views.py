@@ -1,3 +1,4 @@
+import threading
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.http import JsonResponse
@@ -59,15 +60,13 @@ def crear_reserva(request):
     try:
         data = json.loads(request.body)
         
-        # 1. Validación de existencia del Tour
+        # 1. Validación del Tour
         try:
-            # Importante: Asegúrate que desde Vue envías 'tour_id'
             tour = Tour.objects.get(id=data.get('tour_id'))
         except Tour.DoesNotExist:
-            return JsonResponse({'status': 'error', 'mensaje': 'El tour seleccionado no existe.'}, status=404)
+            return JsonResponse({'status': 'error', 'mensaje': 'El tour no existe.'}, status=404)
 
         # 2. Creación de la Reserva
-        # El método save() de tu modelo calculará automáticamente el precio_total
         reserva = Reserva.objects.create(
             tour=tour,
             nombre_cliente=data.get('nombre'),
@@ -76,23 +75,25 @@ def crear_reserva(request):
             fecha=data.get('fecha'),
             adultos=int(data.get('adultos', 1)),
             ninos=int(data.get('ninos', 0)),
-            notas_internas=f"Solicitud web. Pasajeros: {data.get('adultos')} ADL, {data.get('ninos')} CHD."
+            notas_internas=f"Solicitud web: {data.get('adultos')} ADL, {data.get('ninos')} CHD."
         )
 
-        # 3. Lógica de Notificaciones por Email
-        # Llamamos a la función auxiliar definida abajo
-        enviar_notificaciones_reserva(reserva)
+        # --- CAMBIO CLAVE AQUÍ ---
+        # En lugar de llamar a la función directo, creamos un hilo (thread)
+        # Esto dispara la función 'enviar_notificaciones_reserva' de fondo
+        # y permite que el código siga a la siguiente línea (el return) al instante.
+        email_thread = threading.Thread(target=enviar_notificaciones_reserva, args=(reserva,))
+        email_thread.start() 
+        # -------------------------
         
         return JsonResponse({
             'status': 'success',
-            'mensaje': 'Tu solicitud ha sido recibida. Revisa tu correo.',
-            'reserva_id': reserva.id,
-            'total': reserva.precio_total 
+            'mensaje': '¡Solicitud recibida! Revisa tu correo.',
+            'reserva_id': reserva.id
         }, status=201)
         
     except Exception as e:
-        return JsonResponse({'status': 'error', 'mensaje': f"Error en el servidor: {str(e)}"}, status=500)
-
+        return JsonResponse({'status': 'error', 'mensaje': str(e)}, status=500)
 
 def enviar_notificaciones_reserva(reserva):
     # --- 1. CONFIGURACIÓN PARA EL CLIENTE ---
@@ -128,6 +129,8 @@ def enviar_notificaciones_reserva(reserva):
     # Limpiamos el teléfono para el link de WhatsApp
     tel_limpio = reserva.telefono_cliente.replace('+', '').replace(' ', '')
     
+    dominio = settings.SITE_URL
+    
     html_admin = f"""
     <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 2px solid #FF8C00; border-radius: 10px; padding: 20px;">
         <h2 style="color: #FF8C00;">NUEVA SOLICITUD WEB</h2>
@@ -142,9 +145,10 @@ def enviar_notificaciones_reserva(reserva):
         </table>
         
         <div style="margin-top: 25px; text-align: center;">
-            <a href="http://127.0.0.1:8000/admin/tours/reserva/{reserva.id}/change/" 
-               style="background-color: #333; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-               Ver en Panel Admin
+            <p style="color: #666; font-size: 12px;">Link generado desde: {dominio}</p>
+            <a href="{dominio}/admin/tours/reserva/{reserva.id}/change/" 
+            style="background-color: #333; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            Ver en Panel Admin
             </a>
         </div>
     </div>

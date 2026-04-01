@@ -207,3 +207,11 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+if DEBUG:
+    # Cuando estás en tu PC
+    SITE_URL = 'http://127.0.0.1:8000'
+else:
+    # Cuando estás en Railway (Cambia esto por tu URL real de Railway)
+    SITE_URL = 'https://orangetravel.up.railway.app'
