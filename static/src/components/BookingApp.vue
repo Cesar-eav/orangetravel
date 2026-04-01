@@ -141,14 +141,16 @@ export default {
     }
   },
 
-  mounted() {
-    // Verificamos si el tourId llegó antes de disparar la API
+mounted() {
+    console.log("🔍 Intentando montar BookingApp...");
+    console.log("🆔 Valor de tourId recibido:", this.tourId);
+
     if (this.tourId) {
-      this.cargarBloqueos();
+        this.cargarBloqueos();
     } else {
-      console.warn("⚠️ Advertencia: BookingApp se montó sin tourId.");
+        console.error("❌ ERROR: El componente se montó pero tourId está VACÍO.");
     }
-  },
+},
 
   computed: {
     totalReserva() {
