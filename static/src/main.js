@@ -1,6 +1,6 @@
 import { createApp } from 'vue';
 import BookingApp from './components/BookingApp.vue';
-import 'v-calendar/style.css';
+
 import './input.css'; // Importamos tu CSS de Tailwind 4 para que Vite lo procese
 
 

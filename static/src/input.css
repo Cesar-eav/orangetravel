@@ -1,5 +1,6 @@
 @import "tailwindcss";
 /* @import "@tailwindcss/typography"; */
+@import "v-calendar/style.css"; 
 @plugin "../../node_modules/@tailwindcss/typography";
 
 @import url('https://fonts.googleapis.com/css2?family=Marcellus&display=swap');
