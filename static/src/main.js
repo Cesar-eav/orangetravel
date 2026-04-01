@@ -3,6 +3,8 @@ console.log(
   "background: #f97316; color: white; padding: 5px 10px; border-radius: 5px; font-weight: bold;"
 );
 
+alert("LOCOOOOOOO");
+
 import { createApp } from 'vue';
 import BookingApp from './components/BookingApp.vue';
 
