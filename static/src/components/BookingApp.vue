@@ -137,6 +137,7 @@ export default {
   },
   mounted() {
     this.cargarBloqueos();
+    console.log("Bloqueos ", this.cargarBloqueos);
   },
   data() {
     return {
