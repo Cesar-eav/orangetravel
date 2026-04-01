@@ -96,6 +96,8 @@ def crear_reserva(request):
         return JsonResponse({'status': 'error', 'mensaje': str(e)}, status=500)
 
 def enviar_notificaciones_reserva(reserva):
+    print(f"DEBUG: Iniciando envío de correos para la reserva {reserva.id}...") # Checkpoint 1
+
     # --- 1. CONFIGURACIÓN PARA EL CLIENTE ---
     asunto_cliente = f"🍊 Solicitud Recibida: {reserva.tour.nombre}"
     
@@ -130,7 +132,7 @@ def enviar_notificaciones_reserva(reserva):
     tel_limpio = reserva.telefono_cliente.replace('+', '').replace(' ', '')
     
     dominio = settings.SITE_URL
-    
+
     html_admin = f"""
     <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 2px solid #FF8C00; border-radius: 10px; padding: 20px;">
         <h2 style="color: #FF8C00;">NUEVA SOLICITUD WEB</h2>
@@ -155,16 +157,19 @@ def enviar_notificaciones_reserva(reserva):
     """
 
     try:
+        print(f"DEBUG: Intentando conectar con SMTP: {settings.EMAIL_HOST}") # Checkpoint 2
         # Enviar al Cliente
         msg_cli = EmailMultiAlternatives(asunto_cliente, "Solicitud recibida.", settings.DEFAULT_FROM_EMAIL, [reserva.email_cliente])
         msg_cli.attach_alternative(html_cliente, "text/html")
         msg_cli.send()
+        print("DEBUG: Correo cliente enviado con éxito.") # Checkpoint 3
 
         # Enviar al Admin
         msg_adm = EmailMultiAlternatives(asunto_admin, "Nueva reserva recibida.", settings.DEFAULT_FROM_EMAIL, ['cesar.eav@gmail.com'])
         msg_adm.attach_alternative(html_admin, "text/html")
         msg_adm.send()
-
+        print("DEBUG: Correo admin enviado con éxito.") # Checkpoint 4
+        
     except Exception as e:
         print(f"Error enviando correos: {e}")
 
