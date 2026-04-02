@@ -52,7 +52,8 @@ INSTALLED_APPS = [
     'home',
     'tours',
     'blog',
-
+    'payments',
+    'rest_framework',
     'ckeditor',
     'ckeditor_uploader',
 ]
@@ -216,3 +217,11 @@ if DEBUG:
 else:
     # Cuando estás en Railway (Cambia esto por tu URL real de Railway)
     SITE_URL = 'https://orangetravel.up.railway.app'
+
+
+
+# 12 Configuraciones de Flow
+FLOW_API_KEY = os.getenv("FLOW_API_KEY")
+FLOW_SECRET_KEY = os.getenv("FLOW_SECRET_KEY")
+# En producción cambiar esto a la URL de producción de Flow
+FLOW_API_BASE = os.getenv("FLOW_API_BASE", "https://sandbox.flow.cl/api")
