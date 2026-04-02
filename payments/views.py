@@ -66,7 +66,9 @@ class TourCheckoutView(APIView):
 
     def post(self, request, tour_id: int):
         tour = get_object_or_404(Tour, id=tour_id)
-        
+        data = request.data
+
+        print("Resreva: ", data)
         # El email debe venir en el POST ya que el usuario no está registrado
         email = request.data.get("email")
         if not email:
@@ -75,8 +77,14 @@ class TourCheckoutView(APIView):
         # Crear el registro de pago en nuestra DB (Estado PENDING)
         payment = Payment.objects.create(
             tour=tour,
-            amount=tour.precio, # Asumiendo que Tour tiene un campo precio
+            amount=data.get('total'), # Asumiendo que Tour tiene un campo precio
             currency="CLP",
+            customer_name=data.get('nombre'),
+            customer_email=data.get('email'),
+            customer_phone=data.get('telefono'),
+            reservation_date=data.get('fecha'),
+            pax_adults=data.get('adultos'),
+            pax_children=data.get('ninos'),
             status=Payment.STATUS_PENDING,
         )
 
@@ -174,7 +182,7 @@ class FlowReturnView(APIView):
     def get(self, request): return self.handle_request(request)
     def post(self, request): return self.handle_request(request)
 
-    
+
 class FlowConfirmView(APIView):
     """
     Webhook: Flow llama a esta vista servidor-a-servidor.

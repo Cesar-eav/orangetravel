@@ -136,6 +136,7 @@ export default {
         fecha: '',
         adultos: 1,
         ninos: 0,
+    
       }
     }
   },
@@ -181,10 +182,10 @@ export default {
     },
 
     // 2. Enviar reserva usando AXIOS
-    enviarReserva() {
+enviarReserva() {
       this.cargando = true;
       
-      // Formateo de fecha seguro
+      // Formateo de fecha para Django (YYYY-MM-DD)
       let fechaLimpia = "";
       if (this.form.fecha instanceof Date) {
         const d = this.form.fecha;
@@ -193,13 +194,12 @@ export default {
                       String(d.getDate()).padStart(2, '0');
       }
 
-      // Preparar Token CSRF (Seguridad de Django)
       const csrfToken = document.cookie
         .split('; ')
         .find(row => row.startsWith('csrftoken='))
         ?.split('=')[1];
 
-      // El paquete de datos
+      // Incluimos el total y los pax para que el backend los registre
       const payload = {
         nombre: this.form.nombre,
         email: this.form.email,
@@ -207,30 +207,30 @@ export default {
         fecha: fechaLimpia,
         adultos: this.form.adultos,
         ninos: this.form.ninos,
-        tour_id: this.tourId
+        total: this.totalReserva // Enviamos el total calculado
       };
 
-      console.log("🚀 Enviando datos a Django:", payload);
+      console.log("🚀 Iniciando Checkout...");
 
-      axios.post('/tours/api/reserva/crear/', payload, {
+      // Llamamos a la nueva vista de Checkout que creamos antes
+      axios.post(`/pagos/checkout/${this.tourId}/`, payload, {
           headers: {
             'X-CSRFToken': csrfToken,
             'Content-Type': 'application/json'
           }
         })
         .then(response => {
-          // Axios pone la respuesta de Django en response.data
-          if (response.data.status === 'success') {
-            alert("¡Éxito! Tu reserva ha sido recibida.");
-            this.isModalOpen = false;
-            this.resetFormulario();
+          // Si el backend nos devuelve la URL de Flow, redirigimos inmediatamente
+          if (response.data.redirect_url) {
+            window.location.href = response.data.redirect_url;
           } else {
-            alert("Error: " + response.data.mensaje);
+            alert("Error al generar el link de pago.");
           }
         })
         .catch(error => {
-          console.error("❌ Error en el envío:", error);
-          alert("Hubo un problema al conectar con el servidor.");
+          console.error("❌ Error en el proceso de pago:", error);
+          const msg = error.response?.data?.detail || "No se pudo contactar con el servidor de pagos.";
+          alert(msg);
         })
         .finally(() => {
           this.cargando = false;

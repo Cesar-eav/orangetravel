@@ -30,6 +30,7 @@ urlpatterns = [
     path('', include('home.urls')),
     path('tours/', include('tours.urls')),
     path('blog/', include('blog.urls')),
+    path('pagos/', include('payments.urls')),
 
 ]
 if settings.DEBUG:

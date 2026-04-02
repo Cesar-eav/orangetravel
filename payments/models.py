@@ -51,6 +51,14 @@ class Payment(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(null=True, blank=True, help_text="Fecha de borrado lógico")
 
+    # --- Datos del cliente ---
+    customer_name = models.CharField(max_length=100, null=True)
+    customer_email = models.EmailField(null=True)
+    customer_phone = models.CharField(max_length=20, null=True)
+    reservation_date = models.DateField(null=True)
+    pax_adults = models.PositiveIntegerField(default=1)
+    pax_children = models.PositiveIntegerField(default=0)
+
     class Meta:
         indexes = [
             models.Index(fields=["provider", "provider_token"]),
