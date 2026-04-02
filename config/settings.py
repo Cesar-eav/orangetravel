@@ -198,7 +198,6 @@ TIME_ZONE = 'America/Santiago'
 USE_I18N = True
 USE_TZ = True
 
-# 11. EMAIL
 # 11. EMAIL (Usando Anymail con la API de Mailgun)
 ANYMAIL = {
     "MAILGUN_API_KEY": os.getenv('MAILGUN_API_KEY'),
