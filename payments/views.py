@@ -177,7 +177,8 @@ class FlowReturnView(APIView):
         # --- REDIRECCIÓN FINAL ---
         # Enviamos al usuario de vuelta a la página del tour
         # Asumiendo que tienes una URL llamada 'tour_detail'
-        return HttpResponseRedirect(reverse('tour_detail', args=[payment.tour.id]))
+        # return HttpResponseRedirect(reverse('tours:tours_home', args=[payment.tour.id]))
+        return HttpResponseRedirect(reverse('tours_home'))
 
     def get(self, request): return self.handle_request(request)
     def post(self, request): return self.handle_request(request)
