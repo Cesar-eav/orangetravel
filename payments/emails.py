@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from django.conf import settings
 from django.core.mail import EmailMessage
+from django.core.mail import EmailMultiAlternatives # Importante para enviar HTML
+
 
 from .models import Payment
 
