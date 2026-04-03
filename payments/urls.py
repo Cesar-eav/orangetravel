@@ -1,6 +1,8 @@
 from django.urls import path
+from . import views
 
-from .views import TourCheckoutView, FlowReturnView, FlowConfirmView
+
+from .views import TourCheckoutView, FlowReturnView, FlowConfirmView, VistaConfirmacionPago
 
 
 urlpatterns = [
@@ -15,4 +17,7 @@ urlpatterns = [
     # Ruta invisible donde Flow avisa que el pago fue exitoso
     # Coincide con: /pagos/flow-confirm/
     path('flow-confirm/', FlowConfirmView.as_view(), name='flow_confirm'),
+
+    #Vista de Confirmacion 
+    path('vista_confirmacion_pago/<int:payment_id>', views.VistaConfirmacionPago, name='vista_confirmacion_pago'  )
 ]

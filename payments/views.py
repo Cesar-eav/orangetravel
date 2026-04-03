@@ -17,6 +17,10 @@ from rest_framework.parsers import FormParser, JSONParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from django.shortcuts import render, redirect
+
+from .models import Payment
+
 from tours.models import Tour  # Asegúrate de que esta ruta sea correcta
 from .flow import FlowClient
 
@@ -175,14 +179,11 @@ class FlowReturnView(APIView):
                 messages.warning(request, "Estamos confirmando tu pago. Te avisaremos por email en unos minutos.")
 
         # --- REDIRECCIÓN FINAL ---
-        # Enviamos al usuario de vuelta a la página del tour
-        # Asumiendo que tienes una URL llamada 'tour_detail'
-        # return HttpResponseRedirect(reverse('tours:tours_home', args=[payment.tour.id]))
-        return HttpResponseRedirect(reverse('tours_home'))
+
+        return HttpResponseRedirect(reverse('vista_confirmacion_pago', args=[payment.id]))
 
     def get(self, request): return self.handle_request(request)
     def post(self, request): return self.handle_request(request)
-
 
 class FlowConfirmView(APIView):
     """
@@ -233,3 +234,23 @@ class FlowConfirmView(APIView):
             logger.error(f"Error confirmación Flow: {exc}")
             
         return HttpResponse("OK", status=200)
+    
+
+def VistaConfirmacionPago(request, payment_id):
+    try:
+        # 1. Intentamos obtener el pago exacto que esté marcado como PAGADO
+        payment = Payment.objects.get(id=payment_id, status=Payment.STATUS_PAID)
+        
+    except Payment.DoesNotExist:
+        # 2. Si el ID no existe o el status NO es 'paid', entramos aquí
+        messages.error(request, "Lo sentimos, no encontramos una confirmación válida para este pago.")
+        return redirect('tours_home')
+
+    # 3. Si todo sale bien, preparamos el contexto
+    context = {
+        'payment': payment,
+        'tour': payment.tour,
+        'pax_total': payment.pax_adults + payment.pax_children
+    }
+    
+    return render(request, 'payments/confirmacion_reserva.html', context)
