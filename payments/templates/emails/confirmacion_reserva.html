@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .container { font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
+        .header { background-color: #f97316; color: white; padding: 20px; text-align: center; }
+        .content { padding: 30px; line-height: 1.6; color: #334155; }
+        .detail-box { background-color: #f8fafc; border-radius: 8px; padding: 20px; margin: 20px 0; border: 1px solid #e2e8f0; }
+        .footer { text-align: center; padding: 20px; font-size: 12px; color: #94a3b8; }
+        .button { display: inline-block; padding: 12px 24px; background-color: #f97316; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>¡Todo listo para tu viaje!</h1>
+        </div>
+        <div class="content">
+            <p>Hola <strong>{{ payment.customer_name }}</strong>,</p>
+            <p>Tu pago ha sido procesado con éxito. Aquí tienes los detalles de tu próxima aventura con <strong>Orange Travel</strong>:</p>
+            
+            <div class="detail-box">
+                <h3 style="margin-top:0; color:#f97316;">{{ tour.nombre }}</h3>
+                <p>🗓 <strong>Fecha:</strong> {{ payment.reservation_date|date:"d \d\e F, Y" }}</p>
+                <p>👥 <strong>Pasajeros:</strong> {{ total_pax }} ({{ payment.pax_adults }} adultos, {{ payment.pax_children }} niños)</p>
+                <p>💰 <strong>Total Pagado:</strong> ${{ payment.amount }} {{ payment.currency }}</p>
+                <p>🆔 <strong>Orden de Pago:</strong> #{{ payment.id }}</p>
+            </div>
+
+            <p>Nos pondremos en contacto contigo a través de WhatsApp ({{ payment.customer_phone }}) para coordinar los detalles de la recogida.</p>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="https://wa.me/tu_numero_aqui" class="button">¿Tienes dudas? Escríbenos</a>
+            </div>
+        </div>
+        <div class="footer">
+            <p>&copy; 2026 Orange Travel Arica - Agencia de Viajes</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -10,8 +10,11 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
-from urllib.parse import urlsplit, urlunsplit
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 
+from urllib.parse import urlsplit, urlunsplit
 from rest_framework import permissions, status
 from rest_framework.parsers import FormParser, JSONParser
 from rest_framework.response import Response
@@ -215,6 +218,9 @@ class FlowConfirmView(APIView):
                     payment.paid_at = timezone.now()
                     payment.save()
                     send_download_purchase_confirmation_email(payment=payment)
+                    
+                    enviar_confirmacion_reserva(payment)
+                
 
             # 2. Caso fallo
             else:
@@ -227,3 +233,38 @@ class FlowConfirmView(APIView):
             logger.error(f"Error confirmación Flow: {exc}")
             
         return HttpResponse("OK", status=200)
+
+
+def enviar_confirmacion_reserva(payment):
+    """
+    Envía el comprobante al cliente y la alerta a Orange Travel.
+    """
+    subject = f"¡Reserva Confirmada! - {payment.tour.nombre}"
+    from_email = settings.DEFAULT_FROM_EMAIL
+    to_email = [payment.customer_email]
+
+    # Contexto para las plantillas
+    context = {
+        'payment': payment,
+        'tour': payment.tour,
+        'total_pax': payment.pax_adults + payment.pax_children,
+    }
+
+    # 1. Generar versiones HTML y Texto
+    html_content = render_to_string('emails/confirmacion_reserva.html', context)
+    text_content = strip_tags(html_content) # Versión sin HTML para emergencias
+
+    try:
+        # 2. Crear el objeto del correo
+        msg = EmailMultiAlternatives(subject, text_content, from_email, to_email)
+        msg.attach_alternative(html_content, "text/html")
+        
+        # 3. Copia oculta (BCC) para Orange Travel 
+        # Así tú también recibes el comprobante exacto que le llegó al cliente
+        msg.bcc = [getattr(settings, 'ADMIN_RESERVATIONS_EMAIL', from_email)]
+        
+        msg.send()
+        logger.info(f"Email enviado con éxito para el pago {payment.id}")
+        
+    except Exception as e:
+        logger.error(f"Error enviando email de reserva {payment.id}: {str(e)}")
