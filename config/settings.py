@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'cloudinary',
 
     'django.contrib.admin',
+    'django.contrib.humanize',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -176,7 +177,7 @@ CKEDITOR_CONFIGS = {
     'default': {
         'skin': 'moono-lisa',
         'toolbar': 'Custom',
-        'height': 500,
+        'height': 300,
         'width': '100%',
         'language': 'es',
         'extraPlugins': ','.join(['image2', 'uploadimage', 'widget', 'lineutils', 'clipboard', 'dialog']),
@@ -197,6 +198,8 @@ LANGUAGE_CODE = 'es-cl'
 TIME_ZONE = 'America/Santiago'
 USE_I18N = True
 USE_TZ = True
+USE_L10N = True
+USE_THOUSAND_SEPARATOR = True
 
 # 11. EMAIL (Usando Anymail con la API de Mailgun)
 ANYMAIL = {
