@@ -63,7 +63,7 @@
         :value="inputValue"
         v-on="inputEvents"
         readonly
-        placeholder="Selecciona una  s sfecha"
+        placeholder="Selecciona una fecha"
       />
     </template>
   </DatePicker>
