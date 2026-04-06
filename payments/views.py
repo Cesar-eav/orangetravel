@@ -20,6 +20,7 @@ from rest_framework.views import APIView
 from django.shortcuts import render, redirect
 
 from .models import Payment
+from tours.models import Reserva
 
 from tours.models import Tour  # Asegúrate de que esta ruta sea correcta
 from .flow import FlowClient
@@ -91,6 +92,19 @@ class TourCheckoutView(APIView):
             pax_children=data.get('ninos'),
             status=Payment.STATUS_PENDING,
         )
+
+        # 2. Creación de la Reserva
+        reserva = Reserva.objects.create(
+            tour=tour,
+            nombre_cliente=data.get('nombre'),
+            email_cliente=data.get('email'),
+            telefono_cliente=data.get('telefono'),
+            fecha=data.get('fecha'),
+            adultos=int(data.get('adultos', 1)),
+            ninos=int(data.get('ninos', 0)),
+            notas_internas=f"Solicitud web: {data.get('adultos')} ADL, {data.get('ninos')} CHD."
+        )
+
 
         flow = FlowClient()
         if not flow.is_configured():
