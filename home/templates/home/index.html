@@ -47,7 +47,7 @@
                         <div class="flex-shrink-0">
                             <span class="text-orange-500 text-xs uppercase font-black tracking-widest block mb-1">VALOR</span>
                             <span class="text-3xl font-black text-white leading-none">
-                                ${{ tour.precio.valor_adulto }}
+                                ${{ tour.precio.valor_adulto|intcomma }}
                             </span>
                         </div>
                 <a href="{% url 'tour' tour.slug %}"
