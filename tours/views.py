@@ -17,7 +17,7 @@ from datetime import date
 
 def tours_home(request):
     
-    tours = Tour.objects.all().select_related('precio')
+    tours = Tour.objects.filter(activo=True).select_related('precio')
 
     return render (request, 'tours/tours_home.html', {
         'tours' : tours

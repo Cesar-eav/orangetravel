@@ -38,7 +38,7 @@ class Tour(models.Model):
         return None
     
     imagen_principal = models.ImageField(upload_to='tours/principales/')
-    activo = models.BooleanField(default=True)
+    activo = models.BooleanField(default=True, verbose_name="¿Está activo?")
 
     destacado = models.BooleanField(
         default=False,

@@ -1,4 +1,4 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.utils.html import format_html 
 from .models import TipoTour, Tour, GaleriaTour, PrecioTour, Reserva, BloqueoTour
 
@@ -73,29 +73,30 @@ class ReservaAdmin(ModelAdmin): # Cambiado a Unfold ModelAdmin
 @admin.register(Tour)
 class TourAdmin(ModelAdmin): # Cambiado a Unfold ModelAdmin
     list_display = ('nombre', 'tipo', 'get_precio_adulto', 'activo', 'destacado', 'video_youtube')
+    list_editable = ('activo',)
     list_filter = ('tipo', 'activo')
     search_fields = ('nombre',)
-    readonly_fields = ('previsualizacion', 'get_precio_adulto', 'ver_imagen_grande')
+    readonly_fields = ('previsualizacion', 'get_precio_adulto')
+
 
     # Para que Unfold active las PESTAÑAS, usamos 'fieldsets' en lugar de 'fields'
     fieldsets = (
         ("Información del Tour", {
             "fields": (
-                'previsualizacion', 
+                'imagen_principal', 
                 'nombre', 
+                'activo',
                 'destacado', 
                 'slug', 
                 'tipo', 
                 'itinerario', 
-                'get_precio_adulto', 
-                'activo'
+                'get_precio_adulto'
+                
             ),
         }),
         ("Multimedia", {
             "fields": (
-                'imagen_principal', 
-                'ver_imagen_grande', 
-                'video_youtube'
+                'video_youtube',
             ),
         }),
     )
@@ -104,6 +105,12 @@ class TourAdmin(ModelAdmin): # Cambiado a Unfold ModelAdmin
     
     # Inlines de Unfold (Precios y Galería aparecerán como secciones/pestañas)
     inlines = [PrecioInline, GaleriaInline]
+
+    # Sobreescribimos la acción de borrado individual
+    def delete_model(self, request, obj):
+        obj.activo = False
+        obj.save()
+        messages.success(request, f"El tour '{obj.nombre}' ha sido desactivado (borrado lógico).")
 
     class Media:
         js = ('js/admin_tour_warning.js',)
