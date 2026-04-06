@@ -72,8 +72,8 @@ class ReservaAdmin(ModelAdmin): # Cambiado a Unfold ModelAdmin
 
 @admin.register(Tour)
 class TourAdmin(ModelAdmin): # Cambiado a Unfold ModelAdmin
-    list_display = ('nombre', 'tipo', 'get_precio_adulto', 'activo', 'destacado', 'video_youtube')
-    list_editable = ('activo',)
+    list_display = ('nombre','id', 'tipo', 'get_precio_adulto', 'activo', 'destacado')
+    list_editable = ('activo','destacado')
     list_filter = ('tipo', 'activo')
     search_fields = ('nombre',)
     readonly_fields = ('previsualizacion', 'get_precio_adulto')
@@ -111,6 +111,12 @@ class TourAdmin(ModelAdmin): # Cambiado a Unfold ModelAdmin
         obj.activo = False
         obj.save()
         messages.success(request, f"El tour '{obj.nombre}' ha sido desactivado (borrado lógico).")
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions
 
     class Media:
         js = ('js/admin_tour_warning.js',)
