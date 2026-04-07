@@ -208,6 +208,12 @@ class FlowConfirmView(APIView):
 
     @csrf_exempt
     def post(self, request):
+        def _first(value: Any) -> str | None:
+            if value is None:
+                return None
+            if isinstance(value, (list, tuple)):
+                return str(value[0]) if value else None
+            return str(value)
 
         def _normalized_payload() -> dict[str, Any]:
             # DRF FormParser may yield QueryDict where dict(...) becomes lists.
