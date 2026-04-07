@@ -10,8 +10,8 @@
             <h3 class="text-3xl font-bold mb-1 text-center">{{ tour.nombre }} </h3>
 
         <div id="reservation-widget" class="t-20"
-                    data-precio-adulto="{{ precios.valor_adulto|floatformat:"0" }}"
-                    data-precio-nino="{{ precios.valor_nino|floatformat:"0"  }}"
+                    data-precio-adulto="{{ precios.valor_adulto }}"
+                    data-precio-nino="{{ precios.valor_nino }}"
                     data-tour-id="{{ tour.id }}">
                 <booking-app>
                 </booking-app>
