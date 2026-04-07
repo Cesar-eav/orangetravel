@@ -66,6 +66,7 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
 }
 
+
 if DEBUG:
     INSTALLED_APPS += ["debug_toolbar"]
     INTERNAL_IPS = ["127.0.0.1"]
@@ -171,8 +172,11 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # 9. CKEDITOR
+
+# X_FRAME_OPTIONS = 'SAMEORIGIN'
+
 CKEDITOR_UPLOAD_PATH = "publicaciones/"
-CKEDITOR_IMAGE_BACKEND = "pillow"
+CKEDITOR_IMAGE_BACKEND = "ckeditor_uploader.backends.dummy_backend.DummyBackend"
 CKEDITOR_CONFIGS = {
     'default': {
         'skin': 'moono-lisa',
