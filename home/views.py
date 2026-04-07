@@ -5,6 +5,9 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib import messages
 
+from django.core.mail import EmailMessage
+from django.core.mail import EmailMultiAlternatives # Importante para enviar HTML
+
 # Create your views here.
 
 def home(request):
@@ -24,38 +27,44 @@ def nosotros(request):
 def contacto(request):
     return render(request,'home/contacto.html' )
 
+#FORMULARIO DE CONTACTO
 def contacto_send_email(request):
     if request.method == 'POST':
 
+        tel_limpio = request.POST.get('phone').replace('+', '').replace(' ', '')
         nombre = request.POST.get('nombre')
         email = request.POST.get('email')
         phone = request.POST.get('phone')
         asunto_tipo = request.POST.get('asunto')
         mensaje_user = request.POST.get('mensaje')
 
-        cuerpo_correo = f"""
-        Has recibido un nuevo mensaje de contacto:
 
-        Nombre: {nombre}
-        Email: {email}
-        Teléfono: {phone}
-        Tipo de Consulta: {asunto_tipo}
+        html_admin = f"""
+        <div style="border: 2px solid #FF8C00; padding: 20px; font-family: sans-serif;">
+            <h2 style="color: #FF8C00;">H2 PROBANDO TEXTO</h2>
+            <p><strong>Cliente:</strong> {nombre}</p>
+            <p><strong>Email:</strong> {email}</p>
+            <p><strong>Telefono:</strong> {phone}</p>
 
-        Mensaje:
-        {mensaje_user}
+            <p><strong>Asunto:</strong> {asunto_tipo}</p>
+            <p><strong>Mensaje:</strong> {mensaje_user}</p>
+    
+            <p><a href="https://wa.me/{tel_limpio}" style="color: #25D366; font-weight: bold;">📱 Contactar por WhatsApp</a></p>
+        </div>
         """
 
         try:
-            send_mail(
-                subject = f"WEB: {asunto_tipo.upper()} - {nombre}",
-                message = cuerpo_correo,
-                from_email = settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[settings.EMAIL_CONTACTO_RECIBIDO], 
-                fail_silently=False,
+            msg_adm = EmailMultiAlternatives(
+            subject=f"🥳 CONTACTO WEB - {nombre}",
+            body="Nuevo contacto",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=["cesar.eav@gmail.com"] # Tu correo autorizado en Sandbox
             )
-            messages.success(request, "¡Gracias! Te responderemos a la brevedad.")
-            print(f"TODO ARIBA ARIBA")
+            msg_adm.attach_alternative(html_admin, "text/html")
+            msg_adm.send()
+            
         except Exception as e:
+
             print(f"DEBUG ERROR EMAIL: {e}")
             messages.error(request, f"Hubo un problema al enviar el emial.")
         
