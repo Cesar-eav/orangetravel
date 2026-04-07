@@ -208,6 +208,26 @@ class FlowConfirmView(APIView):
 
     @csrf_exempt
     def post(self, request):
+
+        def _normalized_payload() -> dict[str, Any]:
+            # DRF FormParser may yield QueryDict where dict(...) becomes lists.
+            out: dict[str, Any] = {}
+            try:
+                if hasattr(request, "data") and hasattr(request.data, "keys"):
+                    for k in request.data.keys():
+                        out[str(k)] = _first(request.data.get(k))
+            except Exception:  # noqa: BLE001
+                pass
+            try:
+                for k in request.POST.keys():
+                    if str(k) not in out:
+                        out[str(k)] = _first(request.POST.get(k))
+            except Exception:  # noqa: BLE001
+                pass
+            return out
+
+        payload = _normalized_payload()
+    
         token = request.data.get("token")
         if not token:
             return HttpResponse("OK", status=200) # Flow exige 200 siempre
@@ -215,6 +235,11 @@ class FlowConfirmView(APIView):
         payment = Payment.objects.filter(provider_token=str(token)).first()
         if not payment:
             return HttpResponse("OK", status=200)
+        
+        payment.raw_confirm_payload = payload
+        if token:
+            payment.provider_token = str(token)
+        payment.save(update_fields=["raw_confirm_payload", "provider_token", "updated_at"])
 
         flow = FlowClient()
         try:
