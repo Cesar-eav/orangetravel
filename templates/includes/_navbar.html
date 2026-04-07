@@ -1,47 +1,91 @@
-
-<nav class="bg-blue-dark text-white shadow-xl sticky top-0 "
-    style=" z-index: 99999 !important;">
+<nav class="bg-blue-dark/95 backdrop-blur-md text-white shadow-2xl sticky top-0 w-full border-b border-white/10"
+    style="z-index: 99999 !important;">
 
     <div class="container mx-auto px-4 lg:px-8">
         <div class="flex justify-between items-center h-20">
             
-            <a href="{% url 'home' %}" class="flex items-center space-x-2 group">
+            <a href="{% url 'home' %}" class="flex items-center space-x-2 group shrink-0">
+                <div class="bg-orange-500 p-1.5 rounded-lg group-hover:rotate-12 transition-transform duration-300">
+                    <i class="fa-solid fa-map-location-dot text-white text-xl"></i>
+                </div>
                 <span class="text-2xl font-black tracking-tighter uppercase italic">
-                    ORANGE <span class="text-orange-500 group-hover:text-orange-600 transition-colors">TRAVEL</span>
+                    ORANGE <span class="text-orange-500 transition-colors">TRAVEL</span>
                 </span>
             </a>
 
-            <div class="hidden md:flex items-center space-x-8 font-semibold text-sm uppercase tracking-wider">
-                <a href="{% url 'tours_home' %}" class="hover:text-orange-500 transition-colors">Tours</a>
-                <a href="{% url 'tercera_edad'%}" class="font-bold hover:text-orange-500 transition-colors py-2 border-b border-white/5">Vacaciones Tercera Edad</a>
-                <a href="{% url 'nosotros' %}" class="hover:text-orange-500 transition-colors">Nosotros</a>
-                <a href="{% url 'contacto' %}" class="hover:text-orange-500 transition-colors">Contacto</a>
-                <a href="#" class="hover:text-orange-500 transition-colors text-orange-500">Reservar</a>
+            <div class="hidden md:flex items-center space-x-4 lg:space-x-6 font-semibold text-xs lg:text-sm uppercase tracking-wider">
+                
+                <a href="{% url 'tours_home' %}" class="px-2 py-1 hover:text-orange-400 transition-all relative group">
+                    Tours
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
+                </a>
+                
+                <a href="{% url 'tercera_edad'%}" class="px-2 py-1 flex items-center gap-2 hover:text-orange-400 transition-all relative group">
+                    <i class="fa-solid fa-heart text-orange-500 text-[10px]"></i>
+                    Tercera Edad
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
+                </a>
+
+                <a href="{% url 'nosotros' %}" class="px-2 py-1 hover:text-orange-400 transition-all relative group">
+                    Nosotros
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
+                </a>
+
+                <a href="{% url 'contacto' %}" class="ml-2 px-4 py-2 border border-white/20 rounded-lg hover:border-orange-500 hover:text-orange-400 transition-all relative group flex items-center gap-2 bg-white/5">
+                    <i class="fa-solid fa-paper-plane text-[10px] opacity-70 group-hover:text-orange-500"></i>
+                    Contacto
+                    
+                </a>
             </div>
 
             <div class="md:hidden flex items-center">
-                <button id="mobile-menu-button" class="text-white focus:outline-none p-2">
-                    <i class="fa-solid fa-bars text-2xl"></i>
+                <button id="mobile-menu-button" class="text-white hover:text-orange-500 transition-colors p-2 focus:outline-none">
+                    <i id="menu-icon" class="fa-solid fa-bars-staggered text-2xl"></i>
                 </button>
             </div>
         </div>
     </div>
 
-    <div id="mobile-menu" class="hidden md:hidden bg-blue-dark border-t border-white/10 px-4 pt-2 pb-6 space-y-4 shadow-2xl">
-        <a href="{% url 'tours_home' %}" class="block text-lg font-bold hover:text-orange-500 transition-colors py-2 border-b border-white/5">Tours</a>
-        <a href="{% url 'tercera_edad'%}" class="block text-lg font-bold hover:text-orange-500 transition-colors py-2 border-b border-white/5">Vacaciones Tercera Edad</a>
-        <a href="{% url 'nosotros'  %}" class="block text-lg font-bold hover:text-orange-500 transition-colors py-2 border-b border-white/5">Nosotros</a>
-        <a href="{% url 'contacto' %}" class="text-lg font-bold hover:text-orange-500 transition-colors">Contacto</a>
+<div id="mobile-menu" class="hidden md:hidden bg-blue-dark border-t border-white/10 shadow-2xl">
+    <div class="px-4 py-6 space-y-1">
+        
+        <a href="{% url 'tours_home' %}" class="flex items-center justify-between p-4 rounded-xl hover:bg-white/5 transition-all group">
+            <span class="font-bold uppercase tracking-wide text-sm">Nuestros Tours</span>
+            <i class="fa-solid fa-chevron-right text-xs text-orange-500 group-hover:translate-x-1 transition-transform"></i>
+        </a>
 
+        <a href="{% url 'tercera_edad'%}" class="flex items-center justify-between p-4 rounded-xl hover:bg-white/5 transition-all group">
+            <span class="font-bold uppercase tracking-wide text-sm italic">Tercera Edad</span>
+            <i class="fa-solid fa-heart text-orange-500 group-hover:scale-110 transition-transform"></i>
+        </a>
+
+        <a href="{% url 'nosotros' %}" class="flex items-center justify-between p-4 rounded-xl hover:bg-white/5 transition-all group">
+            <span class="font-bold uppercase tracking-wide text-sm">Nosotros</span>
+            <i class="fa-solid fa-circle-info text-white/30 group-hover:text-orange-500 transition-colors"></i>
+        </a>
+
+        <div class="py-2">
+            <a href="{% url 'contacto' %}" class="flex items-center justify-between p-4 rounded-xl bg-orange-500 text-white shadow-lg shadow-orange-500/20 active:scale-95 transition-all">
+                <span class="font-black uppercase tracking-widest text-sm">Contacto</span>
+                <i class="fa-solid fa-paper-plane animate-bounce-slow"></i>
+            </a>
+        </div>
 
     </div>
+</div>
 </nav>
 
 <script>
     const btn = document.getElementById('mobile-menu-button');
     const menu = document.getElementById('mobile-menu');
+    const icon = document.getElementById('menu-icon');
 
     btn.addEventListener('click', () => {
-        menu.classList.toggle('hidden');
+        const isHidden = menu.classList.toggle('hidden');
+        if (isHidden) {
+            icon.classList.replace('fa-xmark', 'fa-bars-staggered');
+        } else {
+            icon.classList.replace('fa-bars-staggered', 'fa-xmark');
+        }
     });
 </script>
