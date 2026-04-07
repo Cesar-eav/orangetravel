@@ -177,24 +177,64 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 CKEDITOR_UPLOAD_PATH = "publicaciones/"
 CKEDITOR_IMAGE_BACKEND = "ckeditor_uploader.backends.dummy_backend.DummyBackend"
+# settings.py
+
+# settings.py
+
 CKEDITOR_CONFIGS = {
     'default': {
         'skin': 'moono-lisa',
         'toolbar': 'Custom',
-        'height': 300,
+        'height': 500,
         'width': '100%',
         'language': 'es',
-        'extraPlugins': ','.join(['image2', 'uploadimage', 'widget', 'lineutils', 'clipboard', 'dialog']),
+        'extraPlugins': ','.join([
+            'image2', 'uploadimage', 'widget', 'lineutils', 
+            'clipboard', 'dialog', 'justify', 'table', 'maximize'
+        ]),
         'removePlugins': 'image',
+        
+        # VITAL: Esto permite que las clases de tu CSS no sean borradas por el editor
+        'extraAllowedContent': 'img(*); div(*); figure(*); figcaption(*); section(*); iframe[*](*)',
+        
+        # VITAL: Aplica tu clase maestra al cuerpo del editor para que se vea igual que en la web
+        'bodyClass': 'resena-content',
+        
+        # VITAL: Carga tu CSS compilado en el editor (ajusta la ruta si es necesario)
+        'contentsCss': [
+            'https://cdn.tailwindcss.com', # Para que las clases @apply funcionen visualmente
+            '/static/js/dist/assets/styles.css', # Tu archivo compilado por Vite
+        ],
+
         'toolbar_Custom': [
+            ['Maximize', 'Source'],
             ['Styles', 'Format', 'FontSize'],
-            ['Bold', 'Italic', 'Underline', 'Strike'],
-            ['NumberedList', 'BulletedList', '-', 'Blockquote'],
+            ['Bold', 'Italic', 'Underline', 'Strike', '-', 'TextColor', 'BGColor'],
+            ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
             ['Link', 'Unlink'],
-            ['Image', 'Source'],
+            ['Image', 'Table', 'HorizontalRule'],
+            ['RemoveFormat'],
+        ],
+
+        # MAPEADO DE TU CSS AL MENÚ DE ESTILOS
+        'stylesSet': [
+            # Posicionamiento (Floats con el padding que ya creaste)
+            {"name": "Imagen Izquierda", "element": "img", "attributes": {"class": "image-left"}},
+            {"name": "Imagen Derecha", "element": "img", "attributes": {"class": "image-right"}},
+            {"name": "Imagen Centrada", "element": "img", "attributes": {"class": "image-center"}},
+            
+            # Tamaños (Las clases que tienes en el punto 5 de tu CSS)
+            {"name": "Tamaño: Pequeña (25%)", "element": "img", "attributes": {"class": "img-blog-small"}},
+            {"name": "Tamaño: Mediana (45%)", "element": "img", "attributes": {"class": "img-blog-medium"}},
+            {"name": "Tamaño: Completa (100%)", "element": "img", "attributes": {"class": "img-blog-full"}},
+            
+            # Texto
+            {"name": "Texto Naranja Orange", "element": "span", "attributes": {"class": "text-orange-500 font-bold"}},
         ],
     },
 }
+
+
 CKEDITOR_STORAGE_BACKEND = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # 10. INTERNACIONALIZACIÓN
