@@ -37,6 +37,7 @@
 
     .test-debug {
     background-color: #ff0000 !important;
+    color: #fff000 !important;
     height: 50px;
     width: 100%;
 }

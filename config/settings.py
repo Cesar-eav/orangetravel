@@ -193,9 +193,9 @@ CKEDITOR_CONFIGS = {
             'clipboard', 'dialog', 'justify', 'table', 'maximize'
         ]),
         'removePlugins': 'image',
+        'image2_alignClasses': ['image-left', 'image-center', 'image-right'],
+        'extraAllowedContent': 'img(image-left,image-right,image-center,img-blog-small,img-blog-medium,img-blog-full);''img(*); div(*); figure(*); figcaption(*); section(*); iframe[*](*)',
         
-        # VITAL: Esto permite que las clases de tu CSS no sean borradas por el editor
-        'extraAllowedContent': 'img(*); div(*); figure(*); figcaption(*); section(*); iframe[*](*)',
         
         # VITAL: Aplica tu clase maestra al cuerpo del editor para que se vea igual que en la web
         'bodyClass': 'resena-content',
@@ -215,6 +215,7 @@ CKEDITOR_CONFIGS = {
             ['Image', 'Table', 'HorizontalRule'],
             ['RemoveFormat'],
         ],
+        # 'disallowedContent': 'img{float};',
 
         # MAPEADO DE TU CSS AL MENÚ DE ESTILOS
         'stylesSet': [

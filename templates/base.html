@@ -8,6 +8,7 @@
     <title>{% block title %}Mi Sitio{% endblock %}</title>
     <!-- CSS Estilos -->
 {% if debug %}
+<link rel="stylesheet" href="{% static 'js/dist/assets/styles.css' %}">
 {% else %}
 <link rel="stylesheet" href="{% static 'js/dist/assets/styles.css' %}?v=1.1">
 {% endif %}
