@@ -282,20 +282,22 @@ class FlowConfirmView(APIView):
     
 
 def VistaConfirmacionPago(request, payment_id):
-    try:
-        # 1. Intentamos obtener el pago exacto que esté marcado como PAGADO
-        payment = Payment.objects.get(id=payment_id, status=Payment.STATUS_PAID)
-        
-    except Payment.DoesNotExist:
-        # 2. Si el ID no existe o el status NO es 'paid', entramos aquí
-        messages.error(request, "Lo sentimos, no encontramos una confirmación válida para este pago.")
-        return redirect('tours_home')
 
-    # 3. Si todo sale bien, preparamos el contexto
+    payment = Payment.objects.get(id=payment_id)
+
+    print("HOLAAAAA-------->", payment)
+    
     context = {
         'payment': payment,
         'tour': payment.tour,
         'pax_total': payment.pax_adults + payment.pax_children
     }
+
+    if payment.status == Payment.STATUS_PAID:
+        return render(request, 'payments/confirmacion_reserva.html', context)
+
+    else:
+        messages.error(request, "Lo sentimos, no encontramos una confirmación válida para este pago.")
+        return render(request, 'payments/fail.html', context)
     
-    return render(request, 'payments/confirmacion_reserva.html', context)
+
