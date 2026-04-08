@@ -25,16 +25,17 @@
                     Tercera Edad
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
                 </a>
-
                 <a href="{% url 'nosotros' %}" class="px-2 py-1 hover:text-orange-400 transition-all relative group">
                     Nosotros
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
                 </a>
-
+                <a href="{% url 'politica_devoluciones' %}" class="px-2 py-1 hover:text-orange-400 transition-all relative group">
+                    Términos y condiciones 
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
+                </a>
                 <a href="{% url 'contacto' %}" class="ml-2 px-4 py-2 border border-white/20 rounded-lg hover:border-orange-500 hover:text-orange-400 transition-all relative group flex items-center gap-2 bg-white/5">
                     <i class="fa-solid fa-paper-plane text-[10px] opacity-70 group-hover:text-orange-500"></i>
                     Contacto
-                    
                 </a>
             </div>
 
@@ -67,6 +68,13 @@
         <div class="py-2">
             <a href="{% url 'contacto' %}" class="flex items-center justify-between p-4 rounded-xl bg-orange-500 text-white shadow-lg shadow-orange-500/20 active:scale-95 transition-all">
                 <span class="font-black uppercase tracking-widest text-sm">Contacto</span>
+                <i class="fa-solid fa-paper-plane animate-bounce-slow"></i>
+            </a>
+        </div>
+
+        <div class="py-2">
+            <a href="{% url 'politica_devoluciones' %}" class="flex items-center justify-between p-4 rounded-xl bg-orange-500 text-white shadow-lg shadow-orange-500/20 active:scale-95 transition-all">
+                <span class="font-black uppercase tracking-widest text-sm">Términos y condiciones</span>
                 <i class="fa-solid fa-paper-plane animate-bounce-slow"></i>
             </a>
         </div>

@@ -27,6 +27,9 @@ def nosotros(request):
 def contacto(request):
     return render(request,'home/contacto.html' )
 
+def devoluciones(request):
+    return render(request,'home/politica_devoluciones.html' )   
+
 #FORMULARIO DE CONTACTO
 def contacto_send_email(request):
     if request.method == 'POST':
