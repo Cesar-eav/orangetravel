@@ -28,7 +28,7 @@ class FlowClient:
     def __init__(self) -> None:
         self.api_key = getattr(settings, "FLOW_API_KEY", None)
         self.secret_key = getattr(settings, "FLOW_SECRET_KEY", None)
-        self.api_base = getattr(settings, "FLOW_API_BASE", "https://www.flow.cl/api")
+        self.api_base = getattr(settings, "FLOW_API_BASE", "https://sandbox.flow.cl/api")
         self.timeout = getattr(settings, "FLOW_TIMEOUT_SECONDS", 20)
 
         self.create_path = getattr(settings, "FLOW_CREATE_PATH", "/payment/create")
