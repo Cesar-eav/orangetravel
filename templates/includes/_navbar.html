@@ -41,7 +41,7 @@
 
             <div class="md:hidden flex items-center">
                 <button id="mobile-menu-button" class="text-white hover:text-orange-500 transition-colors p-2 focus:outline-none">
-                    <i id="menu-icon" class="fa-solid fa-bars-staggered text-2xl"></i>
+                    <i id="menu-icon" class="fa-solid fa-bars text-2xl leading-none"></i>
                 </button>
             </div>
         </div>
@@ -52,7 +52,7 @@
         
         <a href="{% url 'tours_home' %}" class="flex items-center justify-between p-4 rounded-xl hover:bg-white/5 transition-all group">
             <span class="font-bold uppercase tracking-wide text-sm">Nuestros Tours</span>
-            <i class="fa-solid fa-chevron-right text-xs text-orange-500 group-hover:translate-x-1 transition-transform"></i>
+            {% comment %} <i class="fa-solid fa-chevron-right text-xs text-orange-500 group-hover:translate-x-1 transition-transform"></i> {% endcomment %}
         </a>
 
         <a href="{% url 'tercera_edad'%}" class="flex items-center justify-between p-4 rounded-xl hover:bg-white/5 transition-all group">
@@ -62,8 +62,15 @@
 
         <a href="{% url 'nosotros' %}" class="flex items-center justify-between p-4 rounded-xl hover:bg-white/5 transition-all group">
             <span class="font-bold uppercase tracking-wide text-sm">Nosotros</span>
-            <i class="fa-solid fa-circle-info text-white/30 group-hover:text-orange-500 transition-colors"></i>
+            {% comment %} <i class="fa-solid fa-circle-info text-white/30 group-hover:text-orange-500 transition-colors"></i> {% endcomment %}
         </a>
+
+        <div class="py-2">
+            <a href="{% url 'politica_devoluciones' %}" class="flex items-center justify-between p-4 rounded-xl hover:bg-white/5 transition-all group">
+                <span class="font-black uppercase tracking-widest text-sm">Términos y condiciones</span>
+                
+            </a>
+        </div>
 
         <div class="py-2">
             <a href="{% url 'contacto' %}" class="flex items-center justify-between p-4 rounded-xl bg-orange-500 text-white shadow-lg shadow-orange-500/20 active:scale-95 transition-all">
@@ -72,12 +79,7 @@
             </a>
         </div>
 
-        <div class="py-2">
-            <a href="{% url 'politica_devoluciones' %}" class="flex items-center justify-between p-4 rounded-xl bg-orange-500 text-white shadow-lg shadow-orange-500/20 active:scale-95 transition-all">
-                <span class="font-black uppercase tracking-widest text-sm">Términos y condiciones</span>
-                <i class="fa-solid fa-paper-plane animate-bounce-slow"></i>
-            </a>
-        </div>
+
 
     </div>
 </div>
@@ -91,9 +93,9 @@
     btn.addEventListener('click', () => {
         const isHidden = menu.classList.toggle('hidden');
         if (isHidden) {
-            icon.classList.replace('fa-xmark', 'fa-bars-staggered');
+            icon.classList.replace('fa-xmark', 'fa-bars');
         } else {
-            icon.classList.replace('fa-bars-staggered', 'fa-xmark');
+            icon.classList.replace('fa-bars', 'fa-xmark');
         }
     });
 </script>
