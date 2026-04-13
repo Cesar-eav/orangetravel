@@ -284,9 +284,7 @@ class FlowConfirmView(APIView):
 def VistaConfirmacionPago(request, payment_id):
 
     payment = Payment.objects.get(id=payment_id)
-
-    print("HOLAAAAA-------->", payment)
-    
+   
     context = {
         'payment': payment,
         'tour': payment.tour,
