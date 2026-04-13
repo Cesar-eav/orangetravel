@@ -54,7 +54,7 @@
                 </button>
 
                 <!-- Pista del carrusel -->
-                <div id="gallery-viewport" class="overflow-hidden">
+                <div id="gallery-viewport" class="flex w-full overflow-hidden justify-center">
                     <div id="gallery-track" class="flex gap-3 transition-transform duration-400 ease-in-out">
                         {% for foto in fotos %}
                             <a href="{{ foto.imagen.url }}"
