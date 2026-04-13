@@ -45,24 +45,40 @@
         <hr class="mx-5 py-5">
         <section class="container mx-auto px-4 py-8 text-center">
             <h2 class="text-3xl font-bold mb-6 text-gray-800">Galería de Fotos</h2>
-            <div class="flex flex-wrap justify-center gap-3">
-                {% for foto in fotos %}
-                    <a href="{{ foto.imagen.url }}"
-                       class="glightbox"
-                       data-gallery="gallery1"
-                       data-type="image"
-                       >
-                        <img src="{{ foto.imagen.url }}"
-                             class="h-56 w-46 rounded-2xl hover:scale-110 transition-transform duration-300 object-cover" />
-                    </a>
-                {% endfor %}
+            <div class="relative">
+                <!-- Botón anterior -->
+                <button id="gallery-prev"
+                        class="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white shadow-lg rounded-full w-10 h-10 flex items-center justify-center text-gray-700 hover:text-orange-500 transition -translate-x-1/2"
+                        aria-label="Anterior">
+                    <i class="fa fa-chevron-left"></i>
+                </button>
+
+                <!-- Pista del carrusel -->
+                <div id="gallery-viewport" class="overflow-hidden">
+                    <div id="gallery-track" class="flex gap-3 transition-transform duration-400 ease-in-out">
+                        {% for foto in fotos %}
+                            <a href="{{ foto.imagen.url }}"
+                               class="glightbox shrink-0"
+                               data-gallery="gallery1"
+                               data-type="image">
+                                <img src="{{ foto.imagen.url }}"
+                                     class="h-56 w-44 rounded-2xl object-cover hover:scale-105 transition-transform duration-300" />
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Botón siguiente -->
+                <button id="gallery-next"
+                        class="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white shadow-lg rounded-full w-10 h-10 flex items-center justify-center text-gray-700 hover:text-orange-500 transition translate-x-1/2"
+                        aria-label="Siguiente">
+                    <i class="fa fa-chevron-right"></i>
+                </button>
             </div>
         </section>
 <script type="text/javascript">
-    // Esta función se asegura de que GLightbox exista antes de intentar usarlo
     function initLightbox() {
         if (typeof GLightbox !== 'undefined') {
-            console.log("✅ GLightbox detectado, inicializando...");
             const lightbox = GLightbox({
                 selector: '.glightbox',
                 touchNavigation: true,
@@ -70,22 +86,64 @@
                 zoomable: true
             });
         } else {
-            console.error("❌ Error: GLightbox no está definido aún. Reintentando...");
-            // Si no está listo, espera 500ms y vuelve a intentar (plan B)
             setTimeout(initLightbox, 500);
         }
     }
 
-    // Ejecutar al cargar el DOM
-    document.addEventListener('DOMContentLoaded', initLightbox);
+    document.addEventListener('DOMContentLoaded', function () {
+        initLightbox();
+
+        const track    = document.getElementById('gallery-track');
+        const viewport = document.getElementById('gallery-viewport');
+        const btnPrev  = document.getElementById('gallery-prev');
+        const btnNext  = document.getElementById('gallery-next');
+
+        if (!track || !viewport || !btnPrev || !btnNext) return;
+
+        const GAP       = 12;   // gap-3 = 12 px
+        const ITEM_W    = 176 + GAP;  // w-44 = 176px + gap
+        let   current   = 0;
+
+        function totalItems() { return track.children.length; }
+
+        function maxIndex() {
+            const visible = Math.floor(viewport.clientWidth / ITEM_W);
+            return Math.max(0, totalItems() - visible);
+        }
+
+        function update() {
+            const offset = current * ITEM_W;
+            track.style.transform = `translateX(-${offset}px)`;
+            btnPrev.disabled = current === 0;
+            btnNext.disabled = current >= maxIndex();
+            btnPrev.classList.toggle('opacity-30', btnPrev.disabled);
+            btnNext.classList.toggle('opacity-30', btnNext.disabled);
+        }
+
+        btnPrev.addEventListener('click', function () {
+            if (current > 0) { current--; update(); }
+        });
+
+        btnNext.addEventListener('click', function () {
+            if (current < maxIndex()) { current++; update(); }
+        });
+
+        // Soporte touch/swipe
+        let startX = 0;
+        viewport.addEventListener('touchstart', function (e) { startX = e.touches[0].clientX; }, { passive: true });
+        viewport.addEventListener('touchend', function (e) {
+            const diff = startX - e.changedTouches[0].clientX;
+            if (diff > 40 && current < maxIndex()) { current++; update(); }
+            else if (diff < -40 && current > 0)   { current--; update(); }
+        });
+
+        window.addEventListener('resize', function () {
+            if (current > maxIndex()) current = maxIndex();
+            update();
+        });
+
+        update();
+    });
 </script>
-        {% comment %} {% if debug %}
-            {# MODO DESARROLLO: Conectamos con el servidor de Vite #}
-            <script type="module" src="http://localhost:5173/static/src/main.js"></script>
-        {% else %}
-            {# MODO PRODUCCIÓN: Archivo compilado por npm run build #}
-            {# Nota: Después de tu primer 'build', verifica el nombre exacto en static/js/dist #}
-            <script type="module" src="{% static 'js/dist/main.js' %}"></script>
-        {% endif %} {% endcomment %}
 
     {% endblock %}
