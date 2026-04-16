@@ -44,7 +44,7 @@ def contacto_send_email(request):
 
         html_admin = f"""
         <div style="border: 2px solid #FF8C00; padding: 20px; font-family: sans-serif;">
-            <h2 style="color: #FF8C00;">H2 PROBANDO TEXTO</h2>
+            <h2 style="color: #FF8C00;">Gracias por contactarnos</h2>
             <p><strong>Cliente:</strong> {nombre}</p>
             <p><strong>Email:</strong> {email}</p>
             <p><strong>Telefono:</strong> {phone}</p>
@@ -52,10 +52,10 @@ def contacto_send_email(request):
             <p><strong>Asunto:</strong> {asunto_tipo}</p>
             <p><strong>Mensaje:</strong> {mensaje_user}</p>
     
-            <p><a href="https://wa.me/{tel_limpio}" style="color: #25D366; font-weight: bold;">📱 Contactar por WhatsApp</a></p>
+            
         </div>
         """
-
+        #<p><a href="https://wa.me/{tel_limpio}" style="color: #25D366; font-weight: bold;">📱 Contactar por WhatsApp</a></p>
         try:
             msg_adm = EmailMultiAlternatives(
             subject=f"🥳 CONTACTO WEB - {nombre}",
