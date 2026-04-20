@@ -5,42 +5,40 @@
         <div class="flex justify-between items-center h-20">
             
             <a href="{% url 'home' %}" class="flex items-center space-x-2 group shrink-0">
-                <div class="bg-orange-500 p-1.5 rounded-lg group-hover:rotate-12 transition-transform duration-300">
-                    <i class="fa-solid fa-map-location-dot text-white text-xl"></i>
-                </div>
-                <span class="text-2xl font-black tracking-tighter uppercase italic">
-                    ORANGE <span class="text-orange-500 transition-colors">TRAVEL</span>
+  
+                <span class="text-3xl font-black tracking-tighter">
+                    orange<span class="text-[#eb5f60] transition-colors">travel</span>
                 </span>
             </a>
 
             <div class="hidden md:flex items-center space-x-4 lg:space-x-6 font-semibold text-xs lg:text-sm uppercase tracking-wider">
                 
-                <a href="{% url 'tours_home' %}" class="px-2 py-1 hover:text-orange-400 transition-all relative group">
+                <a href="{% url 'tours_home' %}" class="px-2 py-1 hover:text-[#eb5f60] transition-all relative group">
                     Tours
-                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#eb5f60] transition-all duration-300 group-hover:w-full"></span>
                 </a>
                 
-                <a href="{% url 'tercera_edad'%}" class="px-2 py-1 flex items-center gap-2 hover:text-orange-400 transition-all relative group">
-                    <i class="fa-solid fa-heart text-orange-500 text-[10px]"></i>
+                <a href="{% url 'tercera_edad'%}" class="px-2 py-1 flex items-center gap-2 hover:text-[#eb5f60] transition-all relative group">
+                    <i class="fa-solid fa-heart text-[#eb5f60] text-[10px]"></i>
                     Tercera Edad
-                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#eb5f60] transition-all duration-300 group-hover:w-full"></span>
                 </a>
-                <a href="{% url 'nosotros' %}" class="px-2 py-1 hover:text-orange-400 transition-all relative group">
+                <a href="{% url 'nosotros' %}" class="px-2 py-1 hover:text-[#eb5f60] transition-all relative group">
                     Nosotros
-                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#eb5f60] transition-all duration-300 group-hover:w-full"></span>
                 </a>
-                <a href="{% url 'politica_devoluciones' %}" class="px-2 py-1 hover:text-orange-400 transition-all relative group">
+                <a href="{% url 'politica_devoluciones' %}" class="px-2 py-1 hover:text-[#eb5f60] transition-all relative group">
                     Términos y condiciones 
-                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#eb5f60] transition-all duration-300 group-hover:w-full"></span>
                 </a>
-                <a href="{% url 'contacto' %}" class="ml-2 px-4 py-2 border border-white/20 rounded-lg hover:border-orange-500 hover:text-orange-400 transition-all relative group flex items-center gap-2 bg-white/5">
-                    <i class="fa-solid fa-paper-plane text-[10px] opacity-70 group-hover:text-orange-500"></i>
+                <a href="{% url 'contacto' %}" class="ml-2 px-4 py-2 border border-white/20 rounded-lg hover:border-[#eb5f60] hover:text-[#eb5f60] transition-all relative group flex items-center gap-2 bg-white/5">
+                    <i class="fa-solid fa-paper-plane text-[10px] opacity-70 group-hover:text-[#eb5f60]"></i>
                     Contacto
                 </a>
             </div>
 
             <div class="md:hidden flex items-center">
-                <button id="mobile-menu-button" class="text-white hover:text-orange-500 transition-colors p-2 focus:outline-none">
+                <button id="mobile-menu-button" class="text-white hover:text-[#eb5f60] transition-colors p-2 focus:outline-none">
                     <i id="menu-icon" class="fa-solid fa-bars text-2xl leading-none"></i>
                 </button>
             </div>
@@ -52,17 +50,17 @@
         
         <a href="{% url 'tours_home' %}" class="flex items-center justify-between p-4 rounded-xl hover:bg-white/5 transition-all group">
             <span class="font-bold uppercase tracking-wide text-sm">Nuestros Tours</span>
-            {% comment %} <i class="fa-solid fa-chevron-right text-xs text-orange-500 group-hover:translate-x-1 transition-transform"></i> {% endcomment %}
+            {% comment %} <i class="fa-solid fa-chevron-right text-xs text-[#eb5f60] group-hover:translate-x-1 transition-transform"></i> {% endcomment %}
         </a>
 
         <a href="{% url 'tercera_edad'%}" class="flex items-center justify-between p-4 rounded-xl hover:bg-white/5 transition-all group">
             <span class="font-bold uppercase tracking-wide text-sm italic">Tercera Edad</span>
-            <i class="fa-solid fa-heart text-orange-500 group-hover:scale-110 transition-transform"></i>
+            <i class="fa-solid fa-heart text-[#eb5f60] group-hover:scale-110 transition-transform"></i>
         </a>
 
         <a href="{% url 'nosotros' %}" class="flex items-center justify-between p-4 rounded-xl hover:bg-white/5 transition-all group">
             <span class="font-bold uppercase tracking-wide text-sm">Nosotros</span>
-            {% comment %} <i class="fa-solid fa-circle-info text-white/30 group-hover:text-orange-500 transition-colors"></i> {% endcomment %}
+            {% comment %} <i class="fa-solid fa-circle-info text-white/30 group-hover:text-[#eb5f60] transition-colors"></i> {% endcomment %}
         </a>
 
         <div class="py-2">
@@ -73,7 +71,7 @@
         </div>
 
         <div class="py-2">
-            <a href="{% url 'contacto' %}" class="flex items-center justify-between p-4 rounded-xl bg-orange-500 text-white shadow-lg shadow-orange-500/20 active:scale-95 transition-all">
+            <a href="{% url 'contacto' %}" class="flex items-center justify-between p-4 rounded-xl bg-[#eb5f60] text-white shadow-lg shadow-[#eb5f60]/20 active:scale-95 transition-all">
                 <span class="font-black uppercase tracking-widest text-sm">Contacto</span>
                 <i class="fa-solid fa-paper-plane animate-bounce-slow"></i>
             </a>
