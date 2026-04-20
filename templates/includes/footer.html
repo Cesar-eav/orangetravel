@@ -43,38 +43,12 @@
             <div>
                 <h4 class="text-white font-bold uppercase text-xs tracking-[0.2em] mb-6">Experiencias</h4>
                 <ul class="space-y-2 text-sm font-medium">
+                    {% for tour in footer_tours %}
                     <li>
                         <i class="fa-solid fa-angles-right"></i>
-                        <a href="#" class="hover:text-orange-500 transition-colors duration-300">Tour de Socoroma y termas de Jurasi</a>
+                        <a href="#" class="hover:text-orange-500 transition-colors duration-300">{{ tour.nombre }}</a>
                     </li>
-                    <li>
-                        <i class="fa-solid fa-angles-right"></i>
-                        <a href="#" class="hover:text-orange-500 transition-colors duration-300">Valle de Codpa y ruta Pitantami</a>
-                    </li>
-                    <li>
-                        <i class="fa-solid fa-angles-right"></i>
-                        <a href="#" class="hover:text-orange-500 transition-colors duration-300">Tacna compras y termas de pachia</a>
-                    </li>
-                    <li>
-                        <i class="fa-solid fa-angles-right"></i>
-                        <a href="#" class="hover:text-orange-500 transition-colors duration-300">City TOur Tacna</a>
-                    </li>
-                    <li>
-                        <i class="fa-solid fa-angles-right"></i>
-                        <a href="#" class="hover:text-orange-500 transition-colors duration-300">Caleta Camarones</a>
-                    </li>
-                    <li>
-                        <i class="fa-solid fa-angles-right"></i>
-                        <a href="#" class="hover:text-orange-500 transition-colors duration-300">Tour Entre Valles a Azapa u Lluta</a>
-                    </li>
-                    <li>
-                        <i class="fa-solid fa-angles-right"></i>
-                        <a href="#" class="hover:text-orange-500 transition-colors duration-300">City Tour Arica y Azapa</a>
-                    </li>
-                    <li>
-                        <i class="fa-solid fa-angles-right"></i>
-                        <a href="#" class="hover:text-orange-500 transition-colors duration-300">Vacaciones Tercera Edad</a>
-                    </li>
+                    {% endfor %}
                 </ul>
             </div>
         </div>
