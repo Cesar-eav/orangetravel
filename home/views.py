@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from tours.models import Tour
 from blog.models import Post
+from .models import Nosotros
 from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib import messages
@@ -21,8 +22,8 @@ def home(request):
     })
 
 def nosotros(request):
-
-    return render(request, 'home/nosotros.html')
+    nosotros = Nosotros.get_solo()
+    return render(request, 'home/nosotros.html', {'nosotros': nosotros})
 
 def contacto(request):
     return render(request,'home/contacto.html' )

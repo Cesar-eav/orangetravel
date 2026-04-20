@@ -1,70 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
     {% load static %}
-    <section class="bg-white py-20 border-b border-gray-100">
-        <div class="container mx-auto px-4 text-center">
-            <h1 class="text-5xl font-black text-gray-900 mb-4">Nosotros</h1>
-        </div>
-    </section>
-    <section class="py-10 md:mx-40 ">
-        <div class="container mx-auto px-6 flex flex-col md:flex-row items-center text-justify gap-5">
-            <div class="md:w-2/3" >
-                <span class="bg-black text-white px-2 py-1">NOSOTROS</span>
-
-                <h2 class="font-marcellus text-black text-5xl pb-4 text-center md:text-left">¿Quiénes somos?</h2>
-                <p class="text-md text-black leading-relaxed opacity-90 md:pr-5">
-                    Somos un tour operador local que provee actividades turísticas en la región de Arica y Parinacota. Nuestro objetivo es potenciar el turismo en la ciudad ofreciendo alternativas acorde a las necesidades e intereses de cada visitante.
-                </p>
-            </div>
-            <div class="md:w-1/3">
-                <img src="{% static 'img/nosotros.jpg' %}"
-                     class="h-70 w-full object-cover rounded-2xl shadow-2xl">
-            </div>
-        </div>
-    </section>
-   
-    <section>
-        <i class="fa fa-home absolute"></i>
-        <div class="relative w-full h-56">
-            <img src="{% static 'img/lago-Chungara.jpg' %}"
-                 class="absolute inset-0 w-full h-full object-cover">
-            <div class="absolute inset-0 bg-black/30"></div>
-            <div class="absolute top-20 inset-x-0 md:px-40 px-5 text-4xl flex justify-between text-white text-center">
-                <div class="flex flex-col items-center ">
-                    <i class="fa fa-star  text-amber-300 pb-2"></i>
-                    <h3 class="text-xl">Turismo Confiable</h3>
-                </div>
-                <div class="flex flex-col items-center">
-                    <i class="fa-solid  fa-plane  text-amber-300 pb-2"></i>
-                    <h3 class="text-xl">Turismo Múltiple</h3>
-                </div>
-                <div class="flex flex-col items-center ">
-                    <i class="fa-solid fa-shield-halved  text-amber-300 pb-2"></i>
-                    <h3 class="text-xl">Equipo Profesional</h3>
-                </div>
-            </div>
+    <section class="bg-white py-20 border-b border-gray-100 mx-40">
+        <div class="resena-content">
+            {{nosotros.contenido|safe}}
         </div>
     </section>
 
-
-        <section class="py-10 md:mx-40 ">
-        <div class="container mx-auto px-6 flex flex-col md:flex-row items-center text-justify gap-5">
-            <div class="md:w-2/3" >
-                <span class="bg-black text-white px-2 py-1">CONÓCENOS</span>
-                <h2 class="font-marcellus text-black text-5xl pb-4 text-center md:text-left">Nuestra Historia</h2>
-                <p class="text-md text-black leading-relaxed opacity-90 md:pr-5">
-                    
-Somos un tour operador local que provee actividades turísticas en la región de Arica y Parinacota. Nuestro objetivo es potenciar el turismo en la ciudad ofreciendo alternativas, acorde a las necesidades e intereses de cada visitante.
-
-Contamos con un equipo profesional y con vocación de servicio, hacemos todos los esfuerzos para capacitar a nuestros guías, conductores y operadores para que amen su profesión y se sientan motivados a entregar una experiencia que aporte valor a nuestros pasajeros.
-
-                </p>
-            </div>
-            <div class="md:w-1/3">
-                <img src="{% static 'img/nuestra_historia.jpg' %}"
-                     class="h-70 w-full object-cover rounded-2xl shadow-2xl">
-            </div>
-        </div>
-    </section>
    
 {% endblock %}
