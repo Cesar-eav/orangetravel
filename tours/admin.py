@@ -1,7 +1,8 @@
 from django.contrib import admin, messages
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from .models import TipoTour, Tour, GaleriaTour, PrecioTour, Reserva, BloqueoTour
+from .models import TipoTour, Tour, GaleriaTour, PrecioTour, Reserva, BloqueoTour, TerceraEdad
+from solo.admin import SingletonModelAdmin
 from django import forms
 
 # IMPORTANTE: Importamos desde unfold.admin
@@ -230,3 +231,8 @@ class BloqueoTourAdmin(ModelAdmin):
     class Media:
         js = ('js/admin_bloqueo.js',)
 
+
+
+@admin.register(TerceraEdad)
+class TerceraEdadAdmin(SingletonModelAdmin):
+    pass

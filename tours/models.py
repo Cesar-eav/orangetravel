@@ -3,6 +3,7 @@ from ckeditor_uploader.fields import RichTextUploadingField
 import re
 from django.utils import timezone
 from datetime import date
+from solo.models import SingletonModel
 
 class TipoTour(models.Model):
     nombre = models.CharField(max_length=100, unique=True, verbose_name="Nombre del Tipo")
@@ -181,3 +182,14 @@ class BloqueoTour(models.Model):
         return f"Bloqueo {self.tour.nombre} - {self.fecha}"
 
 
+
+
+class TerceraEdad(SingletonModel):
+    contenido = RichTextUploadingField(verbose_name="Contenido")
+
+    def __str__(self):
+        return "Página Tercera Edad"
+
+    class Meta:
+        verbose_name = "Tercera Edad"
+        verbose_name_plural = "Tercera Edad"

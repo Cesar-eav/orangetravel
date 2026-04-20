@@ -71,6 +71,19 @@
         @apply max-w-full;
     }
 
+    .resena-tercera-edad .resena-content img {
+        background-color: white;
+        padding: 8px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        transform: rotate(2deg);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .resena-tercera-edad .resena-content img:hover {
+        transform: rotate(0deg);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+    }
+
     /* Imagen a la Izquierda - Ancho reducido al 38% para evitar huecos gigantes */
     .resena-content .image-left {
         @apply float-left mr-8 mb-6 rounded-2xl shadow-lg;

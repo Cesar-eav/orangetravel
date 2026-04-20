@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
-from .models import Tour, Reserva, BloqueoTour
+from .models import Tour, Reserva, BloqueoTour, TerceraEdad
 import json
 from django.core.mail import send_mail
 from django.conf import settings
@@ -24,8 +24,8 @@ def tours_home(request):
     } )
 
 def tercera_edad(request):
-    
-    return render (request, 'tours/tercera_edad.html')
+    pagina = TerceraEdad.get_solo()
+    return render(request, 'tours/tercera_edad.html', {'pagina': pagina})
 
 def tour(request, slug):
 
