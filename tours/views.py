@@ -204,3 +204,36 @@ def get_fechas_bloqueadas(request, tour_id):
     
     # IMPORTANTE: La clave debe ser 'bloqueadas' para que coincida con tu Vue
     return JsonResponse({'bloqueadas': fechas_finales})
+
+
+def get_reservas_activas_admin(request, tour_id):
+    """
+    Uso interno del Admin: devuelve las fechas con reservas activas de un tour,
+    con cantidad de reservas y total de pasajeros por fecha.
+    Sirve para que el JS del admin pueda marcar esas fechas en el date picker.
+    """
+    from django.db.models import Count, Sum
+
+    estados_activos = ['PENDIENTE', 'CONFIRMADA', 'Confirmada', 'Realizada']
+
+    agrupado = (
+        Reserva.objects.filter(tour_id=tour_id, estado__in=estados_activos)
+        .values('fecha')
+        .annotate(
+            cantidad=Count('id'),
+            total_adultos=Sum('adultos'),
+            total_ninos=Sum('ninos'),
+        )
+        .order_by('fecha')
+    )
+
+    reservas = [
+        {
+            'fecha': r['fecha'].isoformat(),
+            'cantidad': r['cantidad'],
+            'pax': (r['total_adultos'] or 0) + (r['total_ninos'] or 0),
+        }
+        for r in agrupado
+    ]
+
+    return JsonResponse({'tour_id': tour_id, 'reservas': reservas})

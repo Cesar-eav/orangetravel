@@ -71,7 +71,7 @@
 
           <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-3">
             <div class="flex justify-between items-center">
-              <span class="text-sm font-bold text-slate-700">Adultos ({{ this.precioAdulto }})</span>
+              <span class="text-sm font-bold text-slate-700">Público General ({{ this.precioAdulto }})</span>
               <div class="flex items-center gap-3">
                 <button @click="decrement('adultos')"
                   class="w-8 h-8 rounded-full bg-white border border-slate-300 shadow-sm">-</button>
