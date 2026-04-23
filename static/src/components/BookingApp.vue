@@ -27,7 +27,7 @@
         <h2 class="text-2xl font-black text-slate-800 mb-1 uppercase tracking-tighter">
             Reserva tu Cupo
         </h2>
-        <p class="text-slate-500 text-sm mb-6">Completa tus datos para coordinar tu viaje en Arica.</p>
+        <p class="text-red-500 text-sm mb-6 text-justify">Todo tour está sujeto a un número mínimo de participantes. En caso de no completarse, nos comunicaremos con usted para ofrecerle el cambio de fecha o el reembolso total de su pago.</p>
 
         <div class="space-y-4 text-slate-700">
           <div>
