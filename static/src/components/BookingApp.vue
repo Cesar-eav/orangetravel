@@ -5,7 +5,9 @@
       <button type="button" @click="isModalOpen = true"
         class="bg-orange-500 cursor-pointer hover:bg-orange-600 px-6 py-3 text-white font-bold transition rounded shadow-lg uppercase relative z-50">
         RESERVAR AHORA
+        <i class="fa-solid fa-cart-shopping"></i>
       </button>
+      
     </div>
 
 <div v-if="isModalOpen" 
