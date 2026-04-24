@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orange Travel – Sitio en Renovación</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #0f172a;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: #94a3b8;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .logo-ring {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            box-shadow: 0 0 40px rgba(249,115,22,0.35);
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 30px rgba(249,115,22,0.3); }
+            50%       { box-shadow: 0 0 60px rgba(249,115,22,0.55); }
+        }
+
+        .logo-ring svg { width: 48px; height: 48px; fill: white; }
+
+        h1 {
+            font-size: clamp(1.75rem, 5vw, 3rem);
+            font-weight: 900;
+            color: #f1f5f9;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+        }
+
+        h1 span { color: #f97316; }
+
+        p {
+            font-size: clamp(0.95rem, 2.5vw, 1.125rem);
+            max-width: 480px;
+            line-height: 1.7;
+            margin-bottom: 2.5rem;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(249,115,22,0.12);
+            border: 1px solid rgba(249,115,22,0.3);
+            color: #fb923c;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0.5rem 1.25rem;
+            border-radius: 9999px;
+            margin-bottom: 2.5rem;
+        }
+
+        .badge::before {
+            content: '';
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #f97316;
+            animation: blink 1.4s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.2; }
+        }
+
+        .socials {
+            display: flex;
+            gap: 1.25rem;
+            justify-content: center;
+        }
+
+        .socials a {
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            border: 1px solid #334155;
+            display: flex; align-items: center; justify-content: center;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: border-color 0.2s, color 0.2s, background 0.2s;
+        }
+
+        .socials a:hover {
+            border-color: #f97316;
+            color: #f97316;
+            background: rgba(249,115,22,0.08);
+        }
+
+        footer {
+            position: fixed;
+            bottom: 1.25rem;
+            font-size: 0.72rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #475569;
+        }
+    </style>
+    <!-- Font Awesome para los íconos sociales -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="logo-ring">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+    </div>
+
+    <div class="badge">En renovación</div>
+
+    <h1>Volvemos pronto con<br><span>más aventuras</span></h1>
+
+    <p>Estamos trabajando para ofrecerte una experiencia aún mejor. Contáctanos directamente mientras tanto.</p>
+
+    <div class="socials">
+        <a href="https://www.facebook.com/orangetravelservice" target="_blank" title="Facebook">
+            <i class="fa-brands fa-facebook-f"></i>
+        </a>
+        <a href="https://www.instagram.com/orange.travel.arica/" target="_blank" title="Instagram">
+            <i class="fa-brands fa-instagram"></i>
+        </a>
+        <a href="https://wa.me/56988693991" target="_blank" title="WhatsApp">
+            <i class="fa-brands fa-whatsapp"></i>
+        </a>
+        <a href="mailto:Agenciaorangetravel@gmail.com" title="Email">
+            <i class="fa-solid fa-envelope"></i>
+        </a>
+    </div>
+
+    <footer>© 2026 Orange Travel · Arica, Chile</footer>
+
+</body>
+</html>

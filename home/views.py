@@ -11,6 +11,9 @@ from django.core.mail import EmailMultiAlternatives # Importante para enviar HTM
 
 # Create your views here.
 
+def renovacion(request):
+    return render(request, 'home/renovacion.html')
+
 def home(request):
 
     tours = Tour.objects.filter(destacado=True, activo=True).select_related('precio')
