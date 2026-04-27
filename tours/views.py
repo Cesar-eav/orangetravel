@@ -165,7 +165,7 @@ def enviar_notificaciones_reserva(reserva):
         print("DEBUG: Correo cliente enviado con éxito.") # Checkpoint 3
 
         # Enviar al Admin
-        msg_adm = EmailMultiAlternatives(asunto_admin, "Nueva reserva recibida.", settings.DEFAULT_FROM_EMAIL, ['cesar.eav@gmail.com'])
+        msg_adm = EmailMultiAlternatives(asunto_admin, "Nueva reserva recibida.", settings.DEFAULT_FROM_EMAIL, ['info@orangetravel.cl'])
         msg_adm.attach_alternative(html_admin, "text/html")
         msg_adm.send()
         print("DEBUG: Correo admin enviado con éxito.") # Checkpoint 4
