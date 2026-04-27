@@ -17,12 +17,16 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'orangetravel-production.up.railway.app',
     'localhost',
+    'orangetravel.cl',
+    'www.orangetravel.cl'
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     'https://*.railway.app',
     'https://orangetravel-production.up.railway.app',
     'http://localhost',
+    'https://orangetravel.cl',
+    'https://www.orangetravel.cl'
 ]
 
 if not DEBUG:
@@ -131,24 +135,30 @@ UNFOLD = {
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # 7. BASE DE DATOS
-DATABASES = {
-    'default': dj_database_url.config(
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
-}
+database_url = os.getenv('DATABASE_URL', '')
 
-if not DATABASES['default']:
-    DATABASES['default'] = {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'orage_db',
-        'USER': 'cesar',
-        'PASSWORD': 'qwedsa',
-        'HOST': '127.0.0.1',
-        'PORT': 5432,
+if database_url:
+    DATABASES = {
+        'default': dj_database_url.config(
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'orage_db',
+            'USER': 'cesar',
+            'PASSWORD': 'qwedsa',
+            'HOST': '127.0.0.1',
+            'PORT': 5432,
+        }
     }
 
-if not DEBUG and DATABASES['default']:
+if not DEBUG and 'mysql' in DATABASES['default'].get('ENGINE', ''):
+    DATABASES['default']['OPTIONS'] = {'charset': 'utf8mb4'}
+elif not DEBUG and 'postgresql' in DATABASES['default'].get('ENGINE', ''):
     DATABASES['default']['OPTIONS'] = {'sslmode': 'require'}
 
 # 8. ARCHIVOS ESTÁTICOS Y MEDIA (Configuración Django 5.2 Clean)
@@ -265,11 +275,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 if DEBUG:
-    # Cuando estás en tu PC
     SITE_URL = 'http://127.0.0.1:8000'
 else:
-    # Cuando estás en Railway (Cambia esto por tu URL real de Railway)
-    SITE_URL = 'https://orangetravel.up.railway.app'
+    SITE_URL = 'https://orangetravel.cl'
 
 
 
