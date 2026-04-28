@@ -106,7 +106,12 @@ class FlowClient:
         if optional:
             params.update(optional)
 
+        print(f"DEBUG FLOW API_KEY: '{self.api_key}'", flush=True)
+        print(f"DEBUG FLOW API_BASE: '{self.api_base}'", flush=True)
+
         data = self._request("POST", self.create_path, params)
+        
+        print(f"DEBUG FLOW RESPONSE: {data}", flush=True)  # TEMPORAL   
 
         # Common shapes seen in Flow integrations:
         # - {"url": "https://...", "token": "..."}

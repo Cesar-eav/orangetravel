@@ -144,7 +144,6 @@ export default {
   },
 
   mounted() {
-    console.log("🚀 BookingApp montado. ID del Tour:", this.tourId);
     if (this.tourId) {
       this.cargarBloqueos();
     }

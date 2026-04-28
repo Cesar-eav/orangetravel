@@ -187,7 +187,7 @@ def enviar_confirmacion_pago(payment):
             subject=f"🚨 PAGO RECIBIDO - {payment.customer_name}",
             body="Nueva venta realizada.",
             from_email=settings.DEFAULT_FROM_EMAIL,
-            to=["cesar.eav@gmail.com"] # Tu correo autorizado en Sandbox
+            to=["reservas@orangetravel.cl"] # Tu correo autorizado en Sandbox
         )
         msg_adm.attach_alternative(html_admin, "text/html")
         msg_adm.send()

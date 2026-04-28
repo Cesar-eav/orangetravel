@@ -1,4 +1,6 @@
 import os
+# import pymysql
+# pymysql.install_as_MySQLdb()
 import dj_database_url
 from pathlib import Path
 from dotenv import load_dotenv

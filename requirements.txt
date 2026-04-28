@@ -14,7 +14,7 @@ django-unfold==0.86.1
 djangorestframework==3.17.1
 gunicorn==25.2.0
 idna==3.11
-mysqlclient==2.2.8
+PyMySQL==1.1.1
 packaging==26.0
 pillow==12.1.1
 psycopg2-binary==2.9.11

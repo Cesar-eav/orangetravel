@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C /var/www/html/orangetravel log --oneline config/settings.py)",
+      "Bash(git -C /var/www/html/orangetravel show HEAD:config/settings.py)",
+      "Bash(git -C /var/www/html/orangetravel show db6f1ce:config/settings.py)"
+    ]
+  }
+}

@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% block title %}{{ tour.nombre }} | Orange Travel{% endblock %}
 {% block content %}
 <section class="relative w-full h-100 group shadow-lg">
         <img src="{{ tour.imagen_principal.url }}"

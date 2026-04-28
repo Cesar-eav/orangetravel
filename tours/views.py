@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
 from .models import Tour, Reserva, BloqueoTour, TerceraEdad
+from payments.models import Payment
 import json
 from django.core.mail import send_mail
 from django.conf import settings
@@ -180,20 +181,16 @@ def get_fechas_bloqueadas(request, tour_id):
     """
     # 1. Traer fechas de reservas confirmadas, realizadas o pendientes
     # Usamos .distinct() por si acaso para no enviar fechas duplicadas
-    reservas = Reserva.objects.filter(
+    reservas = Payment.objects.filter(
         tour_id=tour_id, 
-        estado__in=['Confirmada', 'Realizada', 'PENDIENTE']
-    ).values_list('fecha', flat=True).distinct()
+        status__in=['paid']
+    ).values_list('reservation_date', flat=True).distinct()
 
     # 2. Traer fechas de bloqueos manuales (lo que haces desde el Admin)
     bloqueos_manuales = BloqueoTour.objects.filter(
         tour_id=tour_id
     ).values_list('fecha', flat=True).distinct()
 
-    # --- DEBUG: El print que querías ver ---
-    print(f"--- API BLOQUEOS (Tour ID: {tour_id}) ---")
-    print(f"Reservas encontradas: {list(reservas)}")
-    print(f"Bloqueos manuales: {list(bloqueos_manuales)}")
 
     # 3. Combinamos ambas listas en un solo Set (para evitar duplicados)
     # y formateamos a string 'YYYY-MM-DD'
