@@ -124,6 +124,32 @@
     </section>
 
 
+{% comment %} FOTOS DE LA OFICINA {% endcomment %}
+<section class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-10">
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">Nuestra oficina</h2>
+            <p class="text-gray-500">Rafael Sotomayor 165, Arica</p>
+        </div>
+        <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="relative h-72 md:h-96 overflow-hidden rounded-2xl shadow-lg group">
+                <img src="{% static 'img/oficina_por_fuera_1.jpeg' %}"
+                     alt="Fachada de la oficina Orange Travel"
+                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                <div class="absolute inset-0 bg-linear-to-t from-black/50 to-transparent"></div>
+                <span class="absolute bottom-4 left-5 text-white font-bold text-lg drop-shadow">Por fuera</span>
+            </div>
+            <div class="relative h-72 md:h-96 overflow-hidden rounded-2xl shadow-lg group">
+                <img src="{% static 'img/oficina_por_dentro.jpeg' %}"
+                     alt="Interior de la oficina Orange Travel"
+                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                <div class="absolute inset-0 bg-linear-to-t from-black/50 to-transparent"></div>
+                <span class="absolute bottom-4 left-5 text-white font-bold text-lg drop-shadow">Por dentro</span>
+            </div>
+        </div>
+    </div>
+</section>
+
 {% comment %} MAPA DE UBICACIÓN {% endcomment %}
 <section class="py-16 bg-white">
     <div class="container mx-auto px-4">
