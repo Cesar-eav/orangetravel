@@ -11,7 +11,11 @@
             </a>
 
             <div class="hidden md:flex items-center space-x-4 lg:space-x-6 font-semibold text-xs lg:text-sm uppercase tracking-wider">
-                
+                <a href="{% url 'home' %}" class="px-2 py-1 hover:text-[#eb5f60] transition-all relative group">
+                    Inicio
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#eb5f60] transition-all duration-300 group-hover:w-full"></span>
+                </a>                
+
                 <a href="{% url 'tours_home' %}" class="px-2 py-1 hover:text-[#eb5f60] transition-all relative group">
                     Tours
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#eb5f60] transition-all duration-300 group-hover:w-full"></span>
@@ -46,6 +50,10 @@
 
 <div id="mobile-menu" class="hidden md:hidden bg-blue-dark border-t border-white/10 shadow-2xl">
     <div class="px-4 py-6 space-y-1">
+        <a href="{% url 'home' %}" class="flex items-center justify-between p-4 rounded-xl hover:bg-white/5 transition-all group">
+            <span class="font-bold uppercase tracking-wide text-sm">Inicio</span>
+            {% comment %} <i class="fa-solid fa-chevron-right text-xs text-[#eb5f60] group-hover:translate-x-1 transition-transform"></i> {% endcomment %}
+        </a>
         
         <a href="{% url 'tours_home' %}" class="flex items-center justify-between p-4 rounded-xl hover:bg-white/5 transition-all group">
             <span class="font-bold uppercase tracking-wide text-sm">Nuestros Tours</span>
