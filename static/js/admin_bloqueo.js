@@ -35,13 +35,13 @@
                 return;
             }
             panel.innerHTML =
-                '<span style="color:#9a3412">Cargando reservas\u2026</span>';
+                '<span style="color:#9a3412">Cargando pagos\u2026</span>';
             panel.style.display = 'block';
 
-            fetch('/tours/api/admin/reservas/' + tourId + '/')
+            fetch('/tours/api/admin/pagos/' + tourId + '/')
                 .then(function (r) { return r.json(); })
                 .then(function (data) {
-                    var reservas = data.reservas || [];
+                    var reservas = data.pagos || [];
                     fechasReservadas = reservas.map(function (r) { return r.fecha; });
                     renderPanel(reservas);
                     // Si el calendario ya está abierto, lo resaltamos de inmediato
@@ -50,7 +50,7 @@
                 })
                 .catch(function () {
                     panel.innerHTML =
-                        '<span style="color:#9a3412">Error al cargar reservas.</span>';
+                        '<span style="color:#9a3412">Error al cargar pagos.</span>';
                 });
         }
 
@@ -58,7 +58,7 @@
         function renderPanel(reservas) {
             if (reservas.length === 0) {
                 panel.innerHTML =
-                    '<span style="color:#15803d">\u2713 Sin reservas activas para este tour.</span>';
+                    '<span style="color:#15803d">\u2713 Sin tours pagados para este tour.</span>';
             } else {
                 var items = reservas
                     .map(function (r) {
@@ -67,7 +67,7 @@
                             r.fecha +
                             '</strong> \u2014 ' +
                             r.cantidad +
-                            ' reserva' +
+                            ' pago' +
                             (r.cantidad !== 1 ? 's' : '') +
                             ' \u00b7 ' +
                             r.pax +
@@ -79,7 +79,7 @@
                     .join('');
                 panel.innerHTML =
                     '<p style="margin:0 0 8px;font-weight:bold;color:#c2410c">' +
-                    '\u26a0 Fechas con reservas activas (' +
+                    '\u26a0 Fechas con tours pagados (' +
                     reservas.length +
                     '):</p>' +
                     '<ul style="margin:0;padding-left:18px;color:#7c2d12;line-height:1.7">' +
@@ -155,7 +155,7 @@
                         'border-radius:50%;' +
                         'outline:2px solid #f97316;' +
                         'font-weight:bold;';
-                    link.title = 'Fecha con reservas activas';
+                    link.title = 'Fecha con tours pagados';
                 }
             });
 

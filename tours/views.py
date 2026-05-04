@@ -203,34 +203,32 @@ def get_fechas_bloqueadas(request, tour_id):
     return JsonResponse({'bloqueadas': fechas_finales})
 
 
-def get_reservas_activas_admin(request, tour_id):
-    """
-    Uso interno del Admin: devuelve las fechas con reservas activas de un tour,
-    con cantidad de reservas y total de pasajeros por fecha.
-    Sirve para que el JS del admin pueda marcar esas fechas en el date picker.
-    """
+def get_pagos_activos_admin(request, tour_id):
     from django.db.models import Count, Sum
 
-    estados_activos = ['PENDIENTE', 'CONFIRMADA', 'Confirmada', 'Realizada']
-
     agrupado = (
-        Reserva.objects.filter(tour_id=tour_id, estado__in=estados_activos)
-        .values('fecha')
+        Payment.objects.filter(
+            tour_id=tour_id,
+            status=Payment.STATUS_PAID,
+            deleted_at__isnull=True,
+        )
+        .values('reservation_date')
         .annotate(
             cantidad=Count('id'),
-            total_adultos=Sum('adultos'),
-            total_ninos=Sum('ninos'),
+            total_adultos=Sum('pax_adults'),
+            total_ninos=Sum('pax_children'),
         )
-        .order_by('fecha')
+        .order_by('reservation_date')
     )
 
-    reservas = [
+    pagos = [
         {
-            'fecha': r['fecha'].isoformat(),
-            'cantidad': r['cantidad'],
-            'pax': (r['total_adultos'] or 0) + (r['total_ninos'] or 0),
+            'fecha': p['reservation_date'].isoformat(),
+            'cantidad': p['cantidad'],
+            'pax': (p['total_adultos'] or 0) + (p['total_ninos'] or 0),
         }
-        for r in agrupado
+        for p in agrupado
+        if p['reservation_date']
     ]
 
-    return JsonResponse({'tour_id': tour_id, 'reservas': reservas})
+    return JsonResponse({'tour_id': tour_id, 'pagos': pagos})

@@ -2,6 +2,7 @@ from django.contrib import admin, messages
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from .models import TipoTour, Tour, GaleriaTour, PrecioTour, Reserva, BloqueoTour, TerceraEdad
+from payments.models import Payment
 from solo.admin import SingletonModelAdmin
 from django import forms
 
@@ -176,57 +177,57 @@ class TipoTourAdmin(ModelAdmin): # Cambiado a Unfold ModelAdmin
 
 @admin.register(BloqueoTour)
 class BloqueoTourAdmin(ModelAdmin):
-    list_display = ('tour', 'fecha', 'motivo', 'tiene_reservas_activas')
+    list_display = ('tour', 'fecha', 'motivo', 'tiene_pagos_activos')
     list_filter = ('tour', 'fecha')
     date_hierarchy = 'fecha'
-    readonly_fields = ('resumen_reservas',)
+    readonly_fields = ('resumen_pagos',)
     fieldsets = (
         (None, {
             'fields': ('tour', 'fecha', 'motivo'),
         }),
-        ('Reservas activas del tour', {
-            'fields': ('resumen_reservas',),
+        ('Tours pagados', {
+            'fields': ('resumen_pagos',),
         }),
     )
 
-    def tiene_reservas_activas(self, obj):
-        estados = ['PENDIENTE', 'CONFIRMADA', 'Confirmada', 'Realizada']
-        count = Reserva.objects.filter(
+    def tiene_pagos_activos(self, obj):
+        count = Payment.objects.filter(
             tour=obj.tour,
-            fecha=obj.fecha,
-            estado__in=estados,
+            reservation_date=obj.fecha,
+            status=Payment.STATUS_PAID,
+            deleted_at__isnull=True,
         ).count()
         if count:
-            label = f'{count} reserva{"s" if count > 1 else ""}'
+            label = f'{count} pago{"s" if count > 1 else ""}'
             return format_html(
                 '<span style="color:#c2410c;font-weight:bold">⚠ {}</span>',
                 label,
             )
         return format_html('<span style="color:#6b7280">—</span>')
-    tiene_reservas_activas.short_description = 'Reservas activas'
+    tiene_pagos_activos.short_description = 'Tours pagados'
 
-    def resumen_reservas(self, obj):
+    def resumen_pagos(self, obj):
         if not obj.pk or not obj.tour_id:
-            return 'Selecciona un tour para ver sus reservas activas.'
-        estados = ['PENDIENTE', 'CONFIRMADA', 'Confirmada', 'Realizada']
-        reservas = Reserva.objects.filter(
+            return 'Selecciona un tour para ver sus pagos.'
+        pagos = Payment.objects.filter(
             tour=obj.tour,
-            estado__in=estados,
-        ).order_by('fecha')
-        if not reservas.exists():
-            return '✓ Sin reservas activas para este tour.'
+            status=Payment.STATUS_PAID,
+            deleted_at__isnull=True,
+        ).order_by('reservation_date')
+        if not pagos.exists():
+            return '✓ Sin tours pagados para este tour.'
         items = ''.join(
-            f'<li style="margin:3px 0"><strong>{r.fecha}</strong> — '
-            f'{r.nombre_cliente} &nbsp;·&nbsp; {r.adultos} adulto{"s" if r.adultos != 1 else ""}'
-            f'{", " + str(r.ninos) + " niño" + ("s" if r.ninos != 1 else "") if r.ninos else ""}'
+            f'<li style="margin:3px 0"><strong>{p.reservation_date}</strong> — '
+            f'{p.customer_name} &nbsp;·&nbsp; {p.pax_adults} adulto{"s" if p.pax_adults != 1 else ""}'
+            f'{", " + str(p.pax_children) + " niño" + ("s" if p.pax_children != 1 else "") if p.pax_children else ""}'
             f'</li>'
-            for r in reservas
+            for p in pagos
         )
         return format_html(
             '<ul style="margin:0;padding-left:18px;font-size:13px;line-height:1.7">{}</ul>',
             mark_safe(items),
         )
-    resumen_reservas.short_description = 'Reservas activas del tour'
+    resumen_pagos.short_description = 'Tours pagados'
 
     class Media:
         js = ('js/admin_bloqueo.js',)
