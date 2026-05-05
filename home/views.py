@@ -32,7 +32,10 @@ def contacto(request):
     return render(request,'home/contacto.html' )
 
 def devoluciones(request):
-    return render(request,'home/politica_devoluciones.html' )   
+    return render(request,'home/politica_devoluciones.html' )
+
+def otros_servicios(request):
+    return render(request, 'home/otros_servicios.html')
 
 #FORMULARIO DE CONTACTO
 def contacto_send_email(request):
