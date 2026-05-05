@@ -212,6 +212,7 @@ CKEDITOR_CONFIGS = {
         ]),
         'removePlugins': 'image',
         'image2_alignClasses': ['image-left', 'image-center', 'image-right'],
+         'allowedContent': True,
         'extraAllowedContent': 'img(image-left,image-right,image-center,img-blog-small,img-blog-medium,img-blog-full);''img(*); div(*); figure(*); figcaption(*); section(*); iframe[*](*)',
         
         
