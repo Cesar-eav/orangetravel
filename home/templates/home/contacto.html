@@ -2,11 +2,18 @@
 {% block title %}Contacto | Orange Travel{% endblock %}
 {% block content %}
     {% load static %}
-    <section class="bg-white py-10 border-b border-gray-100">
-        <div class="container mx-auto px-4 text-center">
-            <h1 class="text-3xl md:text-5xl font-black text-gray-900 mb-4">Contáctanos</h1>
+<!-- HERO con banner de fondo -->
+<section class="relative h-80 md:h-120 overflow-hidden">
+    <img src="{% static 'img/fondos/morro.jpg' %}"
+         class="w-full h-full object-cover object-center" alt="Orange Travel Arica" />
+    <div class="absolute inset-0 bg-linear-to-r from-black/80 via-black/50 to-transparent"></div>
+    <div class="absolute inset-0 flex items-center">
+        <div class="px-8 md:px-24 text-white max-w-2xl">
+            <p class="text-orange-400 font-bold tracking-widest uppercase text-sm mb-3">Arica · Chile</p>
+            <h1 class="text-4xl md:text-6xl font-black mb-4 leading-tight">Contáctanos</h1>
         </div>
-    </section>
+    </div>
+</section>
     <section class="container mx-auto px-4 py-16">
         <h2 class="text-3xl font-bold text-gray-800 mb-2 text-center">Queremos saber de tí</h2>
         <h2 class="text-xl text-gray-800 mb-10 text-center">Siente libre de contactarnos usando el formulario o uno de los links que te dejamos aquí debajo.</h3>

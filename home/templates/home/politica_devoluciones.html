@@ -3,16 +3,17 @@
 {% block content %}
     {% load static %}
 
-    <section class="bg-gray-50 py-24 border-b border-gray-100">
-        <div class="container mx-auto px-6 text-center">
-            <div class="bg-orange-500 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-orange-500/20 rotate-12">
-                <i class="fa-solid fa-file-contract text-white text-3xl"></i>
-            </div>
-            <h1 class="text-5xl md:text-6xl font-black text-gray-900 tracking-tighter uppercase italic">
-                Términos y <span class="text-orange-500">condiciones</span>
-            </h1>
+<section class="relative h-80 md:h-120 overflow-hidden">
+    <img src="{% static 'img/fondos/terminos_2.jpeg' %}"
+         class="w-full h-full object-cover object-center" alt="Orange Travel Arica" />
+    <div class="absolute inset-0 bg-linear-to-r from-black/80 via-black/50 to-transparent"></div>
+    <div class="absolute inset-0 flex items-center">
+        <div class="px-8 md:px-24 text-white max-w-2xl">
+            <p class="text-orange-400 font-bold tracking-widest uppercase text-sm mb-3">Arica · Chile</p>
+            <h1 class="text-4xl md:text-6xl font-black mb-4 leading-tight">Términos<br> y condiciones</h1>
         </div>
-    </section>
+    </div>
+</section>
 
     <section class="py-16 md:py-24 bg-white">
         <div class="container mx-auto px-6 max-w-7xl">

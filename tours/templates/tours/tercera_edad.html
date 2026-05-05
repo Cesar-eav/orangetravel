@@ -4,6 +4,20 @@
 {% block title %}Tercera Edad | Orange Travel{% endblock %}
 
 {% block content %}
+
+<section class="relative h-80 md:h-120 overflow-hidden">
+    <img src="{% static 'img/fondos/tercera_edad_1.jpeg' %}"
+         class="w-full h-full object-cover object-center" alt="Orange Travel Arica" />
+    <div class="absolute inset-0 bg-linear-to-r from-black/80 via-black/50 to-transparent"></div>
+    <div class="absolute inset-0 flex items-center">
+        <div class="px-8 md:px-24 text-white max-w-2xl">
+            <p class="text-orange-400 font-bold tracking-widest uppercase text-sm mb-3">Arica · Chile</p>
+            <h1 class="text-4xl md:text-6xl font-black mb-4 leading-tight">Vacaciones<br>Tercera Edad</h1>
+        </div>
+    </div>
+</section>
+
+
 <section class="resena-tercera-edad">
     <div class="resena-content md:mx-40 mx-2">
         {{ pagina.contenido|safe }}
