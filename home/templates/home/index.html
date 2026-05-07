@@ -7,10 +7,10 @@
     {% load static %}
 
     {# --- HERO SECTION: Banner Blindado --- #}
-    <section class="relative w-full  overflow-hidden bg-gray-900">
-        <picture class="mt-10">
+    <section class="relative w-full  overflow-hidden bg-gray-900 ">
+        <picture class="mt-10 ">
             <source srcset="{% static 'img/portada_d.jpeg' %}" media="(min-width: 768px)">
-            <img src="{% static 'img/portada_m.jpeg' %}" class="w-full h-[70vh] md:h-auto object-cover opacity-90" fetchpriority="high" alt="Portada Orange Travel">
+            <img src="{% static 'img/portada_m.webp' %}" class="w-full h-auto object-cover opacity-90" fetchpriority="high" alt="Portada Orange Travel">
         </picture>
         {# Opcional: Futuro texto sobre la imagen #}
         <a href="{% url 'tercera_edad' %}"
@@ -20,12 +20,21 @@
     </section>
 
     {# --- TITULAR PRINCIPAL: Espaciado Mejorado --- #}
-    <section class="container mx-auto px-4 py-16 md:py-24">
-        <div class="max-w-3xl mx-auto text-center">
-            <span class="text-orange-500 font-bold tracking-widest uppercase text-sm mb-4 block">Explora Arica y Parinacota</span>
-            <h1 class="font-marcellus text-4xl md:text-6xl font-black text-gray-900 mb-6 leading-tight">Descubre destinos inolvidables</h1>
-            <p class="text-lg md:text-xl text-gray-600 leading-relaxed">Explora los mejores tours con la confianza y el respaldo de <span class="text-orange-600 font-semibold">Orange Travel</span>.</p>
+    <section class="py-16 md:py-24">
+        <div class="container mx-auto px-4 text-center mb-8">
+            <span class="text-orange-500 font-bold tracking-widest uppercase text-2xl block">Explora Arica y Parinacota</span>
         </div>
+
+        <div class="relative w-full py-40 overflow-hidden"
+             style="background-image: url('{% static 'img/fondos/fondo_iniciio.jpeg' %}'); background-size: cover; background-position: center;">
+            <div class="absolute inset-0 bg-black/50"></div>
+            <h1 class="relative z-10 font-marcellus text-4xl md:text-6xl font-black text-white leading-tight text-center px-4">Descubre destinos inolvidables</h1>
+            <div class="container mx-auto px-4 text-center mt-8">
+            <p class="relative text-lg z-10 md:text-xl text-white leading-relaxed">Explora los mejores tours con la confianza y el respaldo de <span class="font-semibold">Orange Travel</span>.</p>
+        </div>
+        </div>
+
+        
     </section>
 
     {# --- GRID DE TOURS: Modernizado con Hover --- #}
