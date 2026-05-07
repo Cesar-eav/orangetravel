@@ -27,13 +27,64 @@
 
     {% include 'includes/footer.html' %}
     
-<a href="https://wa.me/56936584003?text=Hola,%20quiero%20información%20sobre%20tours" 
-   class="whatsapp-float" 
-   target="_blank" 
-   rel="noopener" 
-   aria-label="Contactar por WhatsApp">
-    <i class="fab fa-whatsapp"></i>
-</a>
+
+{% with url=request.path %}
+    {% if 'atacama' in url|lower %}
+
+        {% with wa_number="56985174265" wa_text="Hola,%20quiero%20informaci%C3%B3n%20sobre%20San%20Pedro%20de%20Atacama" %}
+            <a href="https://wa.me/{{ wa_number }}?text={{ wa_text }}" 
+               class="whatsapp-float" 
+               target="_blank" 
+               rel="noopener" 
+               aria-label="Contactar por WhatsApp">
+                <i class="fab fa-whatsapp"></i>
+            </a>
+        {% endwith %}
+
+    {% elif 'cotacotani' in url|lower %}
+
+        {% with wa_number="56985174265" wa_text="Hola,%20quiero%20informaci%C3%B3n%20sobre%20Trekking%20Lagunas%20Cotacotani" %}
+            <a href="https://wa.me/{{ wa_number }}?text={{ wa_text }}" 
+               class="whatsapp-float" 
+               target="_blank" 
+               rel="noopener" 
+               aria-label="Contactar por WhatsApp">
+                <i class="fab fa-whatsapp"></i>
+            </a>
+        {% endwith %}
+
+        {% elif 'surire' in url|lower %}
+
+        {% with wa_number="56985174265" wa_text="Hola,%20quiero%20informaci%C3%B3n%20sobre%20Salar%20de%20Surire" %}
+            <a href="https://wa.me/{{ wa_number }}?text={{ wa_text }}" 
+               class="whatsapp-float" 
+               target="_blank" 
+               rel="noopener" 
+               aria-label="Contactar por WhatsApp">
+                <i class="fab fa-whatsapp"></i>
+            </a>
+        {% endwith %}
+    
+    {% else %}
+        {# Número por defecto #}
+        {% with wa_number="56936584003" wa_text="Hola,%20quiero%20informaci%C3%B3n%20sobre%20tours" %}
+            <a href="https://wa.me/{{ wa_number }}?text={{ wa_text }}" 
+               class="whatsapp-float" 
+               target="_blank" 
+               rel="noopener" 
+               aria-label="Contactar por WhatsApp">
+                <i class="fab fa-whatsapp"></i>
+            </a>
+        {% endwith %}
+    {% endif %}
+{% endwith %}
+
+
+
+
+
+
+
 
 {% if debug %}
         <script type="module" src="http://localhost:5173/static/src/main.js"></script>
