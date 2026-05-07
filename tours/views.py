@@ -13,6 +13,25 @@ from django.core.mail import EmailMultiAlternatives # Importante para enviar HTM
 from django.template.loader import render_to_string # Si prefieres usar archivos .html
 from django.utils.html import strip_tags # Par
 from datetime import date
+import os
+print("FLOW_API_BASE en Passenger:", os.getenv('FLOW_API_BASE'))
+print("FLOW_API_KEY en Passenger:", os.getenv('FLOW_API_KEY'))
+
+# Email del admin según el tour (keyword en el slug → destinatario)
+EMAIL_POR_TOUR = {
+    'atacama':   'BastianDiaz10@gmail.com',
+    'cotacotani': 'BastianDiaz10@gmail.com',
+    'surire': 'BastianDiaz10@gmail.com',  
+}
+# BastianDiaz10@gmail.com
+EMAIL_ADMIN_DEFAULT = 'info@orangetravel.cl'
+
+def get_email_admin(reserva):
+    slug = reserva.tour.slug.lower()
+    for keyword, email in EMAIL_POR_TOUR.items():
+        if keyword in slug:
+            return email
+    return EMAIL_ADMIN_DEFAULT
 
 # Create your views here.
 
@@ -165,8 +184,10 @@ def enviar_notificaciones_reserva(reserva):
         msg_cli.send()
         print("DEBUG: Correo cliente enviado con éxito.") # Checkpoint 3
 
-        # Enviar al Admin
-        msg_adm = EmailMultiAlternatives(asunto_admin, "Nueva reserva recibida.", settings.DEFAULT_FROM_EMAIL, ['info@orangetravel.cl'])
+        # Enviar al Admin (destinatario según el tour)
+        email_admin = get_email_admin(reserva)
+        print(f"DEBUG: 📧 Notificación admin → {email_admin} (tour: {reserva.tour.slug})")
+        msg_adm = EmailMultiAlternatives(asunto_admin, "Nueva reserva recibida.", settings.DEFAULT_FROM_EMAIL, [email_admin])
         msg_adm.attach_alternative(html_admin, "text/html")
         msg_adm.send()
         print("DEBUG: Correo admin enviado con éxito.") # Checkpoint 4
