@@ -46,7 +46,7 @@
 
 <section id="tours-list" class="container mx-auto px-4 py-16">   
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {% for tour in tours %}
+        {% for tour in otros_tours %}
         <div class="relative w-full h-100 rounded-2xl overflow-hidden group shadow-lg">
             
             <img src="{{ tour.imagen_principal.url }}" 
@@ -67,10 +67,45 @@
                 
         </div>
         {% empty %}
+            {% if not aventura_tours %}
         <div class="col-span-full text-center py-10">
             <p class="text-gray-500 italic">Próximamente más tours destacados.</p>
         </div>
+            {% endif %}
         {% endfor %}
     </div>
+
+    {% if aventura_tours %}
+    <div class="mt-20 mb-10">
+        <div class="flex items-center justify-between">
+            <h2 class="text-3xl font-bold text-gray-800">Turismo Aventura</h2>
+            <div class="hidden md:block h-px bg-gray-200 flex-grow mx-8"></div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for tour in aventura_tours %}
+        <div class="relative w-full h-100 rounded-2xl overflow-hidden group shadow-lg">
+            
+            <img src="{{ tour.imagen_principal.url }}" 
+                class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+
+            <div class="absolute inset-0 "></div>
+
+            <div class="absolute inset-0 p-6 flex flex-col justify-between text-white">
+                <h3 class="text-2xl font-bold mb-1">{{ tour.nombre }}</h3>
+                
+                <div class="flex justify-between items-center">
+                    <span class="text-2xl font-black">${{ tour.precio.valor_adulto }}</span>
+                    <a  href="{% url 'tour' tour.slug %}" class="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-lg font-bold transition">
+                        VER TOUR
+                    </a>
+                </div>
+            </div>
+                
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 </section>
 {% endblock %}

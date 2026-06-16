@@ -14,6 +14,7 @@ from django.template.loader import render_to_string # Si prefieres usar archivos
 from django.utils.html import strip_tags # Par
 from datetime import date
 import os
+import unicodedata
 print("FLOW_API_BASE en Passenger:", os.getenv('FLOW_API_BASE'))
 print("FLOW_API_KEY en Passenger:", os.getenv('FLOW_API_KEY'))
 
@@ -26,6 +27,29 @@ EMAIL_POR_TOUR = {
 # BastianDiaz10@gmail.com
 EMAIL_ADMIN_DEFAULT = 'info@orangetravel.cl'
 
+TURISMO_AVENTURA_KEYWORDS = (
+    'san pedro de atacama',
+    'cotacotani',
+    'surire',
+    'suriplaza',
+)
+
+def es_turismo_aventura(nombre):
+    nombre_normalizado = unicodedata.normalize('NFKD', nombre.lower())
+    nombre_normalizado = ''.join(
+        caracter for caracter in nombre_normalizado
+        if not unicodedata.combining(caracter)
+    )
+    nombre_compacto = ''.join(
+        caracter for caracter in nombre_normalizado
+        if caracter.isalnum()
+    )
+
+    return any(
+        palabra in nombre_normalizado or palabra.replace(' ', '') in nombre_compacto
+        for palabra in TURISMO_AVENTURA_KEYWORDS
+    )
+
 def get_email_admin(reserva):
     slug = reserva.tour.slug.lower()
     for keyword, email in EMAIL_POR_TOUR.items():
@@ -37,10 +61,14 @@ def get_email_admin(reserva):
 
 def tours_home(request):
     
-    tours = Tour.objects.filter(activo=True).select_related('precio')
+    tours = list(Tour.objects.filter(activo=True).select_related('precio'))
+    aventura_tours = [tour for tour in tours if es_turismo_aventura(tour.nombre)]
+    otros_tours = [tour for tour in tours if not es_turismo_aventura(tour.nombre)]
 
     return render (request, 'tours/tours_home.html', {
-        'tours' : tours
+        'tours': tours,
+        'otros_tours': otros_tours,
+        'aventura_tours': aventura_tours,
     } )
 
 def tercera_edad(request):
