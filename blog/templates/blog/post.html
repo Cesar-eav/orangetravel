@@ -2,12 +2,111 @@
 {% block title %}{{ post.titulo }} | Orange Travel{% endblock %}
 {% block content %}
     {% load static %}
+
     <section class="bg-white py-20 border-b border-gray-100 px-10 md:px-20">
         <div class="container mx-auto px-4 text-center">
             <h1 class="text-3xl font-black text-gray-900 mb-4">{{ post.titulo }}</h1>
         </div>
     </section>
-    <section class="container px-10 md:px-20">
-        <article class="resena-content">{{ post.contenido|safe }}</article>
+
+    <section class="container px-10 md:px-20 py-8">
+        <article class="resena-content">
+            {% for bloque in bloques %}
+                {% if bloque.tipo == 'texto' %}
+                    {{ bloque.contenido|safe }}
+                {% elif bloque.tipo == 'imagen' %}
+                    <figure class="my-8">
+                        <img src="{{ bloque.imagen.imagen.url }}"
+                             alt="{{ bloque.imagen.caption }}"
+                             class="w-full rounded-xl shadow-md object-cover">
+                        {% if bloque.imagen.caption %}
+                            <figcaption class="text-center text-sm text-gray-500 mt-2">{{ bloque.imagen.caption }}</figcaption>
+                        {% endif %}
+                    </figure>
+                {% endif %}
+            {% endfor %}
+        </article>
     </section>
+
+    {% with imagenes=post.imagenes_carousel.all %}
+    {% if imagenes %}
+    <section class="container mx-auto px-4 md:px-20 py-8">
+
+        <div class="relative w-full overflow-hidden rounded-xl shadow-lg">
+
+            <div id="carousel-track" class="flex transition-transform duration-500 ease-in-out">
+                {% for img in imagenes %}
+                <div class="min-w-full">
+                    <a href="{{ img.imagen.url }}" class="glightbox" data-gallery="post-carousel">
+                        <img src="{{ img.imagen.url }}"
+                             class="w-full h-72 md:h-120 object-cover"
+                             alt="Imagen {{ forloop.counter }} – {{ post.titulo }}">
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if imagenes|length > 1 %}
+            <button id="prev-btn"
+                    class="absolute left-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white w-10 h-10 rounded-full flex items-center justify-center transition">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button id="next-btn"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white w-10 h-10 rounded-full flex items-center justify-center transition">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+
+            <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
+                {% for img in imagenes %}
+                <button data-index="{{ forloop.counter0 }}"
+                        class="carousel-dot w-2.5 h-2.5 rounded-full transition-colors {% if forloop.first %}bg-orange-500{% else %}bg-white/60{% endif %}">
+                </button>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+        </div>
+    </section>
+
+    <script>
+    (function () {
+        const track = document.getElementById('carousel-track');
+        const dots = document.querySelectorAll('.carousel-dot');
+        const total = {{ imagenes|length }};
+        let current = 0;
+        let timer;
+
+        function go(n) {
+            current = (n + total) % total;
+            track.style.transform = 'translateX(-' + (current * 100) + '%)';
+            dots.forEach(function (d, i) {
+                d.classList.toggle('bg-orange-500', i === current);
+                d.classList.toggle('bg-white/60', i !== current);
+            });
+        }
+
+        function startAuto() {
+            timer = setInterval(function () { go(current + 1); }, 4500);
+        }
+
+        function resetAuto() {
+            clearInterval(timer);
+            startAuto();
+        }
+
+        document.getElementById('prev-btn') && document.getElementById('prev-btn').addEventListener('click', function () { go(current - 1); resetAuto(); });
+        document.getElementById('next-btn') && document.getElementById('next-btn').addEventListener('click', function () { go(current + 1); resetAuto(); });
+
+        dots.forEach(function (d) {
+            d.addEventListener('click', function () { go(parseInt(this.dataset.index)); resetAuto(); });
+        });
+
+        startAuto();
+
+        GLightbox({ selector: '.glightbox' });
+    })();
+    </script>
+    {% endif %}
+    {% endwith %}
+
 {% endblock %}

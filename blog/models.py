@@ -47,3 +47,37 @@ class Post(models.Model):
                 video_id = self.video_youtube.split('/')[-1]
                 return f"https://www.youtube.com/embed/{video_id}"
         return None
+
+
+class ImagenPost(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='imagenes_post')
+    imagen = models.ImageField(upload_to='blog/post_images/', verbose_name="Imagen")
+    despues_del_parrafo = models.PositiveIntegerField(
+        default=1,
+        verbose_name="Después del párrafo",
+        help_text="Número del párrafo tras el cual aparece esta imagen (1 = después del 1°). Usa 0 para insertarla antes de todo el contenido."
+    )
+    caption = models.CharField(max_length=300, blank=True, verbose_name="Pie de foto")
+    orden = models.PositiveIntegerField(default=0, verbose_name="Orden", help_text="Si hay varias imágenes en la misma posición, cuál va primero.")
+
+    class Meta:
+        ordering = ['despues_del_parrafo', 'orden']
+        verbose_name = "Imagen entre párrafos"
+        verbose_name_plural = "Imágenes entre párrafos"
+
+    def __str__(self):
+        return f"Img después párr.{self.despues_del_parrafo} – {self.post.titulo}"
+
+
+class ImagenCarousel(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='imagenes_carousel')
+    imagen = models.ImageField(upload_to='blog/carousel/')
+    orden = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['orden']
+        verbose_name = "Imagen del Carrusel"
+        verbose_name_plural = "Imágenes del Carrusel"
+
+    def __str__(self):
+        return f"Imagen {self.orden} – {self.post.titulo}"

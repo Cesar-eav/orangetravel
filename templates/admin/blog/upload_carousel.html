@@ -1,0 +1,67 @@
+{% extends "admin/base_site.html" %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto; padding: 24px;">
+
+    <h1 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 4px;">📁 Subir imágenes al carrusel</h1>
+    <p style="color: #6b7280; margin-bottom: 24px;">{{ post.titulo }}</p>
+
+    {% if messages %}
+    {% for msg in messages %}
+    <div style="padding: 12px 16px; border-radius: 8px; margin-bottom: 16px;
+                background: {% if msg.tags == 'success' %}#d1fae5{% else %}#fef3c7{% endif %};
+                color: {% if msg.tags == 'success' %}#065f46{% else %}#92400e{% endif %};">
+        {{ msg }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data"
+          style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px;">
+        {% csrf_token %}
+
+        <label style="display: block; font-weight: 600; margin-bottom: 8px;">
+            Selecciona las imágenes <span style="color:#6b7280; font-weight:400;">(máx. 20)</span>
+        </label>
+
+        <input type="file"
+               name="imagenes"
+               accept="image/*"
+               multiple
+               required
+               style="display: block; width: 100%; padding: 10px; border: 2px dashed #d1d5db;
+                      border-radius: 8px; margin-bottom: 20px; cursor: pointer; background: #fff;">
+
+        <p style="font-size: 0.85rem; color: #9ca3af; margin-bottom: 20px;">
+            Mantén <kbd>Ctrl</kbd> (o <kbd>⌘</kbd> en Mac) para seleccionar varias imágenes a la vez.
+        </p>
+
+        <div style="display: flex; gap: 12px; align-items: center;">
+            <button type="submit"
+                    style="padding: 10px 24px; background: #f97316; color: #fff; border: none;
+                           border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer;">
+                Subir imágenes
+            </button>
+            <a href="../../../{{ post.pk }}/change/"
+               style="color: #6b7280; text-decoration: none; font-size: 14px;">
+                ← Volver a la reseña
+            </a>
+        </div>
+    </form>
+
+    {% if post.imagenes_carousel.all %}
+    <h2 style="font-size: 1.1rem; font-weight: 700; margin: 32px 0 12px;">
+        Imágenes actuales ({{ post.imagenes_carousel.count }})
+    </h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+        {% for img in post.imagenes_carousel.all %}
+        <img src="{{ img.imagen.url }}"
+             style="width: 120px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid #e5e7eb;"
+             alt="Imagen {{ forloop.counter }}">
+        {% endfor %}
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
