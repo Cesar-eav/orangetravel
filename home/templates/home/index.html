@@ -6,21 +6,23 @@
 {% block content %}
     {% load static %}
 
-    {# --- HERO SECTION: Banner Blindado --- #}
-    <section class="relative w-full  overflow-hidden bg-gray-900 ">
-        <picture class="mt-10 ">
-            <source srcset="{% static 'img/portada_d.jpeg' %}" media="(min-width: 768px)">
-            <img src="{% static 'img/portada_m.webp' %}" class="w-full h-auto object-cover opacity-90" fetchpriority="high" alt="Portada Orange Travel">
-        </picture>
-        {# Opcional: Futuro texto sobre la imagen #}
-        <a href="{% url 'tercera_edad' %}"
-            class="w-auto bottom-10 left-1/2 absolute sm:w-auto text-center bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-xl font-bold transition-all transform active:scale-95 shadow-lg shadow-orange-900/40">
-                        VER TOUR
-        </a>
+    {# --- HERO SECTION: Banner con video --- #}
+    <section class="relative w-full overflow-hidden bg-gray-900">
+<video
+    class="mt-0 w-full h-auto object-cover opacity-90"
+    autoplay
+    muted
+    loop
+    playsinline
+    preload="auto"
+    aria-label="Portada Orange Travel">
+    <source src="{% static 'video/banner-home.mp4' %}" type="video/mp4">
+    Tu navegador no soporta video HTML5.
+</video>
     </section>
 
     {# --- TITULAR PRINCIPAL: Espaciado Mejorado --- #}
-    <section class="py-16 md:py-24">
+    {% comment %} <section class="py-16 md:py-24">
         <div class="container mx-auto px-4 text-center mb-8">
             <span class="text-orange-500 font-bold tracking-widest uppercase text-2xl block">Explora Arica y Parinacota</span>
         </div>
@@ -39,14 +41,8 @@
       </iframe>
     </div>
   </div>
-
-
-
-
         </div>
-
-        
-    </section>
+    </section> {% endcomment %}
 
     {# --- GRID DE TOURS: Modernizado con Hover --- #}
     <section class="container mx-auto px-4 pb-24">
