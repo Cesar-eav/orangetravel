@@ -22,10 +22,12 @@ print("FLOW_API_KEY en Passenger:", os.getenv('FLOW_API_KEY'))
 EMAIL_POR_TOUR = {
     'atacama':   'BastianDiaz10@gmail.com',
     'cotacotani': 'BastianDiaz10@gmail.com',
-    'surire': 'BastianDiaz10@gmail.com',  
+    'surire': 'BastianDiaz10@gmail.com',
+    'desde san pedro' : 'BastianDiaz10@gmail.com',
 }
-# BastianDiaz10@gmail.com
+
 EMAIL_ADMIN_DEFAULT = 'info@orangetravel.cl'
+CC_RESERVAS = 'reservas@orangetravel.cl'
 
 TURISMO_AVENTURA_KEYWORDS = (
     'san pedro de atacama',
@@ -51,9 +53,9 @@ def es_turismo_aventura(nombre):
     )
 
 def get_email_admin(reserva):
-    slug = reserva.tour.slug.lower()
+    nombre = reserva.tour.nombre.lower()
     for keyword, email in EMAIL_POR_TOUR.items():
-        if keyword in slug:
+        if keyword in nombre:
             return email
     return EMAIL_ADMIN_DEFAULT
 
@@ -214,8 +216,9 @@ def enviar_notificaciones_reserva(reserva):
 
         # Enviar al Admin (destinatario según el tour)
         email_admin = get_email_admin(reserva)
-        print(f"DEBUG: 📧 Notificación admin → {email_admin} (tour: {reserva.tour.slug})")
-        msg_adm = EmailMultiAlternatives(asunto_admin, "Nueva reserva recibida.", settings.DEFAULT_FROM_EMAIL, [email_admin])
+        cc_admin = [CC_RESERVAS] if email_admin != EMAIL_ADMIN_DEFAULT else []
+        print(f"DEBUG: 📧 Notificación admin → {email_admin} cc={cc_admin} (tour: {reserva.tour.nombre})")
+        msg_adm = EmailMultiAlternatives(asunto_admin, "Nueva reserva recibida.", settings.DEFAULT_FROM_EMAIL, [email_admin], cc=cc_admin)
         msg_adm.attach_alternative(html_admin, "text/html")
         msg_adm.send()
         print("DEBUG: Correo admin enviado con éxito.") # Checkpoint 4

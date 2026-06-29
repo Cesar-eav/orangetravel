@@ -5,13 +5,13 @@ from django.core.mail import EmailMessage
 from django.core.mail import EmailMultiAlternatives # Importante para enviar HTML
 
 from .models import Payment
-from tours.views import EMAIL_POR_TOUR, EMAIL_ADMIN_DEFAULT
+from tours.views import EMAIL_POR_TOUR, EMAIL_ADMIN_DEFAULT, CC_RESERVAS
 
 
 def get_email_admin_pago(payment):
-    slug = payment.tour.slug.lower()
+    nombre = payment.tour.nombre.lower()
     for keyword, email in EMAIL_POR_TOUR.items():
-        if keyword in slug:
+        if keyword in nombre:
             return email
     return EMAIL_ADMIN_DEFAULT
 
@@ -194,12 +194,14 @@ def enviar_confirmacion_pago(payment):
 
         # --- 3. ENVÍO AL ADMIN (destinatario según el tour) ---
         email_admin = get_email_admin_pago(payment)
-        print(f"DEBUG: 📧 Notificación pago → {email_admin} (tour: {payment.tour.slug})")
+        cc_admin = [CC_RESERVAS] if email_admin != EMAIL_ADMIN_DEFAULT else []
+        print(f"DEBUG: 📧 Notificación pago → {email_admin} cc={cc_admin} (tour: {payment.tour.nombre})")
         msg_adm = EmailMultiAlternatives(
             subject=f"🚨 PAGO RECIBIDO - {payment.customer_name}",
             body="Nueva venta realizada.",
             from_email=settings.DEFAULT_FROM_EMAIL,
-            to=[email_admin]
+            to=[email_admin],
+            cc=cc_admin,
         )
         msg_adm.attach_alternative(html_admin, "text/html")
         msg_adm.send()
