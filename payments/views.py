@@ -264,6 +264,7 @@ class FlowConfirmView(APIView):
 
                     try:
                         enviar_confirmacion_pago(payment)
+                        # //ENVIAR WASAP A ORAGE TRAVEL.
                     except Exception as e:
                         # Logueamos el error pero no dejamos que la vista falle
                         print(f"Error al enviar emails: {e}")
