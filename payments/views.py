@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from datetime import date, timedelta
 from typing import Any
 from .emails import enviar_confirmacion_pago  # Asumiendo que están en la misma carpeta
 from django.conf import settings
@@ -78,6 +79,14 @@ class TourCheckoutView(APIView):
         email = request.data.get("email")
         if not email:
             return Response({"detail": "Se requiere un email para la reserva."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Validación de anticipación mínima (3 días desde hoy en zona horaria del servidor)
+        try:
+            fecha_reserva = date.fromisoformat(str(data.get('fecha', '')))
+        except (TypeError, ValueError):
+            return Response({"detail": "Fecha inválida."}, status=status.HTTP_400_BAD_REQUEST)
+        if fecha_reserva < date.today() + timedelta(days=3):
+            return Response({"detail": "Las reservas deben hacerse con al menos 2 días de anticipación."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Crear el registro de pago en nuestra DB (Estado PENDING)
         payment = Payment.objects.create(
@@ -178,6 +187,11 @@ class FlowReturnView(APIView):
                     payment.paid_at = timezone.now()
                     payment.raw_status_response = status_data
                     payment.save()
+                    try:
+                        send_download_purchase_confirmation_email(payment=payment)
+                        enviar_confirmacion_pago(payment)
+                    except Exception as e:
+                        logger.error(f"Error enviando correo en retorno: {e}")
                     messages.success(request, f"¡Gracias! Tu reserva para el tour '{payment.tour.nombre}' ha sido confirmada.")
                 
                 elif flow_status in (3, "3", 4, "4"):
@@ -256,18 +270,15 @@ class FlowConfirmView(APIView):
             
             # 1. Caso éxito (Status 2 en Flow)
             if flow_status in (2, "2", "paid"):
-                if payment.status != Payment.STATUS_PAID:
+                if payment.paid_at is None:
                     payment.status = Payment.STATUS_PAID
                     payment.paid_at = timezone.now()
                     payment.save()
-                    send_download_purchase_confirmation_email(payment=payment)
-
                     try:
+                        send_download_purchase_confirmation_email(payment=payment)
                         enviar_confirmacion_pago(payment)
-                        # //ENVIAR WASAP A ORAGE TRAVEL.
                     except Exception as e:
-                        # Logueamos el error pero no dejamos que la vista falle
-                        print(f"Error al enviar emails: {e}")
+                        logger.error(f"Error enviando correo en webhook: {e}")
 
             # 2. Caso fallo
             else:
