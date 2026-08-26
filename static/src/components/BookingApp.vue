@@ -52,10 +52,11 @@
           <div>
            <label class="block text-xs font-bold text-slate-700 uppercase mb-1 ml-1">Fecha del Tour</label>
   
-  <DatePicker 
-    v-model="form.fecha" 
+  <DatePicker
+    v-model="form.fecha"
     :disabled-dates="diasBloqueados"
-    :min-date="new Date()"
+    :min-date="fechaMinima"
+    :initial-page="{ month: new Date().getMonth() + 1, year: new Date().getFullYear() }"
     is-required
     color="orange"
   >
@@ -150,6 +151,11 @@ export default {
   },
 
   computed: {
+    fechaMinima() {
+      const d = new Date();
+      d.setDate(d.getDate() + 3);
+      return d;
+    },
     totalReserva() {
       const total = (this.form.adultos * this.precioAdulto) + (this.form.ninos * (this.precioNino || 0));
       return total;

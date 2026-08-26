@@ -12,7 +12,7 @@ from django.conf import settings
 from django.core.mail import EmailMultiAlternatives # Importante para enviar HTML
 from django.template.loader import render_to_string # Si prefieres usar archivos .html
 from django.utils.html import strip_tags # Par
-from datetime import date
+from datetime import date, timedelta
 import os
 import unicodedata
 print("FLOW_API_BASE en Passenger:", os.getenv('FLOW_API_BASE'))
@@ -116,7 +116,15 @@ def crear_reserva(request):
         except Tour.DoesNotExist:
             return JsonResponse({'status': 'error', 'mensaje': 'El tour no existe.'}, status=404)
 
-        # 2. Creación de la Reserva
+        # 2. Validación de anticipación mínima (3 días desde hoy en zona horaria del servidor)
+        try:
+            fecha_reserva = date.fromisoformat(data.get('fecha'))
+        except (TypeError, ValueError):
+            return JsonResponse({'status': 'error', 'mensaje': 'Fecha inválida.'}, status=400)
+        if fecha_reserva < date.today() + timedelta(days=3):
+            return JsonResponse({'status': 'error', 'mensaje': 'Las reservas deben hacerse con al menos 2 días de anticipación.'}, status=400)
+
+        # 3. Creación de la Reserva
         reserva = Reserva.objects.create(
             tour=tour,
             nombre_cliente=data.get('nombre'),
