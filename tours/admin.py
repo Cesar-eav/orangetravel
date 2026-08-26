@@ -82,9 +82,9 @@ class ReservaAdmin(ModelAdmin): # Cambiado a Unfold ModelAdmin
 
 @admin.register(Tour)
 class TourAdmin(ModelAdmin): # Cambiado a Unfold ModelAdmin
-    list_display = ('nombre','id', 'tipo', 'get_precio_adulto', 'activo', 'destacado')
-    list_editable = ('activo','destacado')
-    list_filter = ('tipo', 'activo')
+    list_display = ('nombre','id', 'tipo', 'get_precio_adulto', 'activo', 'destacado', 'es_prueba')
+    list_editable = ('activo','destacado', 'es_prueba')
+    list_filter = ('tipo', 'activo', 'es_prueba')
     search_fields = ('nombre',)
     readonly_fields = ('previsualizacion', 'get_precio_adulto')
 
@@ -97,7 +97,8 @@ class TourAdmin(ModelAdmin): # Cambiado a Unfold ModelAdmin
                 'imagen_principal', 
                 'nombre', 
                 'activo',
-                'destacado', 
+                'destacado',
+                'es_prueba',
                 'slug', 
                 'tipo', 
                 'itinerario', 

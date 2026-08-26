@@ -63,7 +63,7 @@ def get_email_admin(reserva):
 
 def tours_home(request):
     
-    tours = list(Tour.objects.filter(activo=True).select_related('precio'))
+    tours = list(Tour.objects.filter(activo=True, es_prueba=False).select_related('precio'))
     aventura_tours = [tour for tour in tours if es_turismo_aventura(tour.nombre)]
     otros_tours = [tour for tour in tours if not es_turismo_aventura(tour.nombre)]
 

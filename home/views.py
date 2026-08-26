@@ -16,7 +16,7 @@ def renovacion(request):
 
 def home(request):
 
-    tours = Tour.objects.filter(destacado=True, activo=True).select_related('precio')
+    tours = Tour.objects.filter(destacado=True, activo=True, es_prueba=False).select_related('precio')
     posts = Post.objects.filter(publicado=True).order_by('-fecha_creacion')
 
     return render(request, 'home/index.html',{

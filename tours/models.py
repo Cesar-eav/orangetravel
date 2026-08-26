@@ -47,6 +47,12 @@ class Tour(models.Model):
         help_text="Si se marca, aparecerá en la sección principal de la página de inicio."
         )
 
+    es_prueba = models.BooleanField(
+        default=False,
+        verbose_name="Tour de prueba",
+        help_text="Si se marca, el tour NO aparecerá en el listado público aunque esté activo. Solo accesible por URL directa."
+    )
+
     def __str__(self):
         return self.nombre
 
