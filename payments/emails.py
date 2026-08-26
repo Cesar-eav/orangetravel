@@ -175,7 +175,7 @@ def enviar_confirmacion_pago(payment):
         <p><strong>Email:</strong> {payment.customer_email}</p>
         <p><strong>Telefono:</strong> {payment.customer_phone}</p>
         <p><strong>Tour:</strong> {payment.tour.nombre}</p>
-        <p><strong>Fecha:</strong> {payment.tour.fecha}</p>
+        <p><strong>Fecha:</strong> {payment.reservation_date}</p>
         <p><strong>Monto:</strong> ${payment.amount:,}</p>
         <p><a href="https://wa.me/{tel_limpio}" style="color: #25D366; font-weight: bold;">📱 Contactar por WhatsApp</a></p>
     </div>
