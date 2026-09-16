@@ -6,6 +6,8 @@ from django.db import models
 from django.db import models
 from django.utils import timezone
 
+from tours.models import generar_codigo_reserva
+
 class Payment(models.Model):
     # --- Constantes de Proveedor y Estado ---
     PROVIDER_FLOW = "flow"
@@ -25,6 +27,12 @@ class Payment(models.Model):
     # --- Campos Principales ---
     provider = models.CharField(max_length=20, default=PROVIDER_FLOW)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
+
+    # --- Identificación ---
+    codigo = models.CharField(
+        "Código de reserva", max_length=20, unique=True, editable=False,
+        null=True, blank=True,
+    )
 
     # Cambiamos CASCADE por PROTECT para que no se borren los pagos si se borra el tour
     tour = models.ForeignKey(
@@ -48,6 +56,9 @@ class Payment(models.Model):
     )
 
     def save(self, *args, **kwargs):
+            if not self.codigo:
+                self.codigo = generar_codigo_reserva(Payment.objects)
+
             # 📸 Capturamos los datos solo al CREAR el pago
             if not self.pk and self.tour:
                 self.tour_nombre_al_pagar = self.tour.nombre

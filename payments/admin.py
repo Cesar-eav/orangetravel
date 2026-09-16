@@ -6,6 +6,7 @@ class PaymentAdmin(admin.ModelAdmin):
     # 1. Qué columnas se ven en la lista principal
     list_display = (
         "id",
+        "codigo",
         "tour",
         "amount",
         "currency",
@@ -21,6 +22,7 @@ class PaymentAdmin(admin.ModelAdmin):
     # 3. Buscador (ajustado a campos que sí existen)
     search_fields = (
         "id",
+        "codigo",
         "provider_token",
         "provider_order_id",
         "tour__nombre", # Asumiendo que tu modelo Tour tiene un campo 'nombre'
@@ -33,6 +35,7 @@ class PaymentAdmin(admin.ModelAdmin):
 
     # 4. Campos que no se pueden editar manualmente (auditoría pura)
     readonly_fields = (
+        "codigo",
         "provider",
         "status",
         "tour",
@@ -55,6 +58,7 @@ class PaymentAdmin(admin.ModelAdmin):
             "Información de la Reserva",
             {
                 "fields": (
+                    "codigo",
                     "tour",
                     "status",
                     "amount",

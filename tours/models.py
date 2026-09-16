@@ -1,9 +1,22 @@
 from django.db import models
 from ckeditor_uploader.fields import RichTextUploadingField
 import re
+import secrets
 from django.utils import timezone
 from datetime import date
 from solo.models import SingletonModel
+
+# Alfabeto sin 0/O ni 1/I para evitar confusiones al leer el código en voz alta
+CODIGO_RESERVA_ALFABETO = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+
+
+def generar_codigo_reserva(queryset, campo='codigo', longitud=6, prefijo='OT'):
+    """Genera un código único de reserva (ej: OT-4K7QXZ), reintentando ante colisiones."""
+    while True:
+        sufijo = ''.join(secrets.choice(CODIGO_RESERVA_ALFABETO) for _ in range(longitud))
+        codigo = f"{prefijo}-{sufijo}"
+        if not queryset.filter(**{campo: codigo}).exists():
+            return codigo
 
 class TipoTour(models.Model):
     nombre = models.CharField(max_length=100, unique=True, verbose_name="Nombre del Tipo")
@@ -89,7 +102,13 @@ class Reserva(models.Model):
 
     # --- Relaciones ---
     tour = models.ForeignKey('Tour', on_delete=models.CASCADE, related_name='reservas')
-    
+
+    # --- Identificación ---
+    codigo = models.CharField(
+        "Código de reserva", max_length=20, unique=True, editable=False,
+        null=True, blank=True,
+    )
+
     # --- Datos del Cliente ---
     nombre_cliente = models.CharField("Nombre del cliente", max_length=100)
     email_cliente = models.EmailField("Correo electrónico")
@@ -135,6 +154,8 @@ class Reserva(models.Model):
 
     def save(self, *args, **kwargs):
         """Cálculo automático del total antes de persistir en DB."""
+        if not self.codigo:
+            self.codigo = generar_codigo_reserva(Reserva.all_objects)
         # Fallback a precios estándar de Arica si el Tour no los define explícitamente
         p_adulto = getattr(self.tour, 'valor_adulto', 18000)
         p_nino = getattr(self.tour, 'valor_nino', 15000)

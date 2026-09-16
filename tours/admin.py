@@ -35,13 +35,13 @@ class TourAdminForm(forms.ModelForm):
 class ReservaAdmin(ModelAdmin): # Cambiado a Unfold ModelAdmin
     # Columnas que se verán en el listado
     list_display = (
-        'id', 'nombre_cliente', 'tour', 'fecha', 
+        'id', 'codigo', 'nombre_cliente', 'tour', 'fecha',
         'creada_el', 'columna_estado', 'estado', 'columna_activa'
     )
     list_filter = ('estado', 'fecha', 'tour')
     list_editable = ('estado',)
-    search_fields = ('nombre_cliente', 'email_cliente')
-    readonly_fields = ('precio_total', 'creada_el', 'borrado_el')
+    search_fields = ('codigo', 'nombre_cliente', 'email_cliente')
+    readonly_fields = ('codigo', 'precio_total', 'creada_el', 'borrado_el')
     
     # Lógica de colores para Unfold
     def columna_estado(self, obj):

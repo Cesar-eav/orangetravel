@@ -156,6 +156,7 @@ def enviar_confirmacion_pago(payment):
             <h2>¡Hola {payment.customer_name}!</h2>
             <p>¡Tu aventura en Arica está confirmada! Hemos recibido tu pago exitosamente.</p>
             <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <p><strong>Código de reserva:</strong> {payment.codigo}</p>
                 <p><strong>Tour:</strong> {payment.tour.nombre}</p>
                 <p><strong>Fecha:</strong> {payment.reservation_date}</p>
                 <p><strong>Pasajeros:</strong> {pax_detalle}</p>
@@ -171,11 +172,13 @@ def enviar_confirmacion_pago(payment):
     html_admin = f"""
     <div style="border: 2px solid #FF8C00; padding: 20px; font-family: sans-serif;">
         <h2 style="color: #FF8C00;">🚨 NUEVA VENTA CONFIRMADA</h2>
+        <p><strong>Código:</strong> {payment.codigo}</p>
         <p><strong>Cliente:</strong> {payment.customer_name}</p>
         <p><strong>Email:</strong> {payment.customer_email}</p>
         <p><strong>Telefono:</strong> {payment.customer_phone}</p>
         <p><strong>Tour:</strong> {payment.tour.nombre}</p>
         <p><strong>Fecha:</strong> {payment.reservation_date}</p>
+        <p><strong>Pasajeros:</strong> {pax_detalle}</p>
         <p><strong>Monto:</strong> ${payment.amount:,}</p>
         <p><a href="https://wa.me/{tel_limpio}" style="color: #25D366; font-weight: bold;">📱 Contactar por WhatsApp</a></p>
     </div>
