@@ -156,9 +156,16 @@ class Reserva(models.Model):
         """Cálculo automático del total antes de persistir en DB."""
         if not self.codigo:
             self.codigo = generar_codigo_reserva(Reserva.all_objects)
-        # Fallback a precios estándar de Arica si el Tour no los define explícitamente
-        p_adulto = getattr(self.tour, 'valor_adulto', 18000)
-        p_nino = getattr(self.tour, 'valor_nino', 15000)
+
+        if hasattr(self.tour, 'precio'):
+            p = self.tour.precio
+            p_adulto = p.valor_adulto
+            p_nino = p.valor_nino if p.tiene_precio_nino else p.valor_adulto
+        else:
+            # Fallback a precios estándar de Arica si el Tour no tiene PrecioTour configurado
+            p_adulto = 18000
+            p_nino = 15000
+
         self.precio_total = (self.adultos * p_adulto) + (self.ninos * p_nino)
         super().save(*args, **kwargs)
 

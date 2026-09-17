@@ -15,8 +15,6 @@ from django.utils.html import strip_tags # Par
 from datetime import date, timedelta
 import os
 import unicodedata
-print("FLOW_API_BASE en Passenger:", os.getenv('FLOW_API_BASE'))
-print("FLOW_API_KEY en Passenger:", os.getenv('FLOW_API_KEY'))
 
 # Email del admin según el tour (keyword en el slug → destinatario)
 EMAIL_POR_TOUR = {
