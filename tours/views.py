@@ -25,7 +25,7 @@ EMAIL_POR_TOUR = {
 }
 
 EMAIL_ADMIN_DEFAULT = 'info@orangetravel.cl'
-CC_RESERVAS = ['reservas@orangetravel.cl, cesar.eav@gmail.com']
+CC_RESERVAS = ['reservas@orangetravel.cl', 'cesar.eav@gmail.com']
 
 TURISMO_AVENTURA_KEYWORDS = (
     'san pedro de atacama',
