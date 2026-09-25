@@ -198,7 +198,7 @@ def enviar_confirmacion_pago(payment):
 
         # --- 3. ENVÍO AL ADMIN (destinatario según el tour) ---
         email_admin = get_email_admin_pago(payment)
-        cc_admin = CC_RESERVAS if email_admin != EMAIL_ADMIN_DEFAULT else []
+        cc_admin = [email for email in CC_RESERVAS if email != email_admin]
         print(f"DEBUG: 📧 Notificación pago → {email_admin} cc={cc_admin} (tour: {payment.tour.nombre})")
         msg_adm = EmailMultiAlternatives(
             subject=f"🚨 PAGO RECIBIDO - {payment.customer_name}",

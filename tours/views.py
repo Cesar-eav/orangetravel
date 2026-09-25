@@ -225,7 +225,7 @@ def enviar_notificaciones_reserva(reserva):
 
         # Enviar al Admin (destinatario según el tour)
         email_admin = get_email_admin(reserva)
-        cc_admin = CC_RESERVAS if email_admin != EMAIL_ADMIN_DEFAULT else []
+        cc_admin = [email for email in CC_RESERVAS if email != email_admin]
         print(f"DEBUG: 📧 Notificación admin → {email_admin} cc={cc_admin} (tour: {reserva.tour.nombre})")
         msg_adm = EmailMultiAlternatives(asunto_admin, "Nueva reserva recibida.", settings.DEFAULT_FROM_EMAIL, [email_admin], cc=cc_admin)
         msg_adm.attach_alternative(html_admin, "text/html")
