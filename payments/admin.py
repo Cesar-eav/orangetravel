@@ -1,9 +1,10 @@
 from django.contrib import admin, messages
+from unfold.admin import ModelAdmin
 from .models import Payment
 from .emails import send_payment_confirmation_to_customer, send_payment_confirmation_to_admins
 
 @admin.register(Payment)
-class PaymentAdmin(admin.ModelAdmin):
+class PaymentAdmin(ModelAdmin): # Cambiado a Unfold ModelAdmin para que las acciones (botón "Ir") se muestren
     # 1. Qué columnas se ven en la lista principal
     list_display = (
         "id",
