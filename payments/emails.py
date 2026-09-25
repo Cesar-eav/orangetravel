@@ -138,16 +138,15 @@ def send_payment_integration_error_to_admins(*, payment: Payment, error: str) ->
     email.send(fail_silently=True)
     return True
 
-def enviar_confirmacion_pago(payment):
-    print(f"DEBUG: 🍊 Iniciando envío vía Anymail (Mailgun API) para Pago #{payment.id}...")
-
-    # --- 1. DISEÑO DEL CORREO (Estilo Orange) ---
+def _pax_detalle(payment) -> str:
     pax_detalle = f"{payment.pax_adults} Adultos"
     if payment.pax_children > 0:
         pax_detalle += f" / {payment.pax_children} Niños"
+    return pax_detalle
 
-    # HTML para el Cliente
-    html_cliente = f"""
+
+def _html_cliente_pago(payment, pax_detalle: str) -> str:
+    return f"""
     <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
         <div style="background-color: #FF8C00; padding: 20px; text-align: center;">
             <h1 style="color: white; margin: 0;">Orange Travel</h1>
@@ -167,9 +166,10 @@ def enviar_confirmacion_pago(payment):
     </div>
     """
 
-    # HTML para el Admin
+
+def _html_admin_pago(payment, pax_detalle: str) -> str:
     tel_limpio = payment.customer_phone.replace('+', '').replace(' ', '')
-    html_admin = f"""
+    return f"""
     <div style="border: 2px solid #FF8C00; padding: 20px; font-family: sans-serif;">
         <h2 style="color: #FF8C00;">🚨 NUEVA VENTA CONFIRMADA</h2>
         <p><strong>Código:</strong> {payment.codigo}</p>
@@ -184,31 +184,47 @@ def enviar_confirmacion_pago(payment):
     </div>
     """
 
+
+def send_payment_confirmation_to_customer(payment: Payment) -> None:
+    """Envía solo el correo de confirmación de pago al cliente. Propaga excepciones."""
+    pax_detalle = _pax_detalle(payment)
+    html_cliente = _html_cliente_pago(payment, pax_detalle)
+    msg_cli = EmailMultiAlternatives(
+        subject=f"✅ Reserva Confirmada: {payment.tour.nombre}",
+        body="Tu pago ha sido confirmado.",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[payment.customer_email],
+    )
+    msg_cli.attach_alternative(html_cliente, "text/html")
+    msg_cli.send()
+
+
+def send_payment_confirmation_to_admins(payment: Payment) -> None:
+    """Envía solo el correo de notificación de pago a los administradores. Propaga excepciones."""
+    pax_detalle = _pax_detalle(payment)
+    html_admin = _html_admin_pago(payment, pax_detalle)
+    email_admin = get_email_admin_pago(payment)
+    cc_admin = [email for email in CC_RESERVAS if email != email_admin]
+    msg_adm = EmailMultiAlternatives(
+        subject=f"🚨 PAGO RECIBIDO - {payment.customer_name}",
+        body="Nueva venta realizada.",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[email_admin],
+        cc=cc_admin,
+    )
+    msg_adm.attach_alternative(html_admin, "text/html")
+    msg_adm.send()
+
+
+def enviar_confirmacion_pago(payment):
+    print(f"DEBUG: 🍊 Iniciando envío vía Anymail (Mailgun API) para Pago #{payment.id}...")
     try:
-        # --- 2. ENVÍO AL CLIENTE ---
-        msg_cli = EmailMultiAlternatives(
-            subject=f"✅ Reserva Confirmada: {payment.tour.nombre}",
-            body="Tu pago ha sido confirmado.", # Versión texto plano
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to=[payment.customer_email]
-        )
-        msg_cli.attach_alternative(html_cliente, "text/html")
-        msg_cli.send()
+        send_payment_confirmation_to_customer(payment)
         print("DEBUG: ✅ Anymail: Correo cliente enviado.")
 
-        # --- 3. ENVÍO AL ADMIN (destinatario según el tour) ---
         email_admin = get_email_admin_pago(payment)
-        cc_admin = [email for email in CC_RESERVAS if email != email_admin]
-        print(f"DEBUG: 📧 Notificación pago → {email_admin} cc={cc_admin} (tour: {payment.tour.nombre})")
-        msg_adm = EmailMultiAlternatives(
-            subject=f"🚨 PAGO RECIBIDO - {payment.customer_name}",
-            body="Nueva venta realizada.",
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to=[email_admin],
-            cc=cc_admin,
-        )
-        msg_adm.attach_alternative(html_admin, "text/html")
-        msg_adm.send()
+        print(f"DEBUG: 📧 Notificación pago → {email_admin} (tour: {payment.tour.nombre})")
+        send_payment_confirmation_to_admins(payment)
         print("DEBUG: ✅ Anymail: Correo admin enviado.")
 
     except Exception as e:

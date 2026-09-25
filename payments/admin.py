@@ -1,5 +1,6 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from .models import Payment
+from .emails import send_payment_confirmation_to_customer, send_payment_confirmation_to_admins
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
@@ -26,12 +27,15 @@ class PaymentAdmin(admin.ModelAdmin):
         "provider_token",
         "provider_order_id",
         "tour__nombre", # Asumiendo que tu modelo Tour tiene un campo 'nombre'
+        "customer_email",
     )
 
     ordering = ("-created_at",)
-    
+
     # Usamos raw_id_fields para el tour por si llegas a tener miles de tours
     raw_id_fields = ("tour",)
+
+    actions = ["reenviar_notificacion_cliente", "reenviar_notificacion_admin"]
 
     # 4. Campos que no se pueden editar manualmente (auditoría pura)
     readonly_fields = (
@@ -50,6 +54,12 @@ class PaymentAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
         "deleted_at",
+        "customer_name",
+        "customer_email",
+        "customer_phone",
+        "reservation_date",
+        "pax_adults",
+        "pax_children",
     )
 
     # 5. Organización visual del formulario
@@ -64,6 +74,19 @@ class PaymentAdmin(admin.ModelAdmin):
                     "amount",
                     "currency",
                     "paid_at",
+                )
+            },
+        ),
+        (
+            "Datos del Cliente",
+            {
+                "fields": (
+                    "customer_name",
+                    "customer_email",
+                    "customer_phone",
+                    "reservation_date",
+                    "pax_adults",
+                    "pax_children",
                 )
             },
         ),
@@ -104,3 +127,57 @@ class PaymentAdmin(admin.ModelAdmin):
     @admin.display(boolean=True, description="¿Borrado?")
     def is_deleted_display(self, obj):
         return obj.deleted_at is not None
+
+    def reenviar_notificacion_cliente(self, request, queryset):
+        enviados = 0
+        no_pagados = 0
+        sin_email = 0
+        errores = 0
+        for payment in queryset:
+            if payment.status != Payment.STATUS_PAID:
+                no_pagados += 1
+                continue
+            if not payment.customer_email:
+                sin_email += 1
+                continue
+            try:
+                send_payment_confirmation_to_customer(payment)
+                enviados += 1
+            except Exception as e:
+                errores += 1
+                self.message_user(
+                    request,
+                    f"Error al reenviar al cliente (pago #{payment.id}): {e}",
+                    level=messages.ERROR,
+                )
+        self.message_user(
+            request,
+            f"Reenvío al cliente: {enviados} enviados, {no_pagados} omitidos (no pagados), "
+            f"{sin_email} omitidos (sin email), {errores} con error.",
+        )
+    reenviar_notificacion_cliente.short_description = "Reenviar notificación al cliente"
+
+    def reenviar_notificacion_admin(self, request, queryset):
+        enviados = 0
+        no_pagados = 0
+        errores = 0
+        for payment in queryset:
+            if payment.status != Payment.STATUS_PAID:
+                no_pagados += 1
+                continue
+            try:
+                send_payment_confirmation_to_admins(payment)
+                enviados += 1
+            except Exception as e:
+                errores += 1
+                self.message_user(
+                    request,
+                    f"Error al reenviar a administradores (pago #{payment.id}): {e}",
+                    level=messages.ERROR,
+                )
+        self.message_user(
+            request,
+            f"Reenvío a administradores: {enviados} enviados, {no_pagados} omitidos (no pagados), "
+            f"{errores} con error.",
+        )
+    reenviar_notificacion_admin.short_description = "Reenviar notificación a administradores"
