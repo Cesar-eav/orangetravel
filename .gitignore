@@ -21,6 +21,9 @@ static/js/dist/
 # Archivos de SO
 .DS_Store
 
+# Runtime Passenger (cPanel)
+tmp/
+
 # Node / Tailwind
 node_modules/
 npm-debug.log*
