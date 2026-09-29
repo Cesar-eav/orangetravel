@@ -145,6 +145,11 @@ def _pax_detalle(payment) -> str:
     return pax_detalle
 
 
+def _fecha_cl(payment) -> str:
+    fecha = payment.reservation_date
+    return fecha.strftime("%d-%m-%Y") if fecha else "-"
+
+
 def _html_cliente_pago(payment, pax_detalle: str) -> str:
     return f"""
     <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
@@ -157,7 +162,7 @@ def _html_cliente_pago(payment, pax_detalle: str) -> str:
             <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
                 <p><strong>Código de reserva:</strong> {payment.codigo}</p>
                 <p><strong>Tour:</strong> {payment.tour.nombre}</p>
-                <p><strong>Fecha:</strong> {payment.reservation_date}</p>
+                <p><strong>Fecha del tour:</strong> {_fecha_cl(payment)}</p>
                 <p><strong>Pasajeros:</strong> {pax_detalle}</p>
                 <p style="font-size: 18px; color: #FF8C00;"><strong>Total Pagado: ${payment.amount:,} CLP</strong></p>
             </div>
@@ -177,7 +182,7 @@ def _html_admin_pago(payment, pax_detalle: str) -> str:
         <p><strong>Email:</strong> {payment.customer_email}</p>
         <p><strong>Telefono:</strong> {payment.customer_phone}</p>
         <p><strong>Tour:</strong> {payment.tour.nombre}</p>
-        <p><strong>Fecha:</strong> {payment.reservation_date}</p>
+        <p><strong>Fecha del tour:</strong> {_fecha_cl(payment)}</p>
         <p><strong>Pasajeros:</strong> {pax_detalle}</p>
         <p><strong>Monto:</strong> ${payment.amount:,}</p>
         <p><a href="https://wa.me/{tel_limpio}" style="color: #25D366; font-weight: bold;">📱 Contactar por WhatsApp</a></p>
