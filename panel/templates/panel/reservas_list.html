@@ -2,6 +2,7 @@
 {% block title %}Reservas{% endblock %}
 {% block content %}
 <h2>Reservas</h2>
+<details class="ayuda"><summary>¿Cómo funciona esta pantalla?</summary><p>Busca por código, nombre o email. Entra a una reserva para cambiar su estado o escribir notas internas. Al pasar a Confirmada, Rechazada o Cancelada se envía un email al cliente automáticamente.</p></details>
 <form class="filters" method="get">
   <div><label>Buscar</label><input name="q" value="{{ request.GET.q }}" placeholder="Código, nombre o email"></div>
   <div><label>Estado</label><select name="estado"><option value="">Todos</option>

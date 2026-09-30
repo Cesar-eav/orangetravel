@@ -18,7 +18,7 @@ Panel alternativo al admin de Django/Unfold, pensado para usuarios no técnicos.
 | 2 | Tours (con precio y galería), categorías, bloqueos de fechas | Hecha |
 | 3 | Blog (reseñas) con imágenes en párrafos y carrusel | Hecha |
 | 4 | Páginas y ajustes: `Nosotros`, `TerceraEdad`, `MaintenanceMode` | Hecha |
-| 5 | Pulido: ayudas, permisos por grupo, más tests, decidir retiro del admin | Pendiente |
+| 5 | Pulido: ayudas en pantalla, más tests, decisión sobre el admin | Hecha (permisos por grupo diferidos) |
 
 ## Modificaciones realizadas
 
@@ -59,6 +59,12 @@ Commits en la rama `fix-orange`:
 
 **Páginas y ajustes**: `/panel/nosotros/` y `/panel/tercera-edad/` (contenido con CKEditor) y `/panel/mantencion/` (activar/desactivar el modo mantención y editar su mensaje; el staff sigue viendo el sitio). Los tres son singletons: una sola pantalla de edición, sin crear ni eliminar.
 
+**Ayudas**: cada listado tiene un bloque plegable «¿Cómo funciona esta pantalla?» (`<details class="ayuda">`, estilo en `base.html`).
+
+## Decisiones pendientes / diferidas
+- **Permisos por grupo**: diferidos. Hoy hay un solo usuario, así que basta `is_staff` (todo staff ve todo). Si se suman usuarios con roles distintos, la propuesta es 3 grupos (Reservas y pagos / Catálogo / Contenido y ajustes) verificados en `StaffRequiredMixin` y filtrando el menú de `base.html`.
+- **Retiro del admin**: se deja `/admin/` intacto (sigue siendo respaldo y única vía para lo que el panel no cubre: usuarios, grupos). Para retirarlo más adelante: operar solo con el panel un tiempo, restringir `/admin/` a superusuarios y recién después evaluar quitarlo de `config/urls.py`.
+
 ## Lógica existente que el panel reutiliza (sin modificarla)
 - `payments/emails.py`: `send_payment_confirmation_to_customer` y `send_payment_confirmation_to_admins`.
 - `tours/signals.py`: al guardar una `Reserva` con estado CONFIRMADA, RECHAZADA o CANCELADA se envía email al cliente; RECHAZADA/CANCELADA además cancela el `Payment` pagado de esa fecha. El panel usa `save()` normal, así que esto ocurre igual que en el admin, y el detalle muestra un aviso previo.
@@ -72,7 +78,7 @@ DATABASE_URL=sqlite:////tmp/panel_test.sqlite3 python manage.py test panel
 # Probar a mano en local
 python manage.py runserver   # → http://127.0.0.1:8000/panel/login/
 ```
-30 tests cubren (incluye catálogo, blog y páginas/ajustes): acceso anónimo/no staff/staff, redirección post-login, filtros, cambio de estado (dispara el signal de correo), borrado lógico, reenvío de correos y protección del endpoint de pagos.
+Los tests cubren (incluye catálogo, blog, páginas/ajustes, ayudas, 403 en todas las pantallas, 404 y rechazo de GET en acciones destructivas): acceso anónimo/no staff/staff, redirección post-login, filtros, cambio de estado (dispara el signal de correo), borrado lógico, reenvío de correos y protección del endpoint de pagos.
 
 ## Despliegue a producción
 Tras `git pull` en `~/orangetravel`: `touch tmp/restart.txt`. No hay migraciones ni `collectstatic` ni `npm run build` para las etapas 0–4. Entrar a `/panel/login/` con un usuario que tenga "Es staff".

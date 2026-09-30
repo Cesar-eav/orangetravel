@@ -290,3 +290,36 @@ class SingletonTests(PanelBase):
         self.assertRedirects(r, reverse('panel:mantencion'))
         self.assertTrue(MaintenanceMode.get_solo().activo)
         self.assertEqual(self.client.get(reverse('panel:dashboard')).status_code, 200)
+
+
+class AyudaYNavegacionTests(PanelBase):
+    def setUp(self):
+        self.client.force_login(self.staff)
+
+    def test_listas_muestran_ayuda(self):
+        for name in ('dashboard', 'reservas', 'pagos', 'tours', 'tipos', 'bloqueos', 'posts'):
+            r = self.client.get(reverse(f'panel:{name}'))
+            self.assertContains(r, 'class="ayuda"', msg_prefix=name)
+
+    def test_todas_las_pantallas_exigen_staff(self):
+        self.client.logout()
+        self.client.force_login(self.normal)
+        for name in ('dashboard', 'reservas', 'pagos', 'tours', 'tipos', 'bloqueos',
+                     'posts', 'nosotros', 'tercera_edad', 'mantencion'):
+            r = self.client.get(reverse(f'panel:{name}'))
+            self.assertEqual(r.status_code, 403, name)
+
+    def test_logout_solo_por_post(self):
+        self.assertEqual(self.client.get(reverse('panel:logout')).status_code, 405)
+        r = self.client.post(reverse('panel:logout'))
+        self.assertRedirects(r, reverse('panel:login'))
+
+    def test_detalle_inexistente_da_404(self):
+        for name in ('reserva_detalle', 'pago_detalle', 'tour_editar', 'tipo_editar', 'post_editar'):
+            self.assertEqual(self.client.get(reverse(f'panel:{name}', args=[999999])).status_code, 404, name)
+
+    def test_acciones_destructivas_rechazan_get(self):
+        for name in ('reserva_eliminar', 'tipo_eliminar', 'bloqueo_eliminar', 'post_eliminar',
+                     'galeria_eliminar', 'carrusel_eliminar'):
+            r = self.client.get(reverse(f'panel:{name}', args=[self.reserva.pk]))
+            self.assertIn(r.status_code, (404, 405), name)

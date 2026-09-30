@@ -2,6 +2,7 @@
 {% block title %}Categorías{% endblock %}
 {% block content %}
 <h2>Categorías de tours <a class="btn" href="{% url 'panel:tipo_nuevo' %}" style="float:right;font-size:15px">+ Nueva</a></h2>
+<details class="ayuda"><summary>¿Cómo funciona esta pantalla?</summary><p>Las categorías agrupan los tours. No se puede eliminar una categoría que tenga tours; primero cámbialos de categoría.</p></details>
 <div class="card"><table>
 <tr><th>Nombre</th><th>Descripción</th><th></th></tr>
 {% for t in tipos %}<tr>

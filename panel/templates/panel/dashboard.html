@@ -2,6 +2,7 @@
 {% block title %}Inicio{% endblock %}
 {% block content %}
 <h2>Inicio</h2>
+<details class="ayuda"><summary>¿Cómo funciona esta pantalla?</summary><p>Aquí ves lo que necesita atención. Haz clic en un contador para ir a la lista filtrada. «Por confirmar» son reservas pendientes con fecha futura; conviene revisarlas a diario.</p></details>
 <div class="grid">
   <a class="stat" href="{% url 'panel:reservas' %}?estado=PENDIENTE&proximas=1"><b>{{ pendientes }}</b><span>Reservas por confirmar</span></a>
   <a class="stat" href="{% url 'panel:reservas' %}?estado=CONFIRMADA&proximas=1"><b>{{ proximas }}</b><span>Confirmadas próximas</span></a>

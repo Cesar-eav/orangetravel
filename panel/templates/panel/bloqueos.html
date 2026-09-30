@@ -2,6 +2,7 @@
 {% block title %}Bloqueos de fechas{% endblock %}
 {% block content %}
 <h2>Bloqueos de fechas</h2>
+<details class="ayuda"><summary>¿Cómo funciona esta pantalla?</summary><p>Una fecha bloqueada no se puede reservar para ese tour. Úsalo para días sin salida o cupos llenos. «Quitar» vuelve a habilitar la fecha.</p></details>
 <form class="card" method="post">{% csrf_token %}
 <h3>Bloquear una fecha</h3>
 {{ form.non_field_errors }}

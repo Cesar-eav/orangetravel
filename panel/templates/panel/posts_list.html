@@ -2,6 +2,7 @@
 {% block title %}Blog (reseñas){% endblock %}
 {% block content %}
 <h2>Blog (reseñas)</h2>
+<details class="ayuda"><summary>¿Cómo funciona esta pantalla?</summary><p>Las reseñas del blog. Para ocultar una sin perderla, desmarca «publicada»; eliminar es definitivo.</p></details>
 <form class="filters" method="get">
   <div><label>Buscar</label><input name="q" value="{{ request.GET.q }}" placeholder="Título o resumen"></div>
   <div><label>Estado</label><select name="publicado">

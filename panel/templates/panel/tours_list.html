@@ -2,6 +2,7 @@
 {% block title %}Tours{% endblock %}
 {% block content %}
 <h2>Tours</h2>
+<details class="ayuda"><summary>¿Cómo funciona esta pantalla?</summary><p>Los tours no se eliminan (borrarían sus reservas): para ocultar uno, edítalo y desmarca «activo». Desde la edición también cambias precios y la galería.</p></details>
 <form class="filters" method="get">
   <div><label>Buscar</label><input name="q" value="{{ request.GET.q }}" placeholder="Nombre del tour"></div>
   <button class="btn">Buscar</button> <a class="btn sec" href="{% url 'panel:tours' %}">Limpiar</a>
