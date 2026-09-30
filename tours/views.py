@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.contrib.admin.views.decorators import staff_member_required
 from .models import Tour, Reserva, BloqueoTour, TerceraEdad
 from payments.models import Payment
 import json
@@ -264,6 +265,7 @@ def get_fechas_bloqueadas(request, tour_id):
     return JsonResponse({'bloqueadas': fechas_finales})
 
 
+@staff_member_required
 def get_pagos_activos_admin(request, tour_id):
     from django.db.models import Count, Sum
 
