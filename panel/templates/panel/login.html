@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ingresar · Orange Travel</title><meta name="robots" content="noindex,nofollow">
+<style>
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f4f5f7;font:16px system-ui,sans-serif}
+.box{background:#fff;border:1px solid #e2e5ea;border-radius:14px;padding:32px;width:100%;max-width:380px}
+h1{margin:0 0 6px;font-size:24px;color:#293D54}h1 span{color:#f97316}p{color:#6b7280;margin:0 0 20px}
+label{display:block;margin:12px 0 4px;font-size:14px}input{width:100%;font:inherit;padding:11px;border:1px solid #cbd0d8;border-radius:8px}
+button{margin-top:20px;width:100%;background:#f97316;color:#fff;border:0;border-radius:8px;padding:12px;font-size:16px;cursor:pointer}
+.err{background:#fee2e2;color:#991b1b;padding:10px 12px;border-radius:8px;margin-bottom:8px;font-size:14px}
+</style></head><body>
+<form class="box" method="post">{% csrf_token %}
+<h1>Orange <span>Travel</span></h1><p>Panel de gestión</p>
+{% for e in form.non_field_errors %}<div class="err">{{ e }}</div>{% endfor %}
+<label for="id_username">Usuario</label>{{ form.username }}
+<label for="id_password">Contraseña</label>{{ form.password }}
+<input type="hidden" name="next" value="{{ next }}">
+<button>Ingresar</button>
+</form></body></html>

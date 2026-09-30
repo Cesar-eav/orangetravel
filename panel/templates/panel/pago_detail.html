@@ -1,0 +1,22 @@
+{% extends 'panel/base.html' %}
+{% block title %}Pago {{ pago.codigo }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'panel:pagos' %}">← Volver a pagos</a></p>
+<h2>Pago {{ pago.codigo }} <span class="badge b-{{ pago.status }}">{{ estado_texto }}</span></h2>
+<div class="card"><dl>
+<dt>Tour</dt><dd>{{ pago.tour_nombre_al_pagar|default:pago.tour.nombre }}</dd>
+<dt>Fecha del tour</dt><dd>{{ pago.reservation_date|date:"d/m/Y" }}</dd>
+<dt>Cliente</dt><dd>{{ pago.customer_name }}</dd>
+<dt>Email</dt><dd>{{ pago.customer_email }}</dd>
+<dt>Teléfono</dt><dd>{{ pago.customer_phone }}</dd>
+<dt>Pasajeros</dt><dd>{{ pago.pax_adults }} adultos, {{ pago.pax_children }} niños</dd>
+<dt>Monto</dt><dd>${{ pago.amount }} {{ pago.currency }}</dd>
+<dt>Pagado el</dt><dd>{{ pago.paid_at|date:"d/m/Y H:i"|default:"—" }}</dd>
+<dt>Creado</dt><dd>{{ pago.created_at|date:"d/m/Y H:i" }}</dd>
+</dl></div>
+{% if pago.status == 'paid' %}
+<div class="card"><h3>Reenviar correos</h3>
+<form method="post" action="{% url 'panel:pago_reenviar' pago.pk 'cliente' %}" style="display:inline" onsubmit="return confirm('¿Reenviar el correo de confirmación al cliente?')">{% csrf_token %}<button class="btn">Reenviar al cliente</button></form>
+<form method="post" action="{% url 'panel:pago_reenviar' pago.pk 'admin' %}" style="display:inline" onsubmit="return confirm('¿Reenviar la notificación a administradores?')">{% csrf_token %}<button class="btn sec">Reenviar a administradores</button></form>
+</div>{% endif %}
+{% endblock %}

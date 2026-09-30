@@ -5,7 +5,7 @@ from .models import MaintenanceMode
 
 
 class MaintenanceModeMiddleware:
-    EXEMPT_PREFIXES = ('/admin/', '/ckeditor/')
+    EXEMPT_PREFIXES = ('/admin/', '/panel/', '/ckeditor/')
 
     def __init__(self, get_response):
         self.get_response = get_response

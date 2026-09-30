@@ -1,0 +1,26 @@
+{% extends 'panel/base.html' %}
+{% block title %}Reserva {{ reserva.codigo }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'panel:reservas' %}">← Volver a reservas</a></p>
+<h2>Reserva {{ reserva.codigo }} <span class="badge b-{{ reserva.estado }}">{{ reserva.get_estado_display }}</span></h2>
+<div class="card"><dl>
+<dt>Tour</dt><dd>{{ reserva.tour.nombre }}</dd>
+<dt>Fecha del tour</dt><dd>{{ reserva.fecha|date:"d/m/Y" }}</dd>
+<dt>Cliente</dt><dd>{{ reserva.nombre_cliente }}</dd>
+<dt>Email</dt><dd>{{ reserva.email_cliente }}</dd>
+<dt>Teléfono</dt><dd>{{ reserva.telefono_cliente }}</dd>
+<dt>Pasajeros</dt><dd>{{ reserva.adultos }} adultos, {{ reserva.ninos }} niños</dd>
+<dt>Total</dt><dd>${{ reserva.precio_total }}</dd>
+<dt>Creada</dt><dd>{{ reserva.creada_el|date:"d/m/Y H:i" }}</dd>
+</dl></div>
+<form class="card" method="post">{% csrf_token %}
+<h3>Gestionar</h3>
+{{ form.non_field_errors }}
+<p><label for="id_estado"><b>Estado</b></label><br>{{ form.estado }}</p>
+<div class="warn">Al cambiar a <b>Confirmada</b>, <b>Rechazada</b> o <b>Cancelada</b> se envía un correo automático al cliente. Rechazar o cancelar también libera la fecha del pago asociado.</div>
+<p><label for="id_notas_internas"><b>Notas internas</b> (no las ve el cliente)</label><br>{{ form.notas_internas }}</p>
+<button class="btn">Guardar cambios</button>
+</form>
+<form method="post" action="{% url 'panel:reserva_eliminar' reserva.pk %}" onsubmit="return confirm('¿Eliminar esta reserva?')">{% csrf_token %}
+<button class="btn red">Eliminar reserva</button></form>
+{% endblock %}

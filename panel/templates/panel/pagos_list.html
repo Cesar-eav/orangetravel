@@ -1,0 +1,21 @@
+{% extends 'panel/base.html' %}
+{% block title %}Pagos{% endblock %}
+{% block content %}
+<h2>Pagos</h2>
+<form class="filters" method="get">
+  <div><label>Buscar</label><input name="q" value="{{ request.GET.q }}" placeholder="Código, nombre o email"></div>
+  <div><label>Estado</label><select name="status"><option value="">Todos</option>
+    {% for v, l in estados %}<option value="{{ v }}" {% if request.GET.status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+  <div><label>Tour</label><select name="tour"><option value="">Todos</option>
+    {% for t in tours %}<option value="{{ t.pk }}" {% if request.GET.tour == t.pk|stringformat:"s" %}selected{% endif %}>{{ t.nombre }}</option>{% endfor %}</select></div>
+  <button class="btn">Filtrar</button> <a class="btn sec" href="{% url 'panel:pagos' %}">Limpiar</a>
+</form>
+<div class="card"><table>
+<tr><th>Código</th><th>Cliente</th><th>Tour</th><th>Fecha tour</th><th>Monto</th><th>Estado</th></tr>
+{% for p in pagos %}<tr>
+<td><a href="{% url 'panel:pago_detalle' p.pk %}">{{ p.codigo }}</a></td><td>{{ p.customer_name }}<br><small>{{ p.customer_email }}</small></td>
+<td>{{ p.tour.nombre }}</td><td>{{ p.reservation_date|date:"d/m/Y" }}</td><td>${{ p.amount }}</td>
+<td><span class="badge b-{{ p.status }}">{{ p.get_status_display }}</span></td></tr>
+{% empty %}<tr><td colspan="6">No hay pagos con esos filtros.</td></tr>{% endfor %}</table>
+{% include 'panel/_pager.html' %}</div>
+{% endblock %}

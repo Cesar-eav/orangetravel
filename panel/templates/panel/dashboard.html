@@ -1,0 +1,18 @@
+{% extends 'panel/base.html' %}
+{% block title %}Inicio{% endblock %}
+{% block content %}
+<h2>Inicio</h2>
+<div class="grid">
+  <a class="stat" href="{% url 'panel:reservas' %}?estado=PENDIENTE&proximas=1"><b>{{ pendientes }}</b><span>Reservas por confirmar</span></a>
+  <a class="stat" href="{% url 'panel:reservas' %}?estado=CONFIRMADA&proximas=1"><b>{{ proximas }}</b><span>Confirmadas próximas</span></a>
+  <a class="stat" href="{% url 'panel:pagos' %}?status=paid"><b>{{ pagos_semana }}</b><span>Pagos últimos 7 días</span></a>
+</div>
+<div class="card"><h3>Últimas reservas</h3>
+<table><tr><th>Código</th><th>Cliente</th><th>Tour</th><th>Fecha</th><th>Estado</th></tr>
+{% for r in ultimas_reservas %}<tr><td><a href="{% url 'panel:reserva_detalle' r.pk %}">{{ r.codigo }}</a></td><td>{{ r.nombre_cliente }}</td><td>{{ r.tour.nombre }}</td><td>{{ r.fecha|date:"d/m/Y" }}</td><td><span class="badge b-{{ r.estado }}">{{ r.get_estado_display }}</span></td></tr>
+{% empty %}<tr><td colspan="5">Sin reservas.</td></tr>{% endfor %}</table></div>
+<div class="card"><h3>Últimos pagos</h3>
+<table><tr><th>Código</th><th>Cliente</th><th>Tour</th><th>Monto</th><th>Pagado el</th></tr>
+{% for p in ultimos_pagos %}<tr><td><a href="{% url 'panel:pago_detalle' p.pk %}">{{ p.codigo }}</a></td><td>{{ p.customer_name }}</td><td>{{ p.tour.nombre }}</td><td>${{ p.amount }}</td><td>{{ p.paid_at|date:"d/m/Y H:i" }}</td></tr>
+{% empty %}<tr><td colspan="5">Sin pagos.</td></tr>{% endfor %}</table></div>
+{% endblock %}

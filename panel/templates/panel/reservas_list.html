@@ -1,0 +1,22 @@
+{% extends 'panel/base.html' %}
+{% block title %}Reservas{% endblock %}
+{% block content %}
+<h2>Reservas</h2>
+<form class="filters" method="get">
+  <div><label>Buscar</label><input name="q" value="{{ request.GET.q }}" placeholder="Código, nombre o email"></div>
+  <div><label>Estado</label><select name="estado"><option value="">Todos</option>
+    {% for v, l in estados %}<option value="{{ v }}" {% if request.GET.estado == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+  <div><label>Tour</label><select name="tour"><option value="">Todos</option>
+    {% for t in tours %}<option value="{{ t.pk }}" {% if request.GET.tour == t.pk|stringformat:"s" %}selected{% endif %}>{{ t.nombre }}</option>{% endfor %}</select></div>
+  <div><label><input type="checkbox" name="proximas" value="1" {% if request.GET.proximas %}checked{% endif %}> Solo próximas</label></div>
+  <button class="btn">Filtrar</button> <a class="btn sec" href="{% url 'panel:reservas' %}">Limpiar</a>
+</form>
+<div class="card"><table>
+<tr><th>Código</th><th>Cliente</th><th>Tour</th><th>Fecha</th><th>Pax</th><th>Total</th><th>Estado</th></tr>
+{% for r in reservas %}<tr>
+<td><a href="{% url 'panel:reserva_detalle' r.pk %}">{{ r.codigo }}</a></td><td>{{ r.nombre_cliente }}<br><small>{{ r.email_cliente }}</small></td>
+<td>{{ r.tour.nombre }}</td><td>{{ r.fecha|date:"d/m/Y" }}</td><td>{{ r.adultos }} adl / {{ r.ninos }} niñ</td><td>${{ r.precio_total }}</td>
+<td><span class="badge b-{{ r.estado }}">{{ r.get_estado_display }}</span></td></tr>
+{% empty %}<tr><td colspan="7">No hay reservas con esos filtros.</td></tr>{% endfor %}</table>
+{% include 'panel/_pager.html' %}</div>
+{% endblock %}

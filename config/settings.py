@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'tours',
     'blog',
     'payments',
+    'panel',
     'rest_framework',
     'ckeditor',
     'ckeditor_uploader',
