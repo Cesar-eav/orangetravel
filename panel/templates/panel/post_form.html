@@ -1,0 +1,92 @@
+{% extends 'panel/base.html' %}
+{% block title %}{% if post %}Editar {{ post.titulo }}{% else %}Nueva reseña{% endif %}{% endblock %}
+{% block head %}{{ form.media }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'panel:posts' %}">← Volver a reseñas</a></p>
+<h2>{% if post %}Editar reseña{% else %}Nueva reseña{% endif %}</h2>
+<form method="post" enctype="multipart/form-data">{% csrf_token %}
+<div class="card">
+  <h3>Contenido</h3>
+  {{ form.non_field_errors }}
+  {% for f in form %}{% if f.name != 'publicado' %}
+  <div class="frow"><label for="{{ f.id_for_label }}"><b>{{ f.label }}</b></label><br>{{ f }}{{ f.errors }}
+    {% if f.name == 'extracto' %}<div class="help counter" data-for="{{ f.id_for_label }}" data-max="{{ extracto_max }}"></div>{% endif %}
+    {% if f.name == 'contenido' %}<div class="help counter" data-editor="{{ f.id_for_label }}" data-max="{{ cuerpo_max }}"></div>{% endif %}
+    {% if f.help_text %}<div class="help">{{ f.help_text }}</div>{% endif %}</div>
+  {% endif %}{% endfor %}
+  {% if post and post.imagen_portada %}<p class="help">Portada actual:</p>
+  <img src="{{ post.imagen_portada.url }}" alt="" style="width:200px;border-radius:8px">{% endif %}
+  <div class="frow" style="margin-top:14px"><label>{{ form.publicado }} <b>{{ form.publicado.label }}</b></label>{{ form.publicado.errors }}
+    <div class="help">Desmárcala para ocultar la reseña del sitio sin borrarla.</div></div>
+</div>
+
+<div class="card">
+  <h3>Imágenes entre párrafos</h3>
+  <p class="help">Cada imagen aparece después del párrafo que indiques (1 = después del primero, 0 = antes de todo el texto).
+    {% if post %}<b>Esta reseña tiene {{ bloques }} bloque(s) de contenido</b>: usa números del 1 al {{ bloques }}.{% else %}Guarda la reseña para ver cuántos párrafos tiene.{% endif %}</p>
+  {{ imagenes_form.management_form }}
+  {{ imagenes_form.non_form_errors }}
+  <table>
+  <tr><th>Imagen</th><th>Después del párrafo</th><th>Pie de foto</th><th>Orden</th>{% if post %}<th>Quitar</th>{% endif %}</tr>
+  {% for f in imagenes_form %}<tr>
+    <td>{% for h in f.hidden_fields %}{{ h }}{% endfor %}
+      {% if f.instance.pk and f.instance.imagen %}<img src="{{ f.instance.imagen.url }}" alt="" style="width:90px;height:60px;object-fit:cover;border-radius:6px;display:block;margin-bottom:6px">{% endif %}
+      {{ f.imagen }}{{ f.imagen.errors }}</td>
+    <td>{{ f.despues_del_parrafo }}{{ f.despues_del_parrafo.errors }}</td>
+    <td>{{ f.caption }}{{ f.caption.errors }}</td>
+    <td>{{ f.orden }}{{ f.orden.errors }}</td>
+    {% if post %}<td>{% if f.instance.pk %}{{ f.DELETE }}{% endif %}</td>{% endif %}
+  </tr>{% endfor %}
+  </table>
+  <p class="help">Para agregar más de una imagen nueva, guarda y vuelve a editar: aparece una fila vacía nueva cada vez.</p>
+</div>
+
+<div class="card">
+  <h3>Carrusel</h3>
+  {% if carrusel %}<div class="thumbs">
+  {% for img in carrusel %}<figure><img src="{{ img.imagen.url }}" alt="">
+    <button type="submit" class="btn red" style="padding:4px 10px;font-size:13px;margin-top:6px"
+      formaction="{% url 'panel:carrusel_eliminar' img.pk %}" formnovalidate
+      onclick="return confirm('¿Quitar esta imagen del carrusel?')">Eliminar</button></figure>{% endfor %}
+  </div>{% elif post %}<p class="help">Esta reseña aún no tiene imágenes en el carrusel.</p>{% endif %}
+  <p><label for="carrusel"><b>Agregar imágenes</b></label><br>
+  <input type="file" id="carrusel" name="carrusel" accept="image/*" multiple></p>
+  <p class="help">Puedes seleccionar varias (máximo {{ max_carrusel }} en total). Se suben al guardar.</p>
+</div>
+<script>
+(function(){
+  function paint(el, n){
+    var max = +el.dataset.max;
+    el.textContent = n + ' / ' + max + ' caracteres' + (n > max ? ' — te pasaste por ' + (n - max) : '');
+    el.style.color = n > max ? '#991b1b' : (n > max * 0.9 ? '#9a3412' : '');
+    el.style.fontWeight = n > max ? '600' : '';
+  }
+  document.querySelectorAll('.counter[data-for]').forEach(function(el){
+    var ta = document.getElementById(el.dataset.for);
+    var upd = function(){ paint(el, ta.value.length); };
+    ta.addEventListener('input', upd); upd();
+  });
+  document.querySelectorAll('.counter[data-editor]').forEach(function(el){
+    var id = el.dataset.editor, ta = document.getElementById(id);
+    function texto(html){
+      var d = document.createElement('div'); d.innerHTML = html;
+      return (d.textContent || '').trim().length;
+    }
+    paint(el, texto(ta.value));
+    function bind(ed){
+      var upd = function(){ paint(el, texto(ed.getData())); };
+      ['change','key','keyup','paste','afterPaste','setData'].forEach(function(e){ ed.on(e, upd); });
+      upd();
+    }
+    if (window.CKEDITOR) {
+      if (CKEDITOR.instances[id]) bind(CKEDITOR.instances[id]);
+      else CKEDITOR.on('instanceReady', function(ev){ if (ev.editor.name === id) bind(ev.editor); });
+    }
+  });
+})();
+</script>
+<button class="btn">Guardar reseña</button>
+{% if post %}<button class="btn red" style="margin-left:12px" formaction="{% url 'panel:post_eliminar' post.pk %}" formnovalidate
+  onclick="return confirm('¿Eliminar esta reseña y todas sus imágenes? No se puede deshacer.')">Eliminar reseña</button>{% endif %}
+</form>
+{% endblock %}

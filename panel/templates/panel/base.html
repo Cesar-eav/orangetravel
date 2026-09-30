@@ -55,6 +55,7 @@ dl{display:grid;grid-template-columns:200px 1fr;gap:8px 16px;margin:0}dt{color:v
     <a href="{% url 'panel:tours' %}" class="{% if 'tour' in request.resolver_match.url_name or 'galeria' in request.resolver_match.url_name %}on{% endif %}">Tours</a>
     <a href="{% url 'panel:tipos' %}" class="{% if 'tipo' in request.resolver_match.url_name %}on{% endif %}">Categorías</a>
     <a href="{% url 'panel:bloqueos' %}" class="{% if 'bloqueo' in request.resolver_match.url_name %}on{% endif %}">Bloqueos de fechas</a>
+    <a href="{% url 'panel:posts' %}" class="{% if 'post' in request.resolver_match.url_name or 'carrusel' in request.resolver_match.url_name %}on{% endif %}">Blog (reseñas)</a>
     <div class="user">{{ request.user.get_username }}
       <form method="post" action="{% url 'panel:logout' %}" style="margin-top:8px">{% csrf_token %}
         <button class="btn sec" style="padding:6px 12px;font-size:14px">Cerrar sesión</button></form>

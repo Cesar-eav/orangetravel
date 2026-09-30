@@ -168,3 +168,96 @@ class PagoTests(PanelBase):
         Payment.objects.filter(pk=self.pago.pk).update(status=Payment.STATUS_PENDING)
         self.client.post(reverse('panel:pago_reenviar', args=[self.pago.pk, 'cliente']))
         cliente.assert_not_called()
+
+
+class BlogTests(PanelBase):
+    def setUp(self):
+        self.client.force_login(self.staff)
+
+    def _post(self, **kw):
+        from blog.models import Post
+        return Post.objects.create(
+            titulo='Reseña', slug='resena', extracto='e', contenido='<p>a</p><p>b</p>',
+            imagen_portada='blog/portadas/x.jpg', **kw,
+        )
+
+    def _datos(self, **extra):
+        datos = {
+            'b-titulo': 'Mi viaje', 'b-extracto': 'resumen',
+            'b-contenido': '<p>uno</p><p>dos</p>', 'b-publicado': 'on',
+            'ip-TOTAL_FORMS': '0', 'ip-INITIAL_FORMS': '0',
+            'ip-MIN_NUM_FORMS': '0', 'ip-MAX_NUM_FORMS': '1000',
+        }
+        datos.update(extra)
+        return datos
+
+    def test_anonimo_redirige(self):
+        self.client.logout()
+        for name in ('posts', 'post_nuevo'):
+            self.assertEqual(self.client.get(reverse(f'panel:{name}')).status_code, 302)
+
+    def test_paginas_cargan_y_cuenta_bloques(self):
+        post = self._post()
+        self.assertEqual(self.client.get(reverse('panel:posts')).status_code, 200)
+        self.assertEqual(self.client.get(reverse('panel:post_nuevo')).status_code, 200)
+        r = self.client.get(reverse('panel:post_editar', args=[post.pk]))
+        self.assertContains(r, '2 bloque(s)')
+
+    def test_crear_genera_slug_y_autor(self):
+        from blog.models import Post
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from io import BytesIO
+        from PIL import Image
+        buf = BytesIO()
+        Image.new('RGB', (2, 2)).save(buf, 'PNG')
+        img = SimpleUploadedFile('p.png', buf.getvalue(), 'image/png')
+        with self.settings(MEDIA_ROOT='/tmp/panel_test_media'):
+            r = self.client.post(reverse('panel:post_nuevo'), self._datos(**{'b-imagen_portada': img}))
+        self.assertEqual(r.status_code, 302, getattr(r, 'context', None) and r.context['form'].errors)
+        post = Post.objects.get()
+        self.assertEqual(post.slug, 'mi-viaje')
+        self.assertEqual(post.autor, self.staff)
+
+    def test_slug_automatico_unico_y_estable_al_editar(self):
+        from panel.forms import PostForm
+        existente = self._post()
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from io import BytesIO
+        from PIL import Image
+        buf = BytesIO()
+        Image.new('RGB', (2, 2)).save(buf, 'PNG')
+        img = SimpleUploadedFile('p.png', buf.getvalue(), 'image/png')
+        form = PostForm({'titulo': 'Reseña', 'extracto': 'e', 'contenido': 'x'},
+                        {'imagen_portada': img})
+        self.assertNotIn('slug', form.fields)
+        self.assertTrue(form.is_valid(), form.errors)
+        nuevo = form.save(commit=False)
+        self.assertEqual(nuevo.slug, 'resena-2')
+        # al editar el título, el slug existente no cambia
+        form = PostForm({'titulo': 'Otro título', 'extracto': 'e', 'contenido': 'x'},
+                        instance=existente)
+        form.is_valid()
+        self.assertEqual(form.save(commit=False).slug, 'resena')
+
+    def test_extracto_y_cuerpo_respetan_maximo(self):
+        from panel.forms import CUERPO_MAX, PostForm
+        largo = PostForm({'titulo': 't', 'extracto': 'x' * 501,
+                          'contenido': '<p>' + 'a' * (CUERPO_MAX + 1) + '</p>'})
+        largo.is_valid()
+        self.assertIn('extracto', largo.errors)
+        self.assertIn('contenido', largo.errors)
+        # las etiquetas HTML no cuentan
+        html_ok = PostForm({'titulo': 't', 'extracto': 'x',
+                            'contenido': '<p><strong>' + 'a' * CUERPO_MAX + '</strong></p>'})
+        html_ok.is_valid()
+        self.assertNotIn('contenido', html_ok.errors)
+
+    def test_carrusel_eliminar_y_post_eliminar(self):
+        from blog.models import ImagenCarousel, Post
+        post = self._post()
+        img = ImagenCarousel.objects.create(post=post, imagen='blog/carousel/x.jpg')
+        self.client.post(reverse('panel:carrusel_eliminar', args=[img.pk]))
+        self.assertFalse(ImagenCarousel.objects.exists())
+        self.assertEqual(self.client.get(reverse('panel:post_eliminar', args=[post.pk])).status_code, 405)
+        self.client.post(reverse('panel:post_eliminar', args=[post.pk]))
+        self.assertFalse(Post.objects.exists())

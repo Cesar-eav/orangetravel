@@ -16,7 +16,7 @@ Panel alternativo al admin de Django/Unfold, pensado para usuarios no técnicos.
 | 0 | Base, login, `StaffRequiredMixin`, layout, exención en modo mantención | Hecha |
 | 1 | Reservas, Pagos y dashboard con contadores | Hecha |
 | 2 | Tours (con precio y galería), categorías, bloqueos de fechas | Hecha |
-| 3 | Blog (reseñas) con imágenes en párrafos y carrusel | Pendiente |
+| 3 | Blog (reseñas) con imágenes en párrafos y carrusel | Hecha |
 | 4 | Páginas y ajustes: `Nosotros`, `TerceraEdad`, `MaintenanceMode` | Pendiente |
 | 5 | Pulido: ayudas, permisos por grupo, más tests, decidir retiro del admin | Pendiente |
 
@@ -55,6 +55,8 @@ Commits en la rama `fix-orange`:
 
 **Bloqueos de fechas (`/panel/bloqueos/`)**: bloquear una fecha por tour (sin duplicados), filtrar (por defecto solo futuros) y quitar bloqueos.
 
+**Blog (`/panel/blog/`)**: lista con búsqueda y filtro publicadas/ocultas; crear/editar en una pantalla (título, slug automático (se genera desde el título al crear, se hace único y no cambia al editar), resumen (máx. 500 caracteres) y cuerpo con CKEditor (máx. 10.000 caracteres de texto), ambos con contador en vivo, portada, YouTube, publicada). Incluye tabla de imágenes entre párrafos (con contador de bloques, editar/quitar) y carrusel con subida múltiple (máx. 20) y borrado individual. El autor se asigna al usuario que crea la reseña. Eliminar reseña es borrado real (con confirmación); para ocultarla basta desmarcar «publicada».
+
 ## Lógica existente que el panel reutiliza (sin modificarla)
 - `payments/emails.py`: `send_payment_confirmation_to_customer` y `send_payment_confirmation_to_admins`.
 - `tours/signals.py`: al guardar una `Reserva` con estado CONFIRMADA, RECHAZADA o CANCELADA se envía email al cliente; RECHAZADA/CANCELADA además cancela el `Payment` pagado de esa fecha. El panel usa `save()` normal, así que esto ocurre igual que en el admin, y el detalle muestra un aviso previo.
@@ -68,7 +70,7 @@ DATABASE_URL=sqlite:////tmp/panel_test.sqlite3 python manage.py test panel
 # Probar a mano en local
 python manage.py runserver   # → http://127.0.0.1:8000/panel/login/
 ```
-14 tests cubren: acceso anónimo/no staff/staff, redirección post-login, filtros, cambio de estado (dispara el signal de correo), borrado lógico, reenvío de correos y protección del endpoint de pagos.
+25 tests cubren (incluye catálogo y blog): acceso anónimo/no staff/staff, redirección post-login, filtros, cambio de estado (dispara el signal de correo), borrado lógico, reenvío de correos y protección del endpoint de pagos.
 
 ## Despliegue a producción
-Tras `git pull` en `~/orangetravel`: `touch tmp/restart.txt`. No hay migraciones ni `collectstatic` ni `npm run build` para las etapas 0–1. Entrar a `/panel/login/` con un usuario que tenga "Es staff".
+Tras `git pull` en `~/orangetravel`: `touch tmp/restart.txt`. No hay migraciones ni `collectstatic` ni `npm run build` para las etapas 0–3. Entrar a `/panel/login/` con un usuario que tenga "Es staff".

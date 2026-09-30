@@ -1,0 +1,24 @@
+{% extends 'panel/base.html' %}
+{% block title %}Blog (reseñas){% endblock %}
+{% block content %}
+<h2>Blog (reseñas)</h2>
+<form class="filters" method="get">
+  <div><label>Buscar</label><input name="q" value="{{ request.GET.q }}" placeholder="Título o resumen"></div>
+  <div><label>Estado</label><select name="publicado">
+    <option value="">Todas</option>
+    <option value="1" {% if request.GET.publicado == '1' %}selected{% endif %}>Publicadas</option>
+    <option value="0" {% if request.GET.publicado == '0' %}selected{% endif %}>Ocultas</option>
+  </select></div>
+  <button class="btn">Buscar</button> <a class="btn sec" href="{% url 'panel:posts' %}">Limpiar</a>
+  <a class="btn" href="{% url 'panel:post_nuevo' %}" style="margin-left:auto">+ Nueva reseña</a>
+</form>
+<div class="card"><table>
+<tr><th></th><th>Título</th><th>Fecha</th><th>Estado</th></tr>
+{% for p in posts %}<tr>
+<td>{% if p.imagen_portada %}<img src="{{ p.imagen_portada.url }}" alt="" style="width:80px;height:54px;object-fit:cover;border-radius:6px">{% endif %}</td>
+<td><a href="{% url 'panel:post_editar' p.pk %}">{{ p.titulo }}</a></td>
+<td>{{ p.fecha_creacion|date:"d/m/Y" }}</td>
+<td>{% if p.publicado %}<span class="badge b-paid">Publicada</span>{% else %}<span class="badge b-canceled">Oculta</span>{% endif %}</td></tr>
+{% empty %}<tr><td colspan="4">No hay reseñas.</td></tr>{% endfor %}</table>
+{% include 'panel/_pager.html' %}</div>
+{% endblock %}

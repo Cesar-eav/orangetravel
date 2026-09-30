@@ -1,3 +1,4 @@
+import re
 from datetime import timedelta
 
 from django.contrib import messages
@@ -13,14 +14,15 @@ from payments.emails import (
     send_payment_confirmation_to_admins,
     send_payment_confirmation_to_customer,
 )
+from blog.models import ImagenCarousel, Post
 from payments.models import Payment
 from django.db import transaction
 from django.db.models import ProtectedError
 from tours.models import BloqueoTour, GaleriaTour, PrecioTour, Reserva, TipoTour, Tour
 
 from .forms import (
-    BloqueoForm, ImagenGaleriaForm, PanelLoginForm, PrecioTourForm,
-    ReservaGestionForm, TipoTourForm, TourForm,
+    CUERPO_MAX, BloqueoForm, ImagenGaleriaForm, ImagenPostFormSet, PanelLoginForm, PostForm,
+    PrecioTourForm, ReservaGestionForm, TipoTourForm, TourForm,
 )
 from .mixins import StaffRequiredMixin
 
@@ -322,6 +324,116 @@ def bloqueo_eliminar(request, pk):
     get_object_or_404(BloqueoTour, pk=pk).delete()
     messages.success(request, 'Bloqueo eliminado.')
     return redirect('panel:bloqueos')
+
+
+# ------------------------------------------------------------------ Blog
+
+MAX_CARRUSEL = 20
+
+
+def contar_bloques(contenido):
+    """Mismo criterio que el admin: bloques que cierran (p, h1-6, ul, ol, blockquote, figure)."""
+    return len(re.findall(r'</(?:p|h[1-6]|ul|ol|blockquote|figure)>', contenido or ''))
+
+
+class PostListView(PanelView, ListView):
+    template_name = 'panel/posts_list.html'
+    context_object_name = 'posts'
+    paginate_by = PAGE_SIZE
+
+    def get_queryset(self):
+        qs = Post.objects.select_related('autor')
+        g = self.request.GET
+        if q := g.get('q', '').strip():
+            qs = qs.filter(Q(titulo__icontains=q) | Q(extracto__icontains=q))
+        if g.get('publicado') in ('1', '0'):
+            qs = qs.filter(publicado=g['publicado'] == '1')
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        params = self.request.GET.copy()
+        params.pop('page', None)
+        ctx['querystring'] = params.urlencode()
+        return ctx
+
+
+class PostFormView(PanelView, TemplateView):
+    """Crear (sin pk) y editar (con pk) una reseña con sus imágenes."""
+    template_name = 'panel/post_form.html'
+
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        pk = kwargs.get('pk')
+        self.post_obj = get_object_or_404(Post, pk=pk) if pk else None
+
+    def _forms(self, data=None, files=None):
+        return (
+            PostForm(data, files, instance=self.post_obj, prefix='b'),
+            ImagenPostFormSet(data, files, instance=self.post_obj, prefix='ip'),
+        )
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        if 'form' not in ctx:
+            ctx['form'], ctx['imagenes_form'] = self._forms()
+        post = self.post_obj
+        ctx.update(
+            post=post,
+            bloques=contar_bloques(post.contenido) if post else 0,
+            carrusel=post.imagenes_carousel.all() if post else [],
+            max_carrusel=MAX_CARRUSEL,
+            extracto_max=Post._meta.get_field('extracto').max_length,
+            cuerpo_max=CUERPO_MAX,
+        )
+        return ctx
+
+    def post(self, request, *args, **kwargs):
+        form, imagenes_form = self._forms(request.POST, request.FILES)
+        carrusel_forms = [ImagenGaleriaForm(files={'imagen': f}) for f in request.FILES.getlist('carrusel')]
+        carrusel_ok = all(c.is_valid() for c in carrusel_forms)
+        actuales = self.post_obj.imagenes_carousel.count() if self.post_obj else 0
+        if actuales + len(carrusel_forms) > MAX_CARRUSEL:
+            carrusel_ok = False
+            messages.error(request, f'El carrusel admite máximo {MAX_CARRUSEL} imágenes.')
+        elif not carrusel_ok:
+            messages.error(request, 'Alguna imagen del carrusel no es válida.')
+        if form.is_valid() and imagenes_form.is_valid() and carrusel_ok:
+            with transaction.atomic():
+                post = form.save(commit=False)
+                if post.autor_id is None:
+                    post.autor = request.user
+                post.save()
+                imagenes_form.instance = post
+                imagenes_form.save()
+                for i, c in enumerate(carrusel_forms):
+                    ImagenCarousel.objects.create(
+                        post=post, imagen=c.cleaned_data['imagen'], orden=actuales + i,
+                    )
+            messages.success(request, f'Reseña «{post.titulo}» guardada.')
+            return redirect('panel:post_editar', pk=post.pk)
+        return self.render_to_response(
+            self.get_context_data(form=form, imagenes_form=imagenes_form)
+        )
+
+
+@_staff_only
+@require_POST
+def carrusel_eliminar(request, pk):
+    img = get_object_or_404(ImagenCarousel, pk=pk)
+    post_pk = img.post_id
+    img.delete()
+    messages.success(request, 'Imagen eliminada del carrusel.')
+    return redirect('panel:post_editar', pk=post_pk)
+
+
+@_staff_only
+@require_POST
+def post_eliminar(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    post.delete()
+    messages.success(request, f'Reseña «{post.titulo}» eliminada.')
+    return redirect('panel:posts')
 
 
 @_staff_only
