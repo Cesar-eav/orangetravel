@@ -6,7 +6,8 @@ from django.utils.html import strip_tags
 from django.utils.text import slugify
 
 from blog.models import ImagenPost, Post
-from tours.models import BloqueoTour, PrecioTour, Reserva, TipoTour, Tour
+from home.models import MaintenanceMode, Nosotros
+from tours.models import BloqueoTour, PrecioTour, Reserva, TerceraEdad, TipoTour, Tour
 
 
 class PanelLoginForm(AuthenticationForm):
@@ -118,3 +119,21 @@ class BloqueoForm(forms.ModelForm):
         ).exists():
             raise forms.ValidationError('Esa fecha ya está bloqueada para este tour.')
         return data
+
+
+class NosotrosForm(forms.ModelForm):
+    class Meta:
+        model = Nosotros
+        fields = ('contenido',)
+
+
+class TerceraEdadForm(forms.ModelForm):
+    class Meta:
+        model = TerceraEdad
+        fields = ('contenido',)
+
+
+class MantencionForm(forms.ModelForm):
+    class Meta:
+        model = MaintenanceMode
+        fields = ('activo', 'mensaje')

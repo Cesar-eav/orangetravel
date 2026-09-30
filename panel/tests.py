@@ -261,3 +261,32 @@ class BlogTests(PanelBase):
         self.assertEqual(self.client.get(reverse('panel:post_eliminar', args=[post.pk])).status_code, 405)
         self.client.post(reverse('panel:post_eliminar', args=[post.pk]))
         self.assertFalse(Post.objects.exists())
+
+
+class SingletonTests(PanelBase):
+    def test_anonimo_redirige(self):
+        for name in ('nosotros', 'tercera_edad', 'mantencion'):
+            r = self.client.get(reverse(f'panel:{name}'))
+            self.assertEqual(r.status_code, 302)
+
+    def test_no_staff_403(self):
+        self.client.force_login(self.normal)
+        self.assertEqual(self.client.get(reverse('panel:mantencion')).status_code, 403)
+
+    def test_guardar_nosotros_y_tercera_edad(self):
+        from home.models import Nosotros
+        from tours.models import TerceraEdad
+        self.client.force_login(self.staff)
+        for name, model in (('nosotros', Nosotros), ('tercera_edad', TerceraEdad)):
+            self.assertEqual(self.client.get(reverse(f'panel:{name}')).status_code, 200)
+            r = self.client.post(reverse(f'panel:{name}'), {'contenido': '<p>Hola</p>'})
+            self.assertRedirects(r, reverse(f'panel:{name}'))
+            self.assertEqual(model.get_solo().contenido, '<p>Hola</p>')
+
+    def test_activar_mantencion_no_bloquea_al_staff(self):
+        from home.models import MaintenanceMode
+        self.client.force_login(self.staff)
+        r = self.client.post(reverse('panel:mantencion'), {'activo': 'on', 'mensaje': '<p>Volvemos</p>'})
+        self.assertRedirects(r, reverse('panel:mantencion'))
+        self.assertTrue(MaintenanceMode.get_solo().activo)
+        self.assertEqual(self.client.get(reverse('panel:dashboard')).status_code, 200)

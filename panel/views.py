@@ -15,13 +15,15 @@ from payments.emails import (
     send_payment_confirmation_to_customer,
 )
 from blog.models import ImagenCarousel, Post
+from home.models import MaintenanceMode, Nosotros
 from payments.models import Payment
 from django.db import transaction
 from django.db.models import ProtectedError
-from tours.models import BloqueoTour, GaleriaTour, PrecioTour, Reserva, TipoTour, Tour
+from tours.models import BloqueoTour, GaleriaTour, PrecioTour, Reserva, TerceraEdad, TipoTour, Tour
 
 from .forms import (
-    CUERPO_MAX, BloqueoForm, ImagenGaleriaForm, ImagenPostFormSet, PanelLoginForm, PostForm,
+    CUERPO_MAX, BloqueoForm, ImagenGaleriaForm, ImagenPostFormSet, MantencionForm, NosotrosForm,
+    PanelLoginForm, PostForm, TerceraEdadForm,
     PrecioTourForm, ReservaGestionForm, TipoTourForm, TourForm,
 )
 from .mixins import StaffRequiredMixin
@@ -434,6 +436,49 @@ def post_eliminar(request, pk):
     post.delete()
     messages.success(request, f'Reseña «{post.titulo}» eliminada.')
     return redirect('panel:posts')
+
+
+# ------------------------------------------------- Páginas y ajustes (singletons)
+
+class SingletonFormView(PanelView, TemplateView):
+    """Edita un modelo singleton (django-solo). Subclases definen model, form_class y textos."""
+    template_name = 'panel/singleton_form.html'
+    model = None
+    form_class = None
+    titulo = ''
+    ayuda = ''
+    url_name = ''
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx.setdefault('form', self.form_class(instance=self.model.get_solo()))
+        ctx.update(titulo=self.titulo, ayuda=self.ayuda)
+        return ctx
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST, instance=self.model.get_solo())
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'«{self.titulo}» guardado.')
+            return redirect(self.url_name)
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+class NosotrosView(SingletonFormView):
+    model, form_class, url_name = Nosotros, NosotrosForm, 'panel:nosotros'
+    titulo = 'Página Nosotros'
+
+
+class TerceraEdadView(SingletonFormView):
+    model, form_class, url_name = TerceraEdad, TerceraEdadForm, 'panel:tercera_edad'
+    titulo = 'Página Tercera Edad'
+
+
+class MantencionView(SingletonFormView):
+    model, form_class, url_name = MaintenanceMode, MantencionForm, 'panel:mantencion'
+    titulo = 'Modo mantención'
+    ayuda = ('Si lo activas, los visitantes verán el mensaje con error 503. '
+             'Los usuarios staff siguen viendo el sitio normal y el panel.')
 
 
 @_staff_only
