@@ -40,6 +40,10 @@ class AccesoTests(PanelBase):
         self.assertEqual(r.status_code, 302)
         self.assertTrue(Reserva.objects.filter(pk=self.reserva.pk).exists())
 
+    def test_login_sin_next_va_al_dashboard(self):
+        r = self.client.post(reverse('panel:login'), {'username': 'staff', 'password': 'x'})
+        self.assertRedirects(r, reverse('panel:dashboard'))
+
     def test_no_staff_no_puede_loguear(self):
         r = self.client.post(reverse('panel:login'), {'username': 'normal', 'password': 'x'})
         self.assertEqual(r.status_code, 200)

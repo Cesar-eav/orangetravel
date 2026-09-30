@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from django.contrib import messages
-from django.contrib.auth.views import redirect_to_login
+from django.contrib.auth.views import LoginView, redirect_to_login
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
@@ -16,7 +16,7 @@ from payments.emails import (
 from payments.models import Payment
 from tours.models import Reserva, Tour
 
-from .forms import ReservaGestionForm
+from .forms import PanelLoginForm, ReservaGestionForm
 from .mixins import StaffRequiredMixin
 
 PAGE_SIZE = 25
@@ -28,6 +28,14 @@ ESTADO_PAGO = {
     Payment.STATUS_FAILED: 'Fallido',
     Payment.STATUS_CANCELED: 'Cancelado',
 }
+
+
+class PanelLoginView(LoginView):
+    template_name = 'panel/login.html'
+    authentication_form = PanelLoginForm
+
+    def get_default_redirect_url(self):
+        return reverse('panel:dashboard')
 
 
 class PanelView(StaffRequiredMixin):

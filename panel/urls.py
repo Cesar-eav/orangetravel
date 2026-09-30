@@ -2,17 +2,12 @@ from django.contrib.auth import views as auth_views
 from django.urls import path, reverse_lazy
 
 from . import views
-from .forms import PanelLoginForm
 
 app_name = 'panel'
 
 urlpatterns = [
     path('', views.DashboardView.as_view(), name='dashboard'),
-    path('login/', auth_views.LoginView.as_view(
-        template_name='panel/login.html',
-        authentication_form=PanelLoginForm,
-        next_page=None,
-    ), name='login'),
+    path('login/', views.PanelLoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(
         next_page=reverse_lazy('panel:login')
     ), name='logout'),
