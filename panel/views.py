@@ -14,9 +14,14 @@ from payments.emails import (
     send_payment_confirmation_to_customer,
 )
 from payments.models import Payment
-from tours.models import Reserva, Tour
+from django.db import transaction
+from django.db.models import ProtectedError
+from tours.models import BloqueoTour, GaleriaTour, PrecioTour, Reserva, TipoTour, Tour
 
-from .forms import PanelLoginForm, ReservaGestionForm
+from .forms import (
+    BloqueoForm, ImagenGaleriaForm, PanelLoginForm, PrecioTourForm,
+    ReservaGestionForm, TipoTourForm, TourForm,
+)
 from .mixins import StaffRequiredMixin
 
 PAGE_SIZE = 25
@@ -167,6 +172,156 @@ class PagoDetailView(PanelView, DetailView):
         ctx = super().get_context_data(**kwargs)
         ctx['estado_texto'] = ESTADO_PAGO.get(self.object.status, self.object.status)
         return ctx
+
+
+# ---------------------------------------------------------------- Tours
+
+class TourListView(PanelView, ListView):
+    template_name = 'panel/tours_list.html'
+    context_object_name = 'tours'
+    paginate_by = PAGE_SIZE
+
+    def get_queryset(self):
+        qs = Tour.objects.select_related('tipo', 'precio').order_by('nombre')
+        if q := self.request.GET.get('q', '').strip():
+            qs = qs.filter(nombre__icontains=q)
+        return qs
+
+
+class TourFormView(PanelView, TemplateView):
+    """Crear (sin pk) y editar (con pk) un tour junto a su precio y galería."""
+    template_name = 'panel/tour_form.html'
+
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        pk = kwargs.get('pk')
+        self.tour = get_object_or_404(Tour, pk=pk) if pk else None
+
+    def _forms(self, data=None, files=None):
+        precio = getattr(self.tour, 'precio', None) if self.tour else None
+        return (
+            TourForm(data, files, instance=self.tour, prefix='t'),
+            PrecioTourForm(data, instance=precio, prefix='p'),
+        )
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        if 'form' not in ctx:
+            ctx['form'], ctx['precio_form'] = self._forms()
+        ctx['tour'] = self.tour
+        ctx['imagenes'] = self.tour.imagenes.all() if self.tour else []
+        return ctx
+
+    def post(self, request, *args, **kwargs):
+        form, precio_form = self._forms(request.POST, request.FILES)
+        imagenes = request.FILES.getlist('galeria')
+        galeria_forms = [ImagenGaleriaForm(files={'imagen': f}) for f in imagenes]
+        if form.is_valid() and precio_form.is_valid() and all(g.is_valid() for g in galeria_forms):
+            with transaction.atomic():
+                tour = form.save()
+                precio = precio_form.save(commit=False)
+                precio.tour = tour
+                precio.save()
+                for g in galeria_forms:
+                    GaleriaTour.objects.create(tour=tour, imagen=g.cleaned_data['imagen'])
+            messages.success(request, f'Tour «{tour.nombre}» guardado.')
+            return redirect('panel:tour_editar', pk=tour.pk)
+        if not all(g.is_valid() for g in galeria_forms):
+            messages.error(request, 'Alguna imagen de la galería no es válida.')
+        return self.render_to_response(
+            self.get_context_data(form=form, precio_form=precio_form)
+        )
+
+
+@_staff_only
+@require_POST
+def galeria_eliminar(request, pk):
+    img = get_object_or_404(GaleriaTour, pk=pk)
+    tour_pk = img.tour_id
+    img.delete()
+    messages.success(request, 'Imagen eliminada.')
+    return redirect('panel:tour_editar', pk=tour_pk)
+
+
+# ------------------------------------------------------------ Categorías
+
+class TipoListView(PanelView, ListView):
+    template_name = 'panel/tipos_list.html'
+    context_object_name = 'tipos'
+
+    def get_queryset(self):
+        return TipoTour.objects.order_by('nombre')
+
+
+class TipoFormView(PanelView, TemplateView):
+    template_name = 'panel/tipo_form.html'
+
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        pk = kwargs.get('pk')
+        self.tipo = get_object_or_404(TipoTour, pk=pk) if pk else None
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx.setdefault('form', TipoTourForm(instance=self.tipo))
+        ctx['tipo'] = self.tipo
+        return ctx
+
+    def post(self, request, *args, **kwargs):
+        form = TipoTourForm(request.POST, instance=self.tipo)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Categoría guardada.')
+            return redirect('panel:tipos')
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+@_staff_only
+@require_POST
+def tipo_eliminar(request, pk):
+    tipo = get_object_or_404(TipoTour, pk=pk)
+    try:
+        tipo.delete()
+        messages.success(request, f'Categoría «{tipo.nombre}» eliminada.')
+    except ProtectedError:
+        messages.error(request, 'No se puede eliminar: hay tours en esta categoría.')
+    return redirect('panel:tipos')
+
+
+# -------------------------------------------------------------- Bloqueos
+
+class BloqueoListView(PanelView, TemplateView):
+    template_name = 'panel/bloqueos.html'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        qs = BloqueoTour.objects.select_related('tour').order_by('fecha')
+        if self.request.GET.get('pasados') != '1':
+            qs = qs.filter(fecha__gte=timezone.localdate())
+        if self.request.GET.get('tour', '').isdigit():
+            qs = qs.filter(tour_id=self.request.GET['tour'])
+        ctx.update(
+            bloqueos=qs,
+            form=kwargs.get('form') or BloqueoForm(),
+            tours=Tour.objects.order_by('nombre'),
+        )
+        return ctx
+
+    def post(self, request, *args, **kwargs):
+        form = BloqueoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Fecha bloqueada.')
+            return redirect('panel:bloqueos')
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+@_staff_only
+@require_POST
+def bloqueo_eliminar(request, pk):
+    get_object_or_404(BloqueoTour, pk=pk).delete()
+    messages.success(request, 'Bloqueo eliminado.')
+    return redirect('panel:bloqueos')
 
 
 @_staff_only

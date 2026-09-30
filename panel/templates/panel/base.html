@@ -39,7 +39,11 @@ textarea{width:100%}
 dl{display:grid;grid-template-columns:200px 1fr;gap:8px 16px;margin:0}dt{color:var(--mu)}dd{margin:0}
 .pager{display:flex;gap:12px;align-items:center;margin-top:14px}.warn{background:#fff7ed;border:1px solid #fed7aa;padding:10px 14px;border-radius:8px;font-size:14px;margin:10px 0}
 @media(max-width:760px){.layout{flex-direction:column}.side{width:auto}.main{padding:16px}dl{grid-template-columns:1fr}}
+.errorlist{list-style:none;padding:0;margin:4px 0;color:#991b1b;font-size:14px}.help{color:var(--mu);font-size:13px}
+.thumbs{display:flex;flex-wrap:wrap;gap:12px}.thumbs figure{margin:0}.thumbs img{width:140px;height:100px;object-fit:cover;border-radius:8px;display:block}
+.frow{margin-bottom:14px}.frow input[type=text],.frow input[type=url],.frow input[type=number],.frow select{width:100%;max-width:520px}
 </style>
+{% block head %}{% endblock %}
 </head>
 <body>
 <div class="layout">
@@ -48,6 +52,9 @@ dl{display:grid;grid-template-columns:200px 1fr;gap:8px 16px;margin:0}dt{color:v
     <a href="{% url 'panel:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}on{% endif %}">Inicio</a>
     <a href="{% url 'panel:reservas' %}" class="{% if 'reserva' in request.resolver_match.url_name %}on{% endif %}">Reservas</a>
     <a href="{% url 'panel:pagos' %}" class="{% if 'pago' in request.resolver_match.url_name %}on{% endif %}">Pagos</a>
+    <a href="{% url 'panel:tours' %}" class="{% if 'tour' in request.resolver_match.url_name or 'galeria' in request.resolver_match.url_name %}on{% endif %}">Tours</a>
+    <a href="{% url 'panel:tipos' %}" class="{% if 'tipo' in request.resolver_match.url_name %}on{% endif %}">Categorías</a>
+    <a href="{% url 'panel:bloqueos' %}" class="{% if 'bloqueo' in request.resolver_match.url_name %}on{% endif %}">Bloqueos de fechas</a>
     <div class="user">{{ request.user.get_username }}
       <form method="post" action="{% url 'panel:logout' %}" style="margin-top:8px">{% csrf_token %}
         <button class="btn sec" style="padding:6px 12px;font-size:14px">Cerrar sesión</button></form>

@@ -1,0 +1,12 @@
+{% extends 'panel/base.html' %}
+{% block title %}Categorías{% endblock %}
+{% block content %}
+<h2>Categorías de tours <a class="btn" href="{% url 'panel:tipo_nuevo' %}" style="float:right;font-size:15px">+ Nueva</a></h2>
+<div class="card"><table>
+<tr><th>Nombre</th><th>Descripción</th><th></th></tr>
+{% for t in tipos %}<tr>
+<td><a href="{% url 'panel:tipo_editar' t.pk %}">{{ t.nombre }}</a></td><td>{{ t.descripcion|truncatechars:80 }}</td>
+<td><form method="post" action="{% url 'panel:tipo_eliminar' t.pk %}" onsubmit="return confirm('¿Eliminar la categoría?')">{% csrf_token %}
+<button class="btn red" style="padding:4px 10px;font-size:13px">Eliminar</button></form></td></tr>
+{% empty %}<tr><td colspan="3">No hay categorías.</td></tr>{% endfor %}</table></div>
+{% endblock %}

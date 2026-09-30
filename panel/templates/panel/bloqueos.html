@@ -1,0 +1,28 @@
+{% extends 'panel/base.html' %}
+{% block title %}Bloqueos de fechas{% endblock %}
+{% block content %}
+<h2>Bloqueos de fechas</h2>
+<form class="card" method="post">{% csrf_token %}
+<h3>Bloquear una fecha</h3>
+{{ form.non_field_errors }}
+<div class="filters">
+  <div><label>Tour</label>{{ form.tour }}{{ form.tour.errors }}</div>
+  <div><label>Fecha</label>{{ form.fecha }}{{ form.fecha.errors }}</div>
+  <div><label>Motivo (opcional)</label>{{ form.motivo }}</div>
+  <button class="btn">Bloquear</button>
+</div>
+</form>
+<form class="filters" method="get">
+  <div><label>Tour</label><select name="tour"><option value="">Todos</option>
+    {% for t in tours %}<option value="{{ t.pk }}" {% if request.GET.tour == t.pk|stringformat:"s" %}selected{% endif %}>{{ t.nombre }}</option>{% endfor %}</select></div>
+  <div><label><input type="checkbox" name="pasados" value="1" {% if request.GET.pasados %}checked{% endif %}> Incluir pasados</label></div>
+  <button class="btn sec">Filtrar</button>
+</form>
+<div class="card"><table>
+<tr><th>Fecha</th><th>Tour</th><th>Motivo</th><th></th></tr>
+{% for b in bloqueos %}<tr>
+<td>{{ b.fecha|date:"d/m/Y" }}</td><td>{{ b.tour.nombre }}</td><td>{{ b.motivo|default:"" }}</td>
+<td><form method="post" action="{% url 'panel:bloqueo_eliminar' b.pk %}" onsubmit="return confirm('¿Quitar este bloqueo?')">{% csrf_token %}
+<button class="btn red" style="padding:4px 10px;font-size:13px">Quitar</button></form></td></tr>
+{% empty %}<tr><td colspan="4">No hay fechas bloqueadas.</td></tr>{% endfor %}</table></div>
+{% endblock %}

@@ -94,6 +94,59 @@ class ReservaTests(PanelBase):
         self.assertEqual(self.client.get(reverse('panel:reserva_eliminar', args=[self.reserva.pk])).status_code, 405)
 
 
+class CatalogoTests(PanelBase):
+    def setUp(self):
+        self.client.force_login(self.staff)
+
+    def test_anonimo_redirige(self):
+        self.client.logout()
+        for name in ('tours', 'tour_nuevo', 'tipos', 'bloqueos'):
+            self.assertEqual(self.client.get(reverse(f'panel:{name}')).status_code, 302)
+
+    def test_paginas_cargan(self):
+        for name in ('tours', 'tour_nuevo', 'tipos', 'tipo_nuevo', 'bloqueos'):
+            self.assertEqual(self.client.get(reverse(f'panel:{name}')).status_code, 200, name)
+        self.assertEqual(self.client.get(reverse('panel:tour_editar', args=[self.tour.pk])).status_code, 200)
+
+    def test_editar_tour_crea_precio(self):
+        from tours.models import PrecioTour
+        Tour.objects.filter(pk=self.tour.pk).update(imagen_principal='tours/principales/x.jpg')
+        r = self.client.post(reverse('panel:tour_editar', args=[self.tour.pk]), {
+            't-nombre': 'Tour A2', 't-slug': 'tour-a', 't-tipo': self.tour.tipo_id,
+            't-itinerario': 'x', 't-incluye': 'y', 't-activo': 'on',
+            'p-valor_adulto': '20000', 'p-valor_nino': '0',
+        })
+        self.assertEqual(r.status_code, 302, getattr(r, 'context', None) and r.context['form'].errors)
+        self.tour.refresh_from_db()
+        self.assertEqual(self.tour.nombre, 'Tour A2')
+        self.assertEqual(PrecioTour.objects.get(tour=self.tour).valor_adulto, 20000)
+
+    def test_precio_nino_obligatorio_si_activado(self):
+        r = self.client.post(reverse('panel:tour_editar', args=[self.tour.pk]), {
+            't-nombre': 'Tour A', 't-slug': 'tour-a', 't-tipo': self.tour.tipo_id,
+            't-itinerario': 'x', 't-incluye': 'y',
+            'p-valor_adulto': '20000', 'p-tiene_precio_nino': 'on', 'p-valor_nino': '0',
+        })
+        self.assertEqual(r.status_code, 200)
+
+    def test_categoria_con_tours_no_se_elimina(self):
+        from tours.models import TipoTour
+        self.client.post(reverse('panel:tipo_eliminar', args=[self.tour.tipo_id]))
+        self.assertTrue(TipoTour.objects.filter(pk=self.tour.tipo_id).exists())
+        vacia = TipoTour.objects.create(nombre='Vacía')
+        self.client.post(reverse('panel:tipo_eliminar', args=[vacia.pk]))
+        self.assertFalse(TipoTour.objects.filter(pk=vacia.pk).exists())
+
+    def test_bloqueos_crear_duplicado_y_eliminar(self):
+        from tours.models import BloqueoTour
+        datos = {'tour': self.tour.pk, 'fecha': '2030-01-10', 'motivo': 'Clima'}
+        self.client.post(reverse('panel:bloqueos'), datos)
+        self.client.post(reverse('panel:bloqueos'), datos)
+        self.assertEqual(BloqueoTour.objects.count(), 1)
+        self.client.post(reverse('panel:bloqueo_eliminar', args=[BloqueoTour.objects.get().pk]))
+        self.assertEqual(BloqueoTour.objects.count(), 0)
+
+
 class PagoTests(PanelBase):
     def setUp(self):
         self.client.force_login(self.staff)

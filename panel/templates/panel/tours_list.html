@@ -1,0 +1,21 @@
+{% extends 'panel/base.html' %}
+{% block title %}Tours{% endblock %}
+{% block content %}
+<h2>Tours</h2>
+<form class="filters" method="get">
+  <div><label>Buscar</label><input name="q" value="{{ request.GET.q }}" placeholder="Nombre del tour"></div>
+  <button class="btn">Buscar</button> <a class="btn sec" href="{% url 'panel:tours' %}">Limpiar</a>
+  <a class="btn" href="{% url 'panel:tour_nuevo' %}" style="margin-left:auto">+ Nuevo tour</a>
+</form>
+<div class="card"><table>
+<tr><th>Tour</th><th>Categoría</th><th>Precio adulto</th><th>Estado</th></tr>
+{% for t in tours %}<tr>
+<td><a href="{% url 'panel:tour_editar' t.pk %}">{{ t.nombre }}</a></td>
+<td>{{ t.tipo.nombre }}</td>
+<td>{% if t.precio %}${{ t.precio.valor_adulto }}{% else %}<small>Sin precio</small>{% endif %}</td>
+<td>{% if t.activo %}<span class="badge b-paid">Activo</span>{% else %}<span class="badge b-canceled">Inactivo</span>{% endif %}
+{% if t.destacado %}<span class="badge b-pending">Destacado</span>{% endif %}
+{% if t.es_prueba %}<span class="badge b-pending">Prueba</span>{% endif %}</td></tr>
+{% empty %}<tr><td colspan="4">No hay tours.</td></tr>{% endfor %}</table>
+{% include 'panel/_pager.html' %}</div>
+{% endblock %}

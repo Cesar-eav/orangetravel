@@ -1,0 +1,43 @@
+{% extends 'panel/base.html' %}
+{% block title %}{% if tour %}Editar {{ tour.nombre }}{% else %}Nuevo tour{% endif %}{% endblock %}
+{% block head %}{{ form.media }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'panel:tours' %}">← Volver a tours</a></p>
+<h2>{% if tour %}Editar tour{% else %}Nuevo tour{% endif %}</h2>
+<form method="post" enctype="multipart/form-data">{% csrf_token %}
+<div class="card">
+  <h3>Datos del tour</h3>
+  {{ form.non_field_errors }}
+  {% for f in form %}{% if f.name != 'activo' and f.name != 'destacado' and f.name != 'es_prueba' %}
+  <div class="frow"><label for="{{ f.id_for_label }}"><b>{{ f.label }}</b></label><br>{{ f }}{{ f.errors }}
+    {% if f.help_text %}<div class="help">{{ f.help_text }}</div>{% endif %}</div>
+  {% endif %}{% endfor %}
+  {% for f in form %}{% if f.name == 'activo' or f.name == 'destacado' or f.name == 'es_prueba' %}
+  <div class="frow"><label>{{ f }} <b>{{ f.label }}</b></label>{{ f.errors }}
+    {% if f.help_text %}<div class="help">{{ f.help_text }}</div>{% endif %}</div>
+  {% endif %}{% endfor %}
+</div>
+<div class="card">
+  <h3>Precio (CLP)</h3>
+  {{ precio_form.non_field_errors }}
+  {% for f in precio_form %}
+  <div class="frow">{% if f.name == 'tiene_precio_nino' %}<label>{{ f }} <b>{{ f.label }}</b></label>
+    {% else %}<label for="{{ f.id_for_label }}"><b>{{ f.label }}</b></label><br>{{ f }}{% endif %}{{ f.errors }}</div>
+  {% endfor %}
+</div>
+<div class="card">
+  <h3>Galería</h3>
+  {% if imagenes %}<div class="thumbs">
+  {% for img in imagenes %}<figure><img src="{{ img.imagen.url }}" alt="">
+    <button type="submit" class="btn red" style="padding:4px 10px;font-size:13px;margin-top:6px"
+      formaction="{% url 'panel:galeria_eliminar' img.pk %}" formnovalidate
+      onclick="return confirm('¿Eliminar esta imagen?')">Eliminar</button></figure>{% endfor %}
+  </div>{% elif tour %}<p class="help">Este tour aún no tiene imágenes en la galería.</p>{% endif %}
+  <p><label for="galeria"><b>Agregar imágenes</b></label><br>
+  <input type="file" id="galeria" name="galeria" accept="image/*" multiple></p>
+  <p class="help">Puedes seleccionar varias. Se suben al guardar.</p>
+</div>
+<button class="btn">Guardar tour</button>
+</form>
+{% if tour %}<p class="help" style="margin-top:16px">Los tours no se eliminan desde el panel: desmárcalo como «activo» para ocultarlo.</p>{% endif %}
+{% endblock %}
