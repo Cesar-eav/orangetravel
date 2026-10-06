@@ -108,6 +108,17 @@ class CatalogoTests(PanelBase):
             self.assertEqual(self.client.get(reverse(f'panel:{name}')).status_code, 200, name)
         self.assertEqual(self.client.get(reverse('panel:tour_editar', args=[self.tour.pk])).status_code, 200)
 
+    def test_cambiar_categoria_desde_listado(self):
+        otra = TipoTour.objects.create(nombre='Otra')
+        url = reverse('panel:tour_cambiar_tipo', args=[self.tour.pk])
+        self.assertEqual(self.client.get(url).status_code, 405)
+        r = self.client.post(url, {'tipo': otra.pk, 'next': '/panel/tours/?q=Tour'})
+        self.assertRedirects(r, '/panel/tours/?q=Tour', fetch_redirect_response=False)
+        self.tour.refresh_from_db()
+        self.assertEqual(self.tour.tipo_id, otra.pk)
+        self.client.force_login(self.normal)
+        self.assertEqual(self.client.post(url, {'tipo': self.tour.tipo_id}).status_code, 403)
+
     def test_editar_tour_crea_precio(self):
         from tours.models import PrecioTour
         Tour.objects.filter(pk=self.tour.pk).update(imagen_principal='tours/principales/x.jpg')

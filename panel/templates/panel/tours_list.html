@@ -12,7 +12,10 @@
 <tr><th>Tour</th><th>Categoría</th><th>Precio adulto</th><th>Estado</th></tr>
 {% for t in tours %}<tr>
 <td><a href="{% url 'panel:tour_editar' t.pk %}">{{ t.nombre }}</a></td>
-<td>{{ t.tipo.nombre }}</td>
+<td><form method="post" action="{% url 'panel:tour_cambiar_tipo' t.pk %}" style="margin:0">{% csrf_token %}
+<input type="hidden" name="next" value="{{ request.get_full_path }}">
+<select name="tipo" onchange="this.form.submit()" style="padding:4px 6px">{% for tp in tipos %}<option value="{{ tp.pk }}"{% if tp.pk == t.tipo_id %} selected{% endif %}>{{ tp.nombre }}</option>{% endfor %}</select>
+<noscript><button class="btn">Guardar</button></noscript></form></td>
 <td>{% if t.precio %}${{ t.precio.valor_adulto }}{% else %}<small>Sin precio</small>{% endif %}</td>
 <td>{% if t.activo %}<span class="badge b-paid">Activo</span>{% else %}<span class="badge b-canceled">Inactivo</span>{% endif %}
 {% if t.destacado %}<span class="badge b-pending">Destacado</span>{% endif %}

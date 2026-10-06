@@ -7,6 +7,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, ListView, TemplateView, UpdateView
 
@@ -190,6 +191,25 @@ class TourListView(PanelView, ListView):
         if q := self.request.GET.get('q', '').strip():
             qs = qs.filter(nombre__icontains=q)
         return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['tipos'] = TipoTour.objects.order_by('nombre')
+        return ctx
+
+
+@_staff_only
+@require_POST
+def tour_cambiar_tipo(request, pk):
+    tour = get_object_or_404(Tour, pk=pk)
+    tipo = get_object_or_404(TipoTour, pk=request.POST.get('tipo'))
+    tour.tipo = tipo
+    tour.save(update_fields=['tipo'])
+    messages.success(request, f'«{tour.nombre}» ahora está en «{tipo.nombre}».')
+    destino = request.POST.get('next', '')
+    if not url_has_allowed_host_and_scheme(destino, allowed_hosts={request.get_host()}):
+        destino = reverse('panel:tours')
+    return redirect(destino)
 
 
 class TourFormView(PanelView, TemplateView):

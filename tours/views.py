@@ -15,7 +15,6 @@ from django.template.loader import render_to_string # Si prefieres usar archivos
 from django.utils.html import strip_tags # Par
 from datetime import date, timedelta
 import os
-import unicodedata
 
 # Email del admin según el tour (keyword en el slug → destinatario)
 EMAIL_POR_TOUR = {
@@ -28,29 +27,6 @@ EMAIL_POR_TOUR = {
 EMAIL_ADMIN_DEFAULT = 'info@orangetravel.cl'
 CC_RESERVAS = ['reservas@orangetravel.cl', 'cesar.eav@gmail.com']
 
-TURISMO_AVENTURA_KEYWORDS = (
-    'san pedro de atacama',
-    'cotacotani',
-    'surire',
-    'suriplaza',
-)
-
-def es_turismo_aventura(nombre):
-    nombre_normalizado = unicodedata.normalize('NFKD', nombre.lower())
-    nombre_normalizado = ''.join(
-        caracter for caracter in nombre_normalizado
-        if not unicodedata.combining(caracter)
-    )
-    nombre_compacto = ''.join(
-        caracter for caracter in nombre_normalizado
-        if caracter.isalnum()
-    )
-
-    return any(
-        palabra in nombre_normalizado or palabra.replace(' ', '') in nombre_compacto
-        for palabra in TURISMO_AVENTURA_KEYWORDS
-    )
-
 def get_email_admin(reserva):
     nombre = reserva.tour.nombre.lower()
     for keyword, email in EMAIL_POR_TOUR.items():
@@ -61,16 +37,12 @@ def get_email_admin(reserva):
 # Create your views here.
 
 def tours_home(request):
-    
-    tours = list(Tour.objects.filter(activo=True, es_prueba=False).select_related('precio'))
-    aventura_tours = [tour for tour in tours if es_turismo_aventura(tour.nombre)]
-    otros_tours = [tour for tour in tours if not es_turismo_aventura(tour.nombre)]
-
-    return render (request, 'tours/tours_home.html', {
-        'tours': tours,
-        'otros_tours': otros_tours,
-        'aventura_tours': aventura_tours,
-    } )
+    tours = (
+        Tour.objects.filter(activo=True, es_prueba=False)
+        .select_related('precio', 'tipo')
+        .order_by('tipo__nombre', 'nombre')
+    )
+    return render(request, 'tours/tours_home.html', {'tours': tours})
 
 def tercera_edad(request):
     pagina = TerceraEdad.get_solo()

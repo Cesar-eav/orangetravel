@@ -17,6 +17,7 @@ urlpatterns = [
     path('tours/', views.TourListView.as_view(), name='tours'),
     path('tours/nuevo/', views.TourFormView.as_view(), name='tour_nuevo'),
     path('tours/<int:pk>/', views.TourFormView.as_view(), name='tour_editar'),
+    path('tours/<int:pk>/categoria/', views.tour_cambiar_tipo, name='tour_cambiar_tipo'),
     path('galeria/<int:pk>/eliminar/', views.galeria_eliminar, name='galeria_eliminar'),
     path('categorias/', views.TipoListView.as_view(), name='tipos'),
     path('categorias/nueva/', views.TipoFormView.as_view(), name='tipo_nuevo'),
