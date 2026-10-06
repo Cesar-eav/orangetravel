@@ -114,6 +114,7 @@ class CatalogoTests(PanelBase):
         r = self.client.post(reverse('panel:tour_editar', args=[self.tour.pk]), {
             't-nombre': 'Tour A2', 't-slug': 'tour-a', 't-tipo': self.tour.tipo_id,
             't-itinerario': 'x', 't-incluye': 'y', 't-activo': 'on',
+            'd-TOTAL_FORMS': '0', 'd-INITIAL_FORMS': '0',
             'p-valor_adulto': '20000', 'p-valor_nino': '0',
         })
         self.assertEqual(r.status_code, 302, getattr(r, 'context', None) and r.context['form'].errors)
@@ -121,13 +122,73 @@ class CatalogoTests(PanelBase):
         self.assertEqual(self.tour.nombre, 'Tour A2')
         self.assertEqual(PrecioTour.objects.get(tour=self.tour).valor_adulto, 20000)
 
+    def test_guardar_dias_del_itinerario(self):
+        Tour.objects.filter(pk=self.tour.pk).update(imagen_principal='tours/principales/x.jpg')
+        r = self.client.post(reverse('panel:tour_editar', args=[self.tour.pk]), {
+            't-nombre': 'Tour A', 't-slug': 'tour-a', 't-tipo': self.tour.tipo_id,
+            't-itinerario': 'resumen', 't-incluye': 'y', 't-activo': 'on',
+            'p-valor_adulto': '20000', 'p-valor_nino': '0',
+            'd-TOTAL_FORMS': '2', 'd-INITIAL_FORMS': '0',
+            'd-0-orden': '1', 'd-0-titulo': 'Llegada', 'd-0-descripcion': 'a',
+            'd-1-orden': '2', 'd-1-titulo': 'Valles', 'd-1-descripcion': 'b',
+        })
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(list(self.tour.dias.values_list('orden', 'titulo')), [(1, 'Llegada'), (2, 'Valles')])
+
     def test_precio_nino_obligatorio_si_activado(self):
         r = self.client.post(reverse('panel:tour_editar', args=[self.tour.pk]), {
             't-nombre': 'Tour A', 't-slug': 'tour-a', 't-tipo': self.tour.tipo_id,
             't-itinerario': 'x', 't-incluye': 'y',
+            'd-TOTAL_FORMS': '0', 'd-INITIAL_FORMS': '0',
             'p-valor_adulto': '20000', 'p-tiene_precio_nino': 'on', 'p-valor_nino': '0',
         })
         self.assertEqual(r.status_code, 200)
+
+    def _post_tour(self, pk=None, **extra):
+        data = {
+            't-nombre': 'Tour Nuevo', 't-slug': '', 't-tipo': self.tour.tipo_id,
+            't-itinerario': '<p>resumen</p>', 't-incluye': '', 't-activo': 'on',
+            'd-TOTAL_FORMS': '0', 'd-INITIAL_FORMS': '0',
+            'p-valor_adulto': '20000', 'p-valor_nino': '0',
+        }
+        data.update(extra)
+        url = reverse('panel:tour_editar', args=[pk]) if pk else reverse('panel:tour_nuevo')
+        return self.client.post(url, data)
+
+    def test_incluye_vacio_guarda_y_precio_nino_se_fuerza_a_cero(self):
+        Tour.objects.filter(pk=self.tour.pk).update(imagen_principal='tours/principales/x.jpg')
+        r = self._post_tour(self.tour.pk, **{'t-slug': 'tour-a', 'p-valor_nino': '5000'})
+        self.assertEqual(r.status_code, 302)
+        from tours.models import PrecioTour
+        self.assertEqual(PrecioTour.objects.get(tour=self.tour).valor_nino, 0)
+
+    def test_fallo_muestra_resumen_de_errores(self):
+        Tour.objects.filter(pk=self.tour.pk).update(imagen_principal='tours/principales/x.jpg')
+        r = self._post_tour(self.tour.pk, **{'t-slug': 'tour-a', 't-itinerario': '<p>&nbsp;</p>',
+                                             't-video_youtube': 'https://example.com/x'})
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, 'No se guardó el tour')
+        self.assertContains(r, 'Escribe el resumen del tour')
+        self.assertContains(r, 'No parece un enlace de YouTube')
+
+    def test_slug_se_autogenera_y_no_colisiona(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        import io
+        from PIL import Image
+        for _ in range(2):
+            b = io.BytesIO(); Image.new('RGB', (4, 4)).save(b, 'PNG')
+            r = self._post_tour(**{'t-imagen_principal': SimpleUploadedFile('i.png', b.getvalue(), 'image/png')})
+            self.assertEqual(r.status_code, 302, getattr(r, 'context', None) and r.context['form'].errors)
+        self.assertEqual(sorted(Tour.objects.filter(nombre='Tour Nuevo').values_list('slug', flat=True)),
+                         ['tour-nuevo', 'tour-nuevo-2'])
+
+    def test_fila_de_dia_en_blanco_se_ignora(self):
+        Tour.objects.filter(pk=self.tour.pk).update(imagen_principal='tours/principales/x.jpg')
+        r = self._post_tour(self.tour.pk, **{
+            't-slug': 'tour-a', 'd-TOTAL_FORMS': '1', 'd-0-orden': '1', 'd-0-titulo': '', 'd-0-descripcion': '',
+        })
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(self.tour.dias.count(), 0)
 
     def test_categoria_con_tours_no_se_elimina(self):
         from tours.models import TipoTour

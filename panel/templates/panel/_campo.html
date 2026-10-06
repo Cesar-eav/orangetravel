@@ -1,0 +1,3 @@
+<div class="frow"><label for="{{ f.id_for_label }}"><b>{{ f.label }}</b>{% if f.field.required %} <span class="req">*</span>{% endif %}</label><br>{{ f }}{{ f.errors }}
+  {% if f.name == 'slug' and tour %}<label><input type="checkbox" id="slug-unlock"> Cambiar la URL</label><br>{% endif %}
+  {% if f.help_text %}<div class="help">{{ f.help_text }}</div>{% endif %}</div>

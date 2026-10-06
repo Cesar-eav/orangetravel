@@ -22,7 +22,7 @@ from django.db.models import ProtectedError
 from tours.models import BloqueoTour, GaleriaTour, PrecioTour, Reserva, TerceraEdad, TipoTour, Tour
 
 from .forms import (
-    CUERPO_MAX, BloqueoForm, ImagenGaleriaForm, ImagenPostFormSet, MantencionForm, NosotrosForm,
+    CUERPO_MAX, BloqueoForm, ImagenGaleriaForm, ItinerarioDiaFormSet, ImagenPostFormSet, MantencionForm, NosotrosForm,
     PanelLoginForm, PostForm, TerceraEdadForm,
     PrecioTourForm, ReservaGestionForm, TipoTourForm, TourForm,
 )
@@ -206,26 +206,40 @@ class TourFormView(PanelView, TemplateView):
         return (
             TourForm(data, files, instance=self.tour, prefix='t'),
             PrecioTourForm(data, instance=precio, prefix='p'),
+            ItinerarioDiaFormSet(data, instance=self.tour, prefix='d'),
         )
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         if 'form' not in ctx:
-            ctx['form'], ctx['precio_form'] = self._forms()
+            ctx['form'], ctx['precio_form'], ctx['dias_form'] = self._forms()
         ctx['tour'] = self.tour
         ctx['imagenes'] = self.tour.imagenes.all() if self.tour else []
         return ctx
 
     def post(self, request, *args, **kwargs):
-        form, precio_form = self._forms(request.POST, request.FILES)
+        form, precio_form, dias_form = self._forms(request.POST, request.FILES)
         imagenes = request.FILES.getlist('galeria')
         galeria_forms = [ImagenGaleriaForm(files={'imagen': f}) for f in imagenes]
-        if form.is_valid() and precio_form.is_valid() and all(g.is_valid() for g in galeria_forms):
+        # Se validan todos (sin cortocircuito) para poder mostrar todos los errores juntos.
+        validos = [form.is_valid(), precio_form.is_valid(), dias_form.is_valid()]
+        validos += [g.is_valid() for g in galeria_forms]
+        if all(validos):
             with transaction.atomic():
                 tour = form.save()
                 precio = precio_form.save(commit=False)
                 precio.tour = tour
                 precio.save()
+                dias_form.instance = tour
+                for d in dias_form.save(commit=False):
+                    d.tour = tour
+                    d.save()
+                for d in dias_form.deleted_objects:
+                    d.delete()
+                for n, d in enumerate(tour.dias.all(), 1):
+                    if d.orden != n:
+                        d.orden = n
+                        d.save(update_fields=['orden'])
                 for g in galeria_forms:
                     GaleriaTour.objects.create(tour=tour, imagen=g.cleaned_data['imagen'])
             messages.success(request, f'Tour «{tour.nombre}» guardado.')
@@ -233,8 +247,31 @@ class TourFormView(PanelView, TemplateView):
         if not all(g.is_valid() for g in galeria_forms):
             messages.error(request, 'Alguna imagen de la galería no es válida.')
         return self.render_to_response(
-            self.get_context_data(form=form, precio_form=precio_form)
+            self.get_context_data(
+                form=form, precio_form=precio_form, dias_form=dias_form,
+                errores=self._errores(form, precio_form, dias_form),
+            )
         )
+
+    @staticmethod
+    def _errores(form, precio_form, dias_form):
+        """Lista (etiqueta, mensaje, ancla) de todo lo que impidió guardar, para el aviso superior."""
+        out = []
+        for f, prefix in ((form, 't'), (precio_form, 'p')):
+            for nombre, errs in f.errors.items():
+                etiqueta = 'General' if nombre == '__all__' else f.fields[nombre].label or nombre
+                ancla = f'id_{prefix}-{nombre}' if nombre != '__all__' else ''
+                out.extend((etiqueta, e, ancla) for e in errs)
+        n = 0
+        for d in dias_form:
+            if getattr(d, 'cleaned_data', {}).get('DELETE'):
+                continue
+            n += 1
+            for nombre, errs in d.errors.items():
+                etiqueta = f'Día {n}: {d.fields[nombre].label or nombre}'
+                out.extend((etiqueta, e, 'dias') for e in errs)
+        out.extend(('Itinerario por día', e, 'dias') for e in dias_form.non_form_errors())
+        return out
 
 
 @_staff_only

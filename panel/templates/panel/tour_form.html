@@ -4,26 +4,104 @@
 {% block content %}
 <p><a href="{% url 'panel:tours' %}">← Volver a tours</a></p>
 <h2>{% if tour %}Editar tour{% else %}Nuevo tour{% endif %}</h2>
-<form method="post" enctype="multipart/form-data">{% csrf_token %}
+<style>
+.req{color:#b91c1c}.errbox{background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin:0 0 20px}
+.errbox ul{margin:6px 0 0;padding-left:20px}.errbox a{color:#991b1b}
+.savebar{position:sticky;bottom:0;background:#fff;border-top:1px solid #ddd;padding:12px 0;margin-top:10px;z-index:5}
+</style>
+<form method="post" enctype="multipart/form-data" novalidate>{% csrf_token %}
+{% if errores %}<div class="errbox" id="errores" role="alert">
+  <b>No se guardó el tour. Corrige lo siguiente y vuelve a guardar:</b>
+  <ul>{% for etiqueta, msg, ancla in errores %}<li>{% if ancla %}<a href="#{{ ancla }}">{{ etiqueta }}</a>{% else %}{{ etiqueta }}{% endif %}: {{ msg }}</li>{% endfor %}</ul>
+  <p class="help" style="margin:8px 0 0">Las imágenes que habías elegido (principal, mapa, galería) no se conservan: vuelve a seleccionarlas.</p>
+</div>{% endif %}
+<p class="help"><span class="req">*</span> campo obligatorio</p>
+{{ form.non_field_errors }}
 <div class="card">
-  <h3>Datos del tour</h3>
-  {{ form.non_field_errors }}
-  {% for f in form %}{% if f.name != 'activo' and f.name != 'destacado' and f.name != 'es_prueba' %}
-  <div class="frow"><label for="{{ f.id_for_label }}"><b>{{ f.label }}</b></label><br>{{ f }}{{ f.errors }}
-    {% if f.help_text %}<div class="help">{{ f.help_text }}</div>{% endif %}</div>
-  {% endif %}{% endfor %}
-  {% for f in form %}{% if f.name == 'activo' or f.name == 'destacado' or f.name == 'es_prueba' %}
-  <div class="frow"><label>{{ f }} <b>{{ f.label }}</b></label>{{ f.errors }}
-    {% if f.help_text %}<div class="help">{{ f.help_text }}</div>{% endif %}</div>
-  {% endif %}{% endfor %}
+  <h3>Portada</h3>
+  <p class="help">Lo primero que se ve en la página del tour.</p>
+  {% include 'panel/_campo.html' with f=form.nombre %}
+  {% include 'panel/_campo.html' with f=form.slug %}
+  {% include 'panel/_campo.html' with f=form.tipo %}
+  {% include 'panel/_campo.html' with f=form.imagen_principal %}
 </div>
 <div class="card">
   <h3>Precio (CLP)</h3>
   {{ precio_form.non_field_errors }}
   {% for f in precio_form %}
-  <div class="frow">{% if f.name == 'tiene_precio_nino' %}<label>{{ f }} <b>{{ f.label }}</b></label>
-    {% else %}<label for="{{ f.id_for_label }}"><b>{{ f.label }}</b></label><br>{{ f }}{% endif %}{{ f.errors }}</div>
+  <div class="frow" id="row-p-{{ f.name }}">{% if f.name == 'tiene_precio_nino' %}<label>{{ f }} <b>{{ f.label }}</b></label>
+    {% else %}<label for="{{ f.id_for_label }}"><b>{{ f.label }}</b>{% if f.field.required and f.name == 'valor_adulto' %} <span class="req">*</span>{% endif %}</label><br>{{ f }}{% endif %}{{ f.errors }}</div>
   {% endfor %}
+</div>
+<div class="card">
+  <h3>Resumen del tour</h3>
+  {% include 'panel/_campo.html' with f=form.itinerario %}
+</div>
+<div class="card" id="dias-card">
+  <h3>Itinerario por día</h3>
+  <p class="help">Cada día se muestra como un desplegable en la página del tour. El resumen general va en la sección «Resumen del tour», arriba. Escribe solo el título del día (ej. «Valle de Lluta»): el «Día N» se agrega solo. Las filas en blanco se ignoran.</p>
+  {{ dias_form.management_form }}{{ dias_form.non_form_errors }}
+  <div id="dias">
+  {% for f in dias_form %}
+  <div class="dia-row" style="border:1px solid #ddd;border-radius:8px;padding:12px;margin-bottom:10px">
+    {% for h in f.hidden_fields %}{{ h }}{% endfor %}
+    <b class="dia-n">Día {{ forloop.counter }}</b>
+    <p>{{ f.titulo }}{{ f.titulo.errors }}</p>
+    <p>{{ f.descripcion }}{{ f.descripcion.errors }}</p>
+    {% if f.instance.pk %}<label>{{ f.DELETE }} Quitar este día</label>{% else %}<button type="button" class="btn red dia-del" style="padding:4px 10px;font-size:13px">Quitar</button>{% endif %}
+  </div>
+  {% endfor %}
+  </div>
+  <template id="dia-tpl">
+  <div class="dia-row" style="border:1px solid #ddd;border-radius:8px;padding:12px;margin-bottom:10px">
+    {% for h in dias_form.empty_form.hidden_fields %}{{ h }}{% endfor %}
+    <b class="dia-n"></b>
+    <p>{{ dias_form.empty_form.titulo }}</p>
+    <p>{{ dias_form.empty_form.descripcion }}</p>
+    <button type="button" class="btn red dia-del" style="padding:4px 10px;font-size:13px">Quitar</button>
+  </div>
+  </template>
+  <button type="button" class="btn" id="dia-add">+ Agregar día</button>
+</div>
+<script>
+(function(){
+  var box = document.getElementById('dias'), total = document.getElementById('id_d-TOTAL_FORMS');
+  function renumber(){
+    var n = 0;
+    box.querySelectorAll('.dia-row').forEach(function(r){
+      var del = r.querySelector('input[type=checkbox][name$="-DELETE"]');
+      if (del && del.checked) return;
+      n++;
+      r.querySelector('.dia-n').textContent = 'Día ' + n;
+      var o = r.querySelector('input[name$="-orden"]'); if (o) o.value = n;
+    });
+  }
+  document.getElementById('dia-add').addEventListener('click', function(){
+    var i = +total.value, html = document.getElementById('dia-tpl').innerHTML.replace(/__prefix__/g, i);
+    box.insertAdjacentHTML('beforeend', html);
+    total.value = i + 1; renumber();
+  });
+  box.addEventListener('click', function(e){
+    if (!e.target.classList.contains('dia-del')) return;
+    var row = e.target.closest('.dia-row'), del = row.querySelector('input[name$="-DELETE"]');
+    if (del) { del.checked = true; row.style.display = 'none'; } else row.remove();
+    renumber();
+  });
+  box.addEventListener('change', renumber);
+  renumber();
+})();
+</script>
+<div class="card">
+  <h3>Incluye</h3>
+  {% include 'panel/_campo.html' with f=form.incluye %}
+</div>
+<div class="card">
+  <h3>Video del tour</h3>
+  {% include 'panel/_campo.html' with f=form.video_youtube %}
+</div>
+<div class="card">
+  <h3>Mapa del tour</h3>
+  {% include 'panel/_campo.html' with f=form.mapa %}
 </div>
 <div class="card">
   <h3>Galería</h3>
@@ -31,13 +109,44 @@
   {% for img in imagenes %}<figure><img src="{{ img.imagen.url }}" alt="">
     <button type="submit" class="btn red" style="padding:4px 10px;font-size:13px;margin-top:6px"
       formaction="{% url 'panel:galeria_eliminar' img.pk %}" formnovalidate
-      onclick="return confirm('¿Eliminar esta imagen?')">Eliminar</button></figure>{% endfor %}
+      onclick="return confirm('¿Eliminar esta imagen? Los cambios del formulario que no hayas guardado se perderán.')">Eliminar</button></figure>{% endfor %}
   </div>{% elif tour %}<p class="help">Este tour aún no tiene imágenes en la galería.</p>{% endif %}
   <p><label for="galeria"><b>Agregar imágenes</b></label><br>
   <input type="file" id="galeria" name="galeria" accept="image/*" multiple></p>
   <p class="help">Puedes seleccionar varias. Se suben al guardar.</p>
 </div>
-<button class="btn">Guardar tour</button>
+<div class="card">
+  <h3>Publicación</h3>
+  {% for f in form %}{% if f.name == 'activo' or f.name == 'destacado' or f.name == 'es_prueba' %}
+  <div class="frow"><label>{{ f }} <b>{{ f.label }}</b></label>{{ f.errors }}
+    {% if f.help_text %}<div class="help">{{ f.help_text }}</div>{% endif %}</div>
+  {% endif %}{% endfor %}
+</div>
+<div class="savebar"><button class="btn">Guardar tour</button></div>
 </form>
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  // Slug: al crear se rellena desde el nombre; al editar queda bloqueado hasta marcar «Cambiar la URL».
+  var slug = $('id_t-slug'), nombre = $('id_t-nombre'), unlock = $('slug-unlock');
+  if (unlock) unlock.addEventListener('change', function(){ slug.readOnly = !unlock.checked; });
+  else if (slug && nombre) {
+    var manual = !!slug.value;
+    slug.addEventListener('input', function(){ manual = true; });
+    nombre.addEventListener('input', function(){
+      if (manual) return;
+      slug.value = nombre.value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    });
+  }
+  // Precio niño: el valor solo se muestra si la casilla está marcada.
+  var chk = $('id_p-tiene_precio_nino'), row = $('row-p-valor_nino');
+  if (chk && row) {
+    var sync = function(){ row.style.display = chk.checked ? '' : 'none'; };
+    chk.addEventListener('change', sync); sync();
+  }
+  var eb = $('errores'); if (eb) eb.scrollIntoView({block: 'center'});
+})();
+</script>
 {% if tour %}<p class="help" style="margin-top:16px">Los tours no se eliminan desde el panel: desmárcalo como «activo» para ocultarlo.</p>{% endif %}
 {% endblock %}

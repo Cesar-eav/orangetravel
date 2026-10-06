@@ -1,4 +1,5 @@
 import html
+import re
 
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
@@ -7,7 +8,7 @@ from django.utils.text import slugify
 
 from blog.models import ImagenPost, Post
 from home.models import MaintenanceMode, Nosotros
-from tours.models import BloqueoTour, PrecioTour, Reserva, TerceraEdad, TipoTour, Tour
+from tours.models import YOUTUBE_REGEX, BloqueoTour, ItinerarioDia, PrecioTour, Reserva, TerceraEdad, TipoTour, Tour
 
 
 class PanelLoginForm(AuthenticationForm):
@@ -26,25 +27,101 @@ class ReservaGestionForm(forms.ModelForm):
         widgets = {'notas_internas': forms.Textarea(attrs={'rows': 4})}
 
 
+def _texto_visible(html_str):
+    """Texto de un campo CKEditor sin etiquetas ni &nbsp; (para detectar «vacío»)."""
+    return html.unescape(strip_tags(html_str or '')).replace('\xa0', ' ').strip()
+
+
 class TourForm(forms.ModelForm):
+    # La validación la hace el servidor (el <form> lleva novalidate): un campo oculto por
+    # CKEditor con «required» bloquearía el envío sin mostrar ningún mensaje.
+    use_required_attribute = False
+
     class Meta:
         model = Tour
         fields = (
-            'nombre', 'slug', 'tipo', 'imagen_principal', 'itinerario', 'incluye',
+            'nombre', 'slug', 'tipo', 'imagen_principal', 'mapa', 'itinerario', 'incluye',
             'video_youtube', 'activo', 'destacado', 'es_prueba',
         )
-        widgets = {'incluye': forms.Textarea(attrs={'rows': 5})}
+        help_texts = {
+            'slug': 'Es la dirección web del tour. Se genera sola desde el nombre.',
+            'video_youtube': 'Enlace de YouTube (youtube.com/watch?v=… o youtu.be/…). Opcional.',
+            'incluye': 'Opcional.',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk:
+            # Cambiar el slug de un tour publicado rompe sus enlaces: se desbloquea a propósito.
+            self.fields['slug'].widget.attrs['readonly'] = True
+            self.fields['slug'].help_text = 'Cambiarla rompe los enlaces ya compartidos de este tour.'
+        else:
+            self.fields['slug'].required = False
+
+    def clean_slug(self):
+        slug = self.cleaned_data.get('slug')
+        if slug:
+            return slug
+        base = slugify(self.cleaned_data.get('nombre', ''))[:240] or 'tour'
+        candidato, n = base, 2
+        while Tour.objects.filter(slug=candidato).exists():
+            candidato, n = f'{base}-{n}', n + 1
+        return candidato
+
+    def clean_itinerario(self):
+        valor = self.cleaned_data.get('itinerario')
+        if not _texto_visible(valor):
+            raise forms.ValidationError('Escribe el resumen del tour.')
+        return valor
+
+    def clean_video_youtube(self):
+        url = self.cleaned_data.get('video_youtube')
+        if url and not re.search(YOUTUBE_REGEX, url):
+            raise forms.ValidationError(
+                'No parece un enlace de YouTube. Usa youtube.com/watch?v=… o youtu.be/…'
+            )
+        return url
+
+
+class ItinerarioDiaForm(forms.ModelForm):
+    use_required_attribute = False
+
+    class Meta:
+        model = ItinerarioDia
+        fields = ('orden', 'titulo', 'descripcion')
+        widgets = {
+            'orden': forms.HiddenInput(),
+            'titulo': forms.TextInput(attrs={'placeholder': 'Título'}),
+            'descripcion': forms.Textarea(attrs={'rows': 5}),
+        }
+
+    def has_changed(self):
+        # «orden» lo rellena el JS en cada fila: una fila nueva sin texto debe ignorarse.
+        return bool({'titulo', 'descripcion'} & set(self.changed_data))
+
+
+ItinerarioDiaFormSet = forms.inlineformset_factory(
+    Tour, ItinerarioDia, form=ItinerarioDiaForm, extra=0, can_delete=True,
+)
 
 
 class PrecioTourForm(forms.ModelForm):
+    use_required_attribute = False
+
     class Meta:
         model = PrecioTour
         fields = ('valor_adulto', 'tiene_precio_nino', 'valor_nino')
 
     def clean(self):
         data = super().clean()
-        if data.get('tiene_precio_nino') and not data.get('valor_nino'):
-            self.add_error('valor_nino', 'Indica el precio del niño o desmarca la opción.')
+        adulto, nino = data.get('valor_adulto'), data.get('valor_nino')
+        if adulto is not None and adulto <= 0:
+            self.add_error('valor_adulto', 'El precio debe ser mayor que 0.')
+        if data.get('tiene_precio_nino'):
+            if not nino or nino < 0:
+                self.add_error('valor_nino', 'Indica el precio del niño o desmarca la opción.')
+        else:
+            data['valor_nino'] = 0
         return data
 
 

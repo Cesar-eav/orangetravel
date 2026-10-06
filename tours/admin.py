@@ -1,7 +1,7 @@
 from django.contrib import admin, messages
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from .models import TipoTour, Tour, GaleriaTour, PrecioTour, Reserva, BloqueoTour, TerceraEdad
+from .models import TipoTour, Tour, GaleriaTour, PrecioTour, Reserva, BloqueoTour, TerceraEdad, ItinerarioDia
 from payments.models import Payment
 from solo.admin import SingletonModelAdmin
 from django import forms
@@ -22,6 +22,11 @@ class GaleriaInline(TabularInline): # Cambiado a Unfold TabularInline
     model = GaleriaTour
     extra = 3
     tab = True
+
+class ItinerarioDiaInline(StackedInline):
+    model = ItinerarioDia
+    extra = 0
+
 
 class TourAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -94,7 +99,8 @@ class TourAdmin(ModelAdmin): # Cambiado a Unfold ModelAdmin
     fieldsets = (
         ("Información del Tour", {
             "fields": (
-                'imagen_principal', 
+                'imagen_principal',
+                'mapa',
                 'nombre', 
                 'activo',
                 'destacado',
@@ -116,7 +122,7 @@ class TourAdmin(ModelAdmin): # Cambiado a Unfold ModelAdmin
     prepopulated_fields = {'slug': ('nombre',)}
     
     # Inlines de Unfold (Precios y Galería aparecerán como secciones/pestañas)
-    inlines = [PrecioInline, GaleriaInline]
+    inlines = [PrecioInline, ItinerarioDiaInline, GaleriaInline]
 
     # Sobreescribimos la acción de borrado individual
     def delete_model(self, request, obj):

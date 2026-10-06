@@ -94,6 +94,7 @@ def tour(request, slug):
                 'tour': tour,
                 'fotos': galeria_fotos,
                 'precios': precios,
+                'dias': tour.dias.all(),
                 'categoria': tipo_de_tour,
                 # Enviamos una bandera para saber que estamos en modo aprendizaje
                 'debug_mode': True 
