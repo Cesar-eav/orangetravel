@@ -6,6 +6,7 @@
 <div class="grid">
   <a class="stat" href="{% url 'panel:reservas' %}?estado=PENDIENTE&proximas=1"><b>{{ pendientes }}</b><span>Reservas por confirmar</span></a>
   <a class="stat" href="{% url 'panel:reservas' %}?estado=CONFIRMADA&proximas=1"><b>{{ proximas }}</b><span>Confirmadas próximas</span></a>
+  <a class="stat" href="{% url 'panel:cotizaciones' %}?pendientes=1"><b>{{ cotizaciones }}</b><span>Cotizaciones sin atender</span></a>
   <a class="stat" href="{% url 'panel:pagos' %}?status=paid"><b>{{ pagos_semana }}</b><span>Pagos últimos 7 días</span></a>
 </div>
 <div class="card"><h3>Últimas reservas</h3>

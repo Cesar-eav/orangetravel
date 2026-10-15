@@ -5,14 +5,16 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.admin.views.decorators import staff_member_required
-from .models import Tour, Reserva, BloqueoTour, TerceraEdad
+from .models import Tour, Reserva, BloqueoTour, TerceraEdad, Cotizacion
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 from payments.models import Payment
 import json
 from django.core.mail import send_mail
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives # Importante para enviar HTML
 from django.template.loader import render_to_string # Si prefieres usar archivos .html
-from django.utils.html import strip_tags # Par
+from django.utils.html import strip_tags, escape # Par
 from datetime import date, timedelta
 import os
 
@@ -48,6 +50,7 @@ def tercera_edad(request):
     pagina = TerceraEdad.get_solo()
     return render(request, 'tours/tercera_edad.html', {'pagina': pagina})
 
+@ensure_csrf_cookie
 def tour(request, slug):
 
     try:
@@ -56,7 +59,7 @@ def tour(request, slug):
         # 2. Traemos datos de tablas relacionadas (Reverse Relationships)
         # Aunque no los veas en el modelo Tour, existen por la ForeignKey en las otras tablas
         galeria_fotos = tour.imagenes.all() # Relación inversa por defecto
-        precios = tour.precio               # Relación inversa por defecto
+        precios = getattr(tour, 'precio', None)  # Los tours de cotización pueden no tener precio
         
 
         # 3. El Tipo de Tour es una relación directa (ForeignKey en Tour)
@@ -68,6 +71,7 @@ def tour(request, slug):
                 'precios': precios,
                 'dias': tour.dias.all(),
                 'categoria': tipo_de_tour,
+                'con_precio': tour.con_precio,
                 # Enviamos una bandera para saber que estamos en modo aprendizaje
                 'debug_mode': True 
             }
@@ -208,6 +212,133 @@ def enviar_notificaciones_reserva(reserva):
         
     except Exception as e:
         print(f"Error enviando correos: {e}")
+
+@require_POST
+def crear_cotizacion(request):
+    try:
+        data = json.loads(request.body)
+    except (TypeError, ValueError):
+        return JsonResponse({'status': 'error', 'mensaje': 'Datos inválidos.'}, status=400)
+
+    try:
+        tour = Tour.objects.get(id=data.get('tour_id'))
+    except (Tour.DoesNotExist, TypeError, ValueError):
+        return JsonResponse({'status': 'error', 'mensaje': 'El tour no existe.'}, status=404)
+    if tour.con_precio:
+        return JsonResponse({'status': 'error', 'mensaje': 'Este tour se reserva con pago en línea, no por cotización.'}, status=400)
+
+    nombre = (data.get('nombre') or '').strip()
+    email = (data.get('email') or '').strip()
+    telefono = (data.get('telefono') or '').strip()
+    if len(nombre) < 3 or len(telefono) < 8:
+        return JsonResponse({'status': 'error', 'mensaje': 'Completa tu nombre y teléfono.'}, status=400)
+    try:
+        validate_email(email)
+    except ValidationError:
+        return JsonResponse({'status': 'error', 'mensaje': 'Email inválido.'}, status=400)
+
+    fecha_tentativa = None
+    if data.get('fecha'):
+        try:
+            fecha_tentativa = date.fromisoformat(data.get('fecha'))
+        except (TypeError, ValueError):
+            return JsonResponse({'status': 'error', 'mensaje': 'Fecha inválida.'}, status=400)
+        if fecha_tentativa <= date.today():
+            return JsonResponse({'status': 'error', 'mensaje': 'La fecha tentativa debe ser futura.'}, status=400)
+
+    try:
+        adultos = max(int(data.get('adultos', 1)), 1)
+        ninos = max(int(data.get('ninos', 0)), 0)
+    except (TypeError, ValueError):
+        return JsonResponse({'status': 'error', 'mensaje': 'Cantidad de pasajeros inválida.'}, status=400)
+
+    cotizacion = Cotizacion.objects.create(
+        tour=tour,
+        nombre=nombre[:100],
+        email=email,
+        telefono=telefono[:20],
+        fecha_tentativa=fecha_tentativa,
+        adultos=adultos,
+        ninos=ninos,
+        mensaje=(data.get('mensaje') or '').strip()[:2000],
+    )
+
+    threading.Thread(target=enviar_notificaciones_cotizacion, args=(cotizacion,)).start()
+
+    return JsonResponse({
+        'status': 'success',
+        'mensaje': '¡Solicitud recibida! Te enviaremos tu cotización a la brevedad.',
+        'cotizacion_id': cotizacion.id
+    }, status=201)
+
+def enviar_notificaciones_cotizacion(cotizacion):
+    fecha = cotizacion.fecha_tentativa.strftime('%d-%m-%Y') if cotizacion.fecha_tentativa else 'Por definir'
+    mensaje = escape(cotizacion.mensaje).replace('\n', '<br>') or '—'
+
+    asunto_cliente = f"🍊 Solicitud de cotización: {cotizacion.tour.nombre}"
+    html_cliente = f"""
+    <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
+        <div style="background-color: #FF8C00; padding: 20px; text-align: center;">
+            <h1 style="color: white; margin: 0;">Orange Travel</h1>
+        </div>
+        <div style="padding: 20px; color: #333;">
+            <h2>¡Hola {escape(cotizacion.nombre)}!</h2>
+            <p>Recibimos tu solicitud de cotización. Nuestro equipo la revisará y te enviará una propuesta a la brevedad.</p>
+
+            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <p><strong>Tour:</strong> {cotizacion.tour.nombre}</p>
+                <p><strong>Fecha tentativa:</strong> {fecha}</p>
+                <p><strong>Pasajeros:</strong> {cotizacion.adultos} Adultos / {cotizacion.ninos} Niños</p>
+                <p><strong>Mensaje:</strong> {mensaje}</p>
+            </div>
+        </div>
+        <div style="background-color: #333; color: white; padding: 10px; text-align: center; font-size: 12px;">
+            Arica, Chile - ¡La ciudad de la eterna primavera!
+        </div>
+    </div>
+    """
+
+    asunto_admin = f"🧾 COTIZACIÓN: {cotizacion.tour.nombre} - {cotizacion.nombre}"
+    tel_limpio = cotizacion.telefono.replace('+', '').replace(' ', '')
+    dominio = settings.SITE_URL
+
+    html_admin = f"""
+    <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 2px solid #FF8C00; border-radius: 10px; padding: 20px;">
+        <h2 style="color: #FF8C00;">NUEVA SOLICITUD DE COTIZACIÓN</h2>
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Cliente:</strong></td><td>{escape(cotizacion.nombre)}</td></tr>
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Tour:</strong></td><td>{cotizacion.tour.nombre}</td></tr>
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Fecha tentativa:</strong></td><td>{fecha}</td></tr>
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Pasajeros:</strong></td><td>{cotizacion.adultos} Adultos / {cotizacion.ninos} Niños</td></tr>
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>WhatsApp:</strong></td>
+                <td><a href="https://wa.me/{escape(tel_limpio)}" style="color: #25D366; font-weight: bold; text-decoration: none;">📱 {escape(cotizacion.telefono)}</a></td>
+            </tr>
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Email:</strong></td><td>{escape(cotizacion.email)}</td></tr>
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Mensaje:</strong></td><td>{mensaje}</td></tr>
+        </table>
+
+        <div style="margin-top: 25px; text-align: center;">
+            <a href="{dominio}/panel/cotizaciones/{cotizacion.id}/"
+            style="background-color: #333; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            Ver en el Panel
+            </a>
+        </div>
+    </div>
+    """
+
+    try:
+        msg_cli = EmailMultiAlternatives(asunto_cliente, "Solicitud de cotización recibida.", settings.DEFAULT_FROM_EMAIL, [cotizacion.email])
+        msg_cli.attach_alternative(html_cliente, "text/html")
+        msg_cli.send()
+
+        email_admin = get_email_admin(cotizacion)
+        cc_admin = [email for email in CC_RESERVAS if email != email_admin]
+        print(f"DEBUG: 📧 Cotización {cotizacion.id} → {email_admin} cc={cc_admin} (tour: {cotizacion.tour.nombre})")
+        msg_adm = EmailMultiAlternatives(asunto_admin, "Nueva solicitud de cotización.", settings.DEFAULT_FROM_EMAIL, [email_admin], cc=cc_admin, reply_to=[cotizacion.email])
+        msg_adm.attach_alternative(html_admin, "text/html")
+        msg_adm.send()
+    except Exception as e:
+        print(f"Error enviando correos de cotización: {e}")
 
 def get_fechas_bloqueadas(request, tour_id):
     """

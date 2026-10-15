@@ -1,5 +1,6 @@
 import { createApp } from 'vue';
 import BookingApp from './components/BookingApp.vue';
+import CotizacionApp from './components/CotizacionApp.vue';
 
 import './input.css'; // Importamos tu CSS de Tailwind 4 para que Vite lo procese
 
@@ -10,18 +11,16 @@ const root = document.getElementById('reservation-widget');
 if (root) {
 
 
-    const precioAdulto = parseInt(root.dataset.precioAdulto) || 0;
-    const precioNino = parseInt(root.dataset.precioNino) || 0;
     const tourId = parseInt(root.dataset.tourId) || 0;
 
-    const props = {
-        precioAdulto,
-        precioNino,
-        tourId
-    };
-
-    const app = createApp(BookingApp, props);
-    app.mount('#reservation-widget');   
+    // Solo los tours de la categoría con precio se pagan en línea; el resto se cotiza.
+    let app;
+    if (root.dataset.conPrecio === '1') {
+        const precioAdulto = parseInt(root.dataset.precioAdulto) || 0;
+        const precioNino = parseInt(root.dataset.precioNino) || 0;
+        app = createApp(BookingApp, { precioAdulto, precioNino, tourId });
+    } else {
+        app = createApp(CotizacionApp, { tourId });
+    }
+    app.mount('#reservation-widget');
 }
-
-

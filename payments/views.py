@@ -72,6 +72,8 @@ class TourCheckoutView(APIView):
 
     def post(self, request, tour_id: int):
         tour = get_object_or_404(Tour, id=tour_id)
+        if not tour.con_precio:
+            return Response({"detail": "Este tour se reserva por cotización."}, status=status.HTTP_400_BAD_REQUEST)
         data = request.data
 
         print("Resreva: ", data)

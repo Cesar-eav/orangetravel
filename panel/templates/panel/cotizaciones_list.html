@@ -1,0 +1,21 @@
+{% extends 'panel/base.html' %}
+{% block title %}Cotizaciones{% endblock %}
+{% block content %}
+<h2>Cotizaciones</h2>
+<details class="ayuda"><summary>¿Cómo funciona esta pantalla?</summary><p>Son las solicitudes de los tours que no se pagan en línea (todas las categorías excepto «Excursiones de un Día»). Responde al cliente por email o WhatsApp y luego márcala como atendida.</p></details>
+<form class="filters" method="get">
+  <div><label>Buscar</label><input name="q" value="{{ request.GET.q }}" placeholder="Nombre, email o teléfono"></div>
+  <div><label>Tour</label><select name="tour"><option value="">Todos</option>
+    {% for t in tours %}<option value="{{ t.pk }}" {% if request.GET.tour == t.pk|stringformat:"s" %}selected{% endif %}>{{ t.nombre }}</option>{% endfor %}</select></div>
+  <div><label><input type="checkbox" name="pendientes" value="1" {% if request.GET.pendientes %}checked{% endif %}> Solo sin atender</label></div>
+  <button class="btn">Filtrar</button> <a class="btn sec" href="{% url 'panel:cotizaciones' %}">Limpiar</a>
+</form>
+<div class="card"><table>
+<tr><th>Recibida</th><th>Cliente</th><th>Tour</th><th>Fecha tentativa</th><th>Pax</th><th>Estado</th></tr>
+{% for c in cotizaciones %}<tr>
+<td><a href="{% url 'panel:cotizacion_detalle' c.pk %}">{{ c.creada_el|date:"d/m/Y H:i" }}</a></td><td>{{ c.nombre }}<br><small>{{ c.email }}</small></td>
+<td>{{ c.tour.nombre }}</td><td>{{ c.fecha_tentativa|date:"d/m/Y"|default:"Por definir" }}</td><td>{{ c.adultos }} adl / {{ c.ninos }} niñ</td>
+<td>{% if c.atendida %}<span class="badge b-CONFIRMADA">Atendida</span>{% else %}<span class="badge b-PENDIENTE">Sin atender</span>{% endif %}</td></tr>
+{% empty %}<tr><td colspan="6">No hay cotizaciones con esos filtros.</td></tr>{% endfor %}</table>
+{% include 'panel/_pager.html' %}</div>
+{% endblock %}

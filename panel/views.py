@@ -20,10 +20,10 @@ from home.models import MaintenanceMode, Nosotros
 from payments.models import Payment
 from django.db import transaction
 from django.db.models import ProtectedError
-from tours.models import BloqueoTour, GaleriaTour, PrecioTour, Reserva, TerceraEdad, TipoTour, Tour
+from tours.models import TIPO_CON_PRECIO_ID, BloqueoTour, Cotizacion, GaleriaTour, PrecioTour, Reserva, TerceraEdad, TipoTour, Tour
 
 from .forms import (
-    CUERPO_MAX, BloqueoForm, ImagenGaleriaForm, ItinerarioDiaFormSet, ImagenPostFormSet, MantencionForm, NosotrosForm,
+    CUERPO_MAX, BloqueoForm, CotizacionGestionForm, ImagenGaleriaForm, ItinerarioDiaFormSet, ImagenPostFormSet, MantencionForm, NosotrosForm,
     PanelLoginForm, PostForm, TerceraEdadForm,
     PrecioTourForm, ReservaGestionForm, TipoTourForm, TourForm,
 )
@@ -74,6 +74,7 @@ class DashboardView(PanelView, TemplateView):
         ctx.update(
             pendientes=Reserva.objects.filter(estado=Reserva.Estado.PENDIENTE, fecha__gte=hoy).count(),
             proximas=Reserva.objects.filter(estado=Reserva.Estado.CONFIRMADA, fecha__gte=hoy).count(),
+            cotizaciones=Cotizacion.objects.filter(atendida=False).count(),
             pagos_semana=pagos_ok.filter(paid_at__gte=timezone.now() - timedelta(days=7)).count(),
             ultimas_reservas=Reserva.objects.select_related('tour').order_by('-creada_el')[:5],
             ultimos_pagos=pagos_ok.select_related('tour').order_by('-paid_at')[:5],
@@ -136,6 +137,48 @@ def reserva_eliminar(request, pk):
     reserva.delete()  # borrado lógico
     messages.success(request, f'Reserva {reserva.codigo} eliminada.')
     return redirect('panel:reservas')
+
+
+class CotizacionListView(PanelView, ListView):
+    template_name = 'panel/cotizaciones_list.html'
+    context_object_name = 'cotizaciones'
+    paginate_by = PAGE_SIZE
+
+    def get_queryset(self):
+        qs = Cotizacion.objects.select_related('tour')
+        g = self.request.GET
+        if q := g.get('q', '').strip():
+            qs = qs.filter(Q(nombre__icontains=q) | Q(email__icontains=q) | Q(telefono__icontains=q))
+        if g.get('tour', '').isdigit():
+            qs = qs.filter(tour_id=g['tour'])
+        if g.get('pendientes'):
+            qs = qs.filter(atendida=False)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        params = self.request.GET.copy()
+        params.pop('page', None)
+        ctx.update(
+            tours=Tour.objects.exclude(tipo_id=TIPO_CON_PRECIO_ID).order_by('nombre'),
+            querystring=params.urlencode(),
+        )
+        return ctx
+
+
+class CotizacionDetailView(PanelView, UpdateView):
+    model = Cotizacion
+    form_class = CotizacionGestionForm
+    template_name = 'panel/cotizacion_detail.html'
+    context_object_name = 'cotizacion'
+
+    def get_success_url(self):
+        return reverse('panel:cotizacion_detalle', args=[self.object.pk])
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, 'Cotización actualizada.')
+        return response
 
 
 class PagoListView(PanelView, ListView):

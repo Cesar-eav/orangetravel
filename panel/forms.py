@@ -8,7 +8,7 @@ from django.utils.text import slugify
 
 from blog.models import ImagenPost, Post
 from home.models import MaintenanceMode, Nosotros
-from tours.models import YOUTUBE_REGEX, BloqueoTour, ItinerarioDia, PrecioTour, Reserva, TerceraEdad, TipoTour, Tour
+from tours.models import YOUTUBE_REGEX, BloqueoTour, Cotizacion, ItinerarioDia, PrecioTour, Reserva, TerceraEdad, TipoTour, Tour
 
 
 class PanelLoginForm(AuthenticationForm):
@@ -25,6 +25,12 @@ class ReservaGestionForm(forms.ModelForm):
         model = Reserva
         fields = ('estado', 'notas_internas')
         widgets = {'notas_internas': forms.Textarea(attrs={'rows': 4})}
+
+
+class CotizacionGestionForm(forms.ModelForm):
+    class Meta:
+        model = Cotizacion
+        fields = ('atendida',)
 
 
 def _texto_visible(html_str):

@@ -203,7 +203,8 @@ export default {
         .then(response => {
           this.mensajeExito = response.data.mensaje;
           this.enviada = true;
-          this.form = formularioVacio();
+          // El formulario se limpia en cerrar(): cambiar la fecha mientras el
+          // DatePicker se desmonta hace fallar a v-calendar (days[0] is undefined).
         })
         .catch(error => {
           this.error = error.response?.data?.mensaje || "No se pudo enviar la solicitud. Intenta nuevamente.";
@@ -214,6 +215,7 @@ export default {
     },
 
     cerrar() {
+      if (this.enviada) this.form = formularioVacio();
       this.isModalOpen = false;
       this.enviada = false;
       this.error = '';

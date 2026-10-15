@@ -1,0 +1,22 @@
+{% extends 'panel/base.html' %}
+{% block title %}Cotización de {{ cotizacion.nombre }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'panel:cotizaciones' %}">← Volver a cotizaciones</a></p>
+<h2>Cotización de {{ cotizacion.nombre }} {% if cotizacion.atendida %}<span class="badge b-CONFIRMADA">Atendida</span>{% else %}<span class="badge b-PENDIENTE">Sin atender</span>{% endif %}</h2>
+<div class="card"><dl>
+<dt>Tour</dt><dd>{{ cotizacion.tour.nombre }}</dd>
+<dt>Fecha tentativa</dt><dd>{{ cotizacion.fecha_tentativa|date:"d/m/Y"|default:"Por definir" }}</dd>
+<dt>Cliente</dt><dd>{{ cotizacion.nombre }}</dd>
+<dt>Email</dt><dd><a href="mailto:{{ cotizacion.email }}">{{ cotizacion.email }}</a></dd>
+<dt>Teléfono</dt><dd>{{ cotizacion.telefono }}</dd>
+<dt>Pasajeros</dt><dd>{{ cotizacion.adultos }} adultos, {{ cotizacion.ninos }} niños</dd>
+<dt>Mensaje</dt><dd>{{ cotizacion.mensaje|linebreaksbr|default:"—" }}</dd>
+<dt>Recibida</dt><dd>{{ cotizacion.creada_el|date:"d/m/Y H:i" }}</dd>
+</dl></div>
+<form class="card" method="post">{% csrf_token %}
+<h3>Gestionar</h3>
+{{ form.non_field_errors }}
+<p><label>{{ form.atendida }} <b>Atendida</b> (ya se le respondió al cliente)</label></p>
+<button class="btn">Guardar cambios</button>
+</form>
+{% endblock %}

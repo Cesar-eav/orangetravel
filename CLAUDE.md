@@ -53,6 +53,7 @@ Leer completo antes de modificar nada. Este archivo **no debe contener valores s
 
 - Flujo 1, reserva sin pago: `tours/views.py` → `enviar_notificaciones_reserva(reserva)` (cliente + admin).
 - Flujo 2, pago Flow: `FlowConfirmView` → `payments/emails.py::enviar_confirmacion_pago(payment)` (cliente + admin).
+- Flujo 3, cotización: solo los tours de la categoría `TIPO_CON_PRECIO_ID = 1` (Excursiones de un Día, `tours/models.py`, propiedad `Tour.con_precio`) muestran precio y pagan con Flow. El resto muestra «A cotizar» y monta `CotizacionApp.vue` en vez de `BookingApp.vue` → `tours/views.py::crear_cotizacion` guarda una `Cotizacion` y llama a `enviar_notificaciones_cotizacion` (cliente + admin). Se gestionan en `/panel/cotizaciones/`. `TourCheckoutView` rechaza los tours sin precio.
 - Enrutamiento del admin: `EMAIL_POR_TOUR` en `tours/views.py`, matching por palabra clave en **`tour.nombre`** (no slug). Sin match → `EMAIL_ADMIN_DEFAULT` (`info@orangetravel.cl`). CC en `CC_RESERVAS`. `payments/emails.py` importa ese mismo diccionario.
 - FROM: `noreply@mg.orangetravel.cl` (dominio verificado en Mailgun). Ver `docs/email-deliverability.md`.
 
@@ -80,4 +81,5 @@ Leer completo antes de modificar nada. Este archivo **no debe contener valores s
 - `docs/DEPLOY.md`: cuándo hacer build / collectstatic / restart.
 - `docs/MIGRACION_GIT.md`: cómo se migró producción de FTP a git y el flujo actual.
 - `docs/PRODUCCION_VARS_EMAIL.md`: variables en cPanel, por qué no hay `.env`, DNS y enrutamiento de emails.
+- `docs/COTIZACIONES.md`: tours con precio (categoría 1) vs. tours con cotización; flujo, modelo, panel y deploy.
 - `docs/email-deliverability.md`: SPF/DKIM/DMARC y Mailgun.

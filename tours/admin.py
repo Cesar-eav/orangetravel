@@ -1,7 +1,7 @@
 from django.contrib import admin, messages
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from .models import TipoTour, Tour, GaleriaTour, PrecioTour, Reserva, BloqueoTour, TerceraEdad, ItinerarioDia
+from .models import Cotizacion, TipoTour, Tour, GaleriaTour, PrecioTour, Reserva, BloqueoTour, TerceraEdad, ItinerarioDia
 from payments.models import Payment
 from solo.admin import SingletonModelAdmin
 from django import forms
@@ -175,6 +175,15 @@ class TourAdmin(ModelAdmin): # Cambiado a Unfold ModelAdmin
 
 
 
+
+
+@admin.register(Cotizacion)
+class CotizacionAdmin(ModelAdmin):
+    list_display = ('creada_el', 'tour', 'nombre', 'email', 'telefono', 'fecha_tentativa', 'atendida')
+    list_editable = ('atendida',)
+    list_filter = ('atendida', 'tour')
+    search_fields = ('nombre', 'email', 'telefono')
+    readonly_fields = ('creada_el',)
 
 
 @admin.register(TipoTour)

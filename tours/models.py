@@ -21,6 +21,9 @@ def generar_codigo_reserva(queryset, campo='codigo', longitud=6, prefijo='OT'):
         if not queryset.filter(**{campo: codigo}).exists():
             return codigo
 
+# Única categoría que se vende con precio y pago Flow; el resto se cotiza.
+TIPO_CON_PRECIO_ID = 1
+
 class TipoTour(models.Model):
     nombre = models.CharField(max_length=100, unique=True, verbose_name="Nombre del Tipo")
     descripcion = models.TextField(blank=True, verbose_name="Descripción del tipo (opcional)")
@@ -70,6 +73,10 @@ class Tour(models.Model):
 
     def __str__(self):
         return self.nombre
+
+    @property
+    def con_precio(self):
+        return self.tipo_id == TIPO_CON_PRECIO_ID
 
 
 class GaleriaTour(models.Model):
@@ -217,6 +224,27 @@ class Reserva(models.Model):
     def es_activa(self):
         """Determina si la reserva es válida y para una fecha futura."""
         return self.borrado_el is None and self.fecha >= date.today()
+
+
+class Cotizacion(models.Model):
+    tour = models.ForeignKey(Tour, on_delete=models.PROTECT, related_name='cotizaciones')
+    nombre = models.CharField("Nombre", max_length=100)
+    email = models.EmailField("Correo electrónico")
+    telefono = models.CharField("Teléfono/WhatsApp", max_length=20)
+    fecha_tentativa = models.DateField("Fecha tentativa", null=True, blank=True)
+    adultos = models.PositiveIntegerField("Adultos", default=1)
+    ninos = models.PositiveIntegerField("Niños", default=0)
+    mensaje = models.TextField("Mensaje", blank=True)
+    atendida = models.BooleanField("Atendida", default=False)
+    creada_el = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Cotización"
+        verbose_name_plural = "Cotizaciones"
+        ordering = ['-creada_el']
+
+    def __str__(self):
+        return f"{self.nombre} - {self.tour.nombre}"
 
 
 class BloqueoTour(models.Model):
