@@ -15,7 +15,7 @@ from django.conf import settings
 from django.core.mail import EmailMultiAlternatives # Importante para enviar HTML
 from django.template.loader import render_to_string # Si prefieres usar archivos .html
 from django.utils.html import strip_tags, escape # Par
-from datetime import date, timedelta
+from datetime import date
 import os
 
 # Email del admin según el tour (keyword en el slug → destinatario)
@@ -92,13 +92,13 @@ def crear_reserva(request):
         except Tour.DoesNotExist:
             return JsonResponse({'status': 'error', 'mensaje': 'El tour no existe.'}, status=404)
 
-        # 2. Validación de anticipación mínima (3 días desde hoy en zona horaria del servidor)
+        # 2. Validación de anticipación mínima: solo desde mañana (no se reserva para el mismo día)
         try:
             fecha_reserva = date.fromisoformat(data.get('fecha'))
         except (TypeError, ValueError):
             return JsonResponse({'status': 'error', 'mensaje': 'Fecha inválida.'}, status=400)
-        if fecha_reserva < date.today() + timedelta(days=3):
-            return JsonResponse({'status': 'error', 'mensaje': 'Las reservas deben hacerse con al menos 2 días de anticipación.'}, status=400)
+        if fecha_reserva <= date.today():
+            return JsonResponse({'status': 'error', 'mensaje': 'Las reservas deben hacerse a partir del día siguiente.'}, status=400)
 
         # 3. Creación de la Reserva
         reserva = Reserva.objects.create(

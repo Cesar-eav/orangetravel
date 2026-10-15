@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import date, timedelta
+from datetime import date
 from typing import Any
 from .emails import enviar_confirmacion_pago  # Asumiendo que están en la misma carpeta
 from django.conf import settings
@@ -82,13 +82,13 @@ class TourCheckoutView(APIView):
         if not email:
             return Response({"detail": "Se requiere un email para la reserva."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Validación de anticipación mínima (3 días desde hoy en zona horaria del servidor)
+        # Validación de anticipación mínima: solo desde mañana (no se reserva para el mismo día)
         try:
             fecha_reserva = date.fromisoformat(str(data.get('fecha', '')))
         except (TypeError, ValueError):
             return Response({"detail": "Fecha inválida."}, status=status.HTTP_400_BAD_REQUEST)
-        if fecha_reserva < date.today() + timedelta(days=3):
-            return Response({"detail": "Las reservas deben hacerse con al menos 2 días de anticipación."}, status=status.HTTP_400_BAD_REQUEST)
+        if fecha_reserva <= date.today():
+            return Response({"detail": "Las reservas deben hacerse a partir del día siguiente."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Crear el registro de pago en nuestra DB (Estado PENDING)
         payment = Payment.objects.create(

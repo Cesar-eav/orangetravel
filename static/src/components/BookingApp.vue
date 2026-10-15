@@ -153,7 +153,7 @@ export default {
   computed: {
     fechaMinima() {
       const d = new Date();
-      d.setDate(d.getDate() + 3);
+      d.setDate(d.getDate() + 1);
       return d;
     },
     totalReserva() {
