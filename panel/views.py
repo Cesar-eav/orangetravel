@@ -3,7 +3,7 @@ from datetime import timedelta
 
 from django.contrib import messages
 from django.contrib.auth.views import LoginView, redirect_to_login
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
@@ -20,12 +20,12 @@ from home.models import MaintenanceMode, Nosotros
 from payments.models import Payment
 from django.db import transaction
 from django.db.models import ProtectedError
-from tours.models import TIPO_CON_PRECIO_ID, BloqueoTour, Cotizacion, GaleriaTour, PrecioTour, Reserva, TerceraEdad, TipoTour, Tour
+from tours.models import TIPO_CON_PRECIO_ID, BloqueoTour, Cotizacion, GaleriaTour, PrecioTour, Reserva, TerceraEdad, TipoTour, Tour, Zona
 
 from .forms import (
     CUERPO_MAX, BloqueoForm, CotizacionGestionForm, ImagenGaleriaForm, ItinerarioDiaFormSet, ImagenPostFormSet, MantencionForm, NosotrosForm,
     PanelLoginForm, PostForm, TerceraEdadForm,
-    PrecioTourForm, ReservaGestionForm, TipoTourForm, TourForm,
+    PrecioTourForm, ReservaGestionForm, TipoTourForm, TourForm, ZonaForm,
 )
 from .mixins import StaffRequiredMixin
 
@@ -230,7 +230,7 @@ class TourListView(PanelView, ListView):
     paginate_by = PAGE_SIZE
 
     def get_queryset(self):
-        qs = Tour.objects.select_related('tipo', 'precio').order_by('nombre')
+        qs = Tour.objects.select_related('tipo', 'zona', 'precio').order_by('nombre')
         if q := self.request.GET.get('q', '').strip():
             qs = qs.filter(nombre__icontains=q)
         return qs
@@ -238,6 +238,7 @@ class TourListView(PanelView, ListView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['tipos'] = TipoTour.objects.order_by('nombre')
+        ctx['zonas'] = Zona.objects.all()
         return ctx
 
 
@@ -249,6 +250,24 @@ def tour_cambiar_tipo(request, pk):
     tour.tipo = tipo
     tour.save(update_fields=['tipo'])
     messages.success(request, f'«{tour.nombre}» ahora está en «{tipo.nombre}».')
+    return _volver_a_tours(request)
+
+
+@_staff_only
+@require_POST
+def tour_cambiar_zona(request, pk):
+    tour = get_object_or_404(Tour, pk=pk)
+    zona_id = request.POST.get('zona')
+    tour.zona = get_object_or_404(Zona, pk=zona_id) if zona_id else None
+    tour.save(update_fields=['zona'])
+    if tour.zona:
+        messages.success(request, f'«{tour.nombre}» ahora está en la zona «{tour.zona.nombre}».')
+    else:
+        messages.success(request, f'«{tour.nombre}» quedó sin zona.')
+    return _volver_a_tours(request)
+
+
+def _volver_a_tours(request):
     destino = request.POST.get('next', '')
     if not url_has_allowed_host_and_scheme(destino, allowed_hosts={request.get_host()}):
         destino = reverse('panel:tours')
@@ -390,6 +409,51 @@ def tipo_eliminar(request, pk):
     except ProtectedError:
         messages.error(request, 'No se puede eliminar: hay tours en esta categoría.')
     return redirect('panel:tipos')
+
+
+# ----------------------------------------------------------------- Zonas
+
+class ZonaListView(PanelView, ListView):
+    template_name = 'panel/zonas_list.html'
+    context_object_name = 'zonas'
+
+    def get_queryset(self):
+        return Zona.objects.annotate(num_tours=Count('tours'))
+
+
+class ZonaFormView(PanelView, TemplateView):
+    template_name = 'panel/zona_form.html'
+
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        pk = kwargs.get('pk')
+        self.zona = get_object_or_404(Zona, pk=pk) if pk else None
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx.setdefault('form', ZonaForm(instance=self.zona))
+        ctx['zona'] = self.zona
+        return ctx
+
+    def post(self, request, *args, **kwargs):
+        form = ZonaForm(request.POST, request.FILES, instance=self.zona)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Zona guardada.')
+            return redirect('panel:zonas')
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+@_staff_only
+@require_POST
+def zona_eliminar(request, pk):
+    zona = get_object_or_404(Zona, pk=pk)
+    try:
+        zona.delete()
+        messages.success(request, f'Zona «{zona.nombre}» eliminada.')
+    except ProtectedError:
+        messages.error(request, 'No se puede eliminar: hay tours en esta zona.')
+    return redirect('panel:zonas')
 
 
 # -------------------------------------------------------------- Bloqueos

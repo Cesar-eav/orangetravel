@@ -57,11 +57,21 @@ Leer completo antes de modificar nada. Este archivo **no debe contener valores s
 - Enrutamiento del admin: `EMAIL_POR_TOUR` en `tours/views.py`, matching por palabra clave en **`tour.nombre`** (no slug). Sin match → `EMAIL_ADMIN_DEFAULT` (`info@orangetravel.cl`). CC en `CC_RESERVAS`. `payments/emails.py` importa ese mismo diccionario.
 - FROM: `noreply@mg.orangetravel.cl` (dominio verificado en Mailgun). Ver `docs/email-deliverability.md`.
 
+## Zonas de tours
+
+- Modelo `Zona` (`tours/models.py`): `Tour.zona` es FK opcional (`PROTECT`). Zonas iniciales creadas por la migración `0016_zonas_iniciales` (Norte Grande, Zona Central, Zona Sur, Zona Austral, Expediciones y Montaña; esta última no es geográfica pero es una zona más).
+- Se gestionan en `/panel/zonas/` (nombre, slug, imagen opcional, orden); la zona de cada tour se cambia desde el select en `/panel/tours/` o en la edición del tour.
+- `/tours/` (`tours_home.html`) muestra una tarjeta por zona con tours visibles; al elegir una se muestra su `descripcion` (párrafos separados por línea en blanco) y se filtran los tours. El filtro es JS inline (show/hide de tarjetas por `data-zona`, sin Vue) y deja `?zona=<slug>` en la URL. Tours sin zona solo salen en «Todas».
+- Precios en CLP con punto de miles: filtro `{% load precios %}{{ valor|clp }}` (`tours/templatetags/precios.py`). `floatformat:"0g"` no sirve: con `es-cl` usa espacio como separador.
+
 ## Producción y deploy
 
-- Ruta: `/home3/cor116358/orangetravel/` (= `~/orangetravel`). Rama `fix-orange`, deploy con `git pull` desde el 25 sep 2026 (ya no FTP).
+- **Servidor: `int15.cpanelhost.cl` (138.117.148.165, LiteSpeed)** desde el 15 oct 2026 15:57 (el hosting trasladó la cuenta desde `srv28`, 190.107.177.38, que quedó como copia vieja sin tráfico). Antes de desplegar, confirmar con `hostname` que la sesión SSH está en int15, y en cPanel que la "Dirección IP compartida" sea 138.117.148.165. cPanel: `https://int15.cpanelhost.cl:2083`.
+- Ruta: `/home/cor116358/orangetravel/` (= `~/orangetravel`; `/home3/cor116358` es un enlace a `/home/cor116358`). Rama `fix-orange`, deploy con `git pull` desde el 25 sep 2026 (ya no FTP).
 - Python: `~/virtualenv/orangetravel/3.11/bin/python`. **No existe `.venv/` ni `python3`** en el server (`docs/DEPLOY.md` menciona `.venv/bin/python`, pero en producción es el virtualenv).
-- Log: `~/logs/passenger.log`.
+- Node no está en el PATH: antes de `npm` correr `export PATH=/opt/alt/alt-nodejs22/root/usr/bin:$PATH` (el proyecto pide Node ≥ 22). `node_modules/` ya está instalado (`npm ci`); no correr `npm audit fix` en el server (modifica `package-lock.json`).
+- Reiniciar desde cPanel → Setup Python App → Restart. `touch tmp/restart.txt` no está verificado en int15.
+- Log: `~/logs/passenger.log` (no verificado en int15).
 
 | Qué cambió | Qué correr en el server tras `git pull` |
 |---|---|

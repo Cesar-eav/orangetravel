@@ -8,7 +8,7 @@ from django.utils.text import slugify
 
 from blog.models import ImagenPost, Post
 from home.models import MaintenanceMode, Nosotros
-from tours.models import YOUTUBE_REGEX, BloqueoTour, Cotizacion, ItinerarioDia, PrecioTour, Reserva, TerceraEdad, TipoTour, Tour
+from tours.models import YOUTUBE_REGEX, BloqueoTour, Cotizacion, ItinerarioDia, PrecioTour, Reserva, TerceraEdad, TipoTour, Tour, Zona
 
 
 class PanelLoginForm(AuthenticationForm):
@@ -46,7 +46,7 @@ class TourForm(forms.ModelForm):
     class Meta:
         model = Tour
         fields = (
-            'nombre', 'slug', 'tipo', 'imagen_principal', 'mapa', 'itinerario', 'incluye',
+            'nombre', 'slug', 'tipo', 'zona', 'imagen_principal', 'mapa', 'itinerario', 'incluye',
             'video_youtube', 'activo', 'destacado', 'es_prueba',
         )
         help_texts = {
@@ -140,6 +140,28 @@ class TipoTourForm(forms.ModelForm):
         model = TipoTour
         fields = ('nombre', 'descripcion')
         widgets = {'descripcion': forms.Textarea(attrs={'rows': 3})}
+
+
+class ZonaForm(forms.ModelForm):
+    class Meta:
+        model = Zona
+        fields = ('nombre', 'slug', 'descripcion', 'imagen', 'orden')
+        widgets = {'descripcion': forms.Textarea(attrs={'rows': 3})}
+        help_texts = {
+            'slug': 'Aparece en la dirección del filtro (/tours/?zona=…). Se genera sola desde el nombre.',
+            'descripcion': 'Se muestra en /tours/ al elegir esta zona. Separa los párrafos con una línea en blanco.',
+            'imagen': 'Se muestra junto al nombre en el filtro de /tours/ (p. ej. el geoglifo del Norte Grande). Mejor un PNG con fondo transparente.',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['slug'].required = False
+
+    def clean_slug(self):
+        slug = self.cleaned_data.get('slug') or slugify(self.cleaned_data.get('nombre', ''))[:110] or 'zona'
+        if Zona.objects.filter(slug=slug).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError('Ya existe una zona con esta dirección.')
+        return slug
 
 
 CUERPO_MAX = 10000  # caracteres de texto visible (sin etiquetas HTML)

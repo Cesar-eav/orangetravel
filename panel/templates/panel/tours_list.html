@@ -2,24 +2,28 @@
 {% block title %}Tours{% endblock %}
 {% block content %}
 <h2>Tours</h2>
-<details class="ayuda"><summary>¿Cómo funciona esta pantalla?</summary><p>Los tours no se eliminan (borrarían sus reservas): para ocultar uno, edítalo y desmarca «activo». Desde la edición también cambias precios y la galería.</p></details>
+<details class="ayuda"><summary>¿Cómo funciona esta pantalla?</summary><p>Los tours no se eliminan (borrarían sus reservas): para ocultar uno, edítalo y desmarca «activo». La categoría y la zona se cambian directo en la tabla. Desde la edición también cambias precios y la galería.</p></details>
 <form class="filters" method="get">
   <div><label>Buscar</label><input name="q" value="{{ request.GET.q }}" placeholder="Nombre del tour"></div>
   <button class="btn">Buscar</button> <a class="btn sec" href="{% url 'panel:tours' %}">Limpiar</a>
   <a class="btn" href="{% url 'panel:tour_nuevo' %}" style="margin-left:auto">+ Nuevo tour</a>
 </form>
 <div class="card"><table>
-<tr><th>Tour</th><th>Categoría</th><th>Precio adulto</th><th>Estado</th></tr>
+<tr><th>Tour</th><th>Categoría</th><th>Zona</th><th>Precio adulto</th><th>Estado</th></tr>
 {% for t in tours %}<tr>
 <td><a href="{% url 'panel:tour_editar' t.pk %}">{{ t.nombre }}</a></td>
 <td><form method="post" action="{% url 'panel:tour_cambiar_tipo' t.pk %}" style="margin:0">{% csrf_token %}
 <input type="hidden" name="next" value="{{ request.get_full_path }}">
 <select name="tipo" onchange="this.form.submit()" style="padding:4px 6px">{% for tp in tipos %}<option value="{{ tp.pk }}"{% if tp.pk == t.tipo_id %} selected{% endif %}>{{ tp.nombre }}</option>{% endfor %}</select>
 <noscript><button class="btn">Guardar</button></noscript></form></td>
+<td><form method="post" action="{% url 'panel:tour_cambiar_zona' t.pk %}" style="margin:0">{% csrf_token %}
+<input type="hidden" name="next" value="{{ request.get_full_path }}">
+<select name="zona" onchange="this.form.submit()" style="padding:4px 6px"><option value="">— Sin zona —</option>{% for z in zonas %}<option value="{{ z.pk }}"{% if z.pk == t.zona_id %} selected{% endif %}>{{ z.nombre }}</option>{% endfor %}</select>
+<noscript><button class="btn">Guardar</button></noscript></form></td>
 <td>{% if t.precio %}${{ t.precio.valor_adulto }}{% else %}<small>Sin precio</small>{% endif %}</td>
 <td>{% if t.activo %}<span class="badge b-paid">Activo</span>{% else %}<span class="badge b-canceled">Inactivo</span>{% endif %}
 {% if t.destacado %}<span class="badge b-pending">Destacado</span>{% endif %}
 {% if t.es_prueba %}<span class="badge b-pending">Prueba</span>{% endif %}</td></tr>
-{% empty %}<tr><td colspan="4">No hay tours.</td></tr>{% endfor %}</table>
+{% empty %}<tr><td colspan="5">No hay tours.</td></tr>{% endfor %}</table>
 {% include 'panel/_pager.html' %}</div>
 {% endblock %}

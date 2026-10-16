@@ -1,0 +1,12 @@
+{% extends 'panel/base.html' %}
+{% block title %}{% if zona %}Editar zona{% else %}Nueva zona{% endif %}{% endblock %}
+{% block content %}
+<p><a href="{% url 'panel:zonas' %}">← Volver a zonas</a></p>
+<h2>{% if zona %}Editar zona{% else %}Nueva zona{% endif %}</h2>
+<form class="card" method="post" enctype="multipart/form-data">{% csrf_token %}
+{{ form.non_field_errors }}
+{% if zona.imagen %}<p><img src="{{ zona.imagen.url }}" alt="" style="max-height:80px"></p>{% endif %}
+{% for f in form %}{% include 'panel/_campo.html' %}{% endfor %}
+<button class="btn">Guardar</button>
+</form>
+{% endblock %}

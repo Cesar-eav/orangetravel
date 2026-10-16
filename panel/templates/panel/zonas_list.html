@@ -1,0 +1,16 @@
+{% extends 'panel/base.html' %}
+{% block title %}Zonas{% endblock %}
+{% block content %}
+<h2>Zonas <a class="btn" href="{% url 'panel:zona_nueva' %}" style="float:right;font-size:15px">+ Nueva</a></h2>
+<details class="ayuda"><summary>¿Cómo funciona esta pantalla?</summary><p>Las zonas son los botones que filtran los tours en la página pública /tours/ (solo aparecen las que tienen tours visibles). El «orden» define su posición. No se puede eliminar una zona que tenga tours; primero cámbialos de zona.</p></details>
+<div class="card"><table>
+<tr><th>Orden</th><th>Nombre</th><th>Imagen</th><th>Tours</th><th></th></tr>
+{% for z in zonas %}<tr>
+<td>{{ z.orden }}</td>
+<td><a href="{% url 'panel:zona_editar' z.pk %}">{{ z.nombre }}</a></td>
+<td>{% if z.imagen %}<img src="{{ z.imagen.url }}" alt="" style="height:32px">{% else %}<small>—</small>{% endif %}</td>
+<td>{{ z.num_tours }}</td>
+<td><form method="post" action="{% url 'panel:zona_eliminar' z.pk %}" onsubmit="return confirm('¿Eliminar la zona?')">{% csrf_token %}
+<button class="btn red" style="padding:4px 10px;font-size:13px">Eliminar</button></form></td></tr>
+{% empty %}<tr><td colspan="5">No hay zonas.</td></tr>{% endfor %}</table></div>
+{% endblock %}

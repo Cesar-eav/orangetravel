@@ -1,7 +1,7 @@
 from django.contrib import admin, messages
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from .models import Cotizacion, TipoTour, Tour, GaleriaTour, PrecioTour, Reserva, BloqueoTour, TerceraEdad, ItinerarioDia
+from .models import Cotizacion, TipoTour, Tour, Zona, GaleriaTour, PrecioTour, Reserva, BloqueoTour, TerceraEdad, ItinerarioDia
 from payments.models import Payment
 from solo.admin import SingletonModelAdmin
 from django import forms
@@ -87,9 +87,9 @@ class ReservaAdmin(ModelAdmin): # Cambiado a Unfold ModelAdmin
 
 @admin.register(Tour)
 class TourAdmin(ModelAdmin): # Cambiado a Unfold ModelAdmin
-    list_display = ('nombre','id', 'tipo', 'get_precio_adulto', 'activo', 'destacado', 'es_prueba')
+    list_display = ('nombre','id', 'tipo', 'zona', 'get_precio_adulto', 'activo', 'destacado', 'es_prueba')
     list_editable = ('activo','destacado', 'es_prueba')
-    list_filter = ('tipo', 'activo', 'es_prueba')
+    list_filter = ('tipo', 'zona', 'activo', 'es_prueba')
     search_fields = ('nombre',)
     readonly_fields = ('previsualizacion', 'get_precio_adulto')
 
@@ -107,6 +107,7 @@ class TourAdmin(ModelAdmin): # Cambiado a Unfold ModelAdmin
                 'es_prueba',
                 'slug', 
                 'tipo', 
+                'zona',
                 'itinerario', 
                 'get_precio_adulto'
                 
@@ -189,6 +190,12 @@ class CotizacionAdmin(ModelAdmin):
 @admin.register(TipoTour)
 class TipoTourAdmin(ModelAdmin): # Cambiado a Unfold ModelAdmin
     list_display = ('nombre',)
+
+
+@admin.register(Zona)
+class ZonaAdmin(ModelAdmin):
+    list_display = ('nombre', 'orden')
+    prepopulated_fields = {'slug': ('nombre',)}
 
 
 @admin.register(BloqueoTour)

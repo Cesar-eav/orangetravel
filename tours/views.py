@@ -2,10 +2,11 @@ import threading
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.http import JsonResponse
+from django.db.models import Count
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.admin.views.decorators import staff_member_required
-from .models import Tour, Reserva, BloqueoTour, TerceraEdad, Cotizacion
+from .models import Tour, Reserva, BloqueoTour, TerceraEdad, Cotizacion, Zona
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from payments.models import Payment
@@ -41,10 +42,15 @@ def get_email_admin(reserva):
 def tours_home(request):
     tours = (
         Tour.objects.filter(activo=True, es_prueba=False)
-        .select_related('precio', 'tipo')
+        .select_related('precio', 'tipo', 'zona')
         .order_by('tipo__nombre', 'nombre')
     )
-    return render(request, 'tours/tours_home.html', {'tours': tours})
+    # Solo las zonas con algún tour visible se ofrecen como filtro.
+    zonas = (
+        Zona.objects.filter(tours__activo=True, tours__es_prueba=False)
+        .annotate(num_tours=Count('tours'))
+    )
+    return render(request, 'tours/tours_home.html', {'tours': tours, 'zonas': zonas})
 
 def tercera_edad(request):
     pagina = TerceraEdad.get_solo()

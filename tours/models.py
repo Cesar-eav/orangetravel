@@ -35,10 +35,27 @@ class TipoTour(models.Model):
     def __str__(self):
         return self.nombre
 
+class Zona(models.Model):
+    # «Expediciones y Montaña» es una zona más aunque no sea geográfica.
+    nombre = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(unique=True, max_length=120)
+    descripcion = models.TextField(blank=True, verbose_name="Descripción (opcional)")
+    imagen = models.ImageField(upload_to='tours/zonas/', blank=True, null=True, verbose_name="Imagen o ícono (opcional)")
+    orden = models.PositiveSmallIntegerField(default=0, help_text="Posición en el listado público (menor primero).")
+
+    class Meta:
+        ordering = ['orden', 'nombre']
+        verbose_name = "Zona"
+        verbose_name_plural = "Zonas"
+
+    def __str__(self):
+        return self.nombre
+
 class Tour(models.Model):
     # Relación dinámica: El usuario gestiona esto desde el Admin
     tipo = models.ForeignKey(TipoTour, on_delete=models.PROTECT, related_name='tours', verbose_name="Tipo de Tour")
-    
+    zona = models.ForeignKey(Zona, on_delete=models.PROTECT, related_name='tours', null=True, blank=True)
+
     nombre = models.CharField(max_length=200)
     slug = models.SlugField(unique=True, max_length=255)
     

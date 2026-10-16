@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static precios %}
 
 
 {% block title %}Tours | Orange Travel{% endblock %}
@@ -44,47 +44,189 @@
     </div>
 </section>
 
+<style>
+    @keyframes zona-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+    .zona-fade { animation: zona-in .45s ease-out both; }
+    @media (prefers-reduced-motion: reduce) { .zona-fade { animation: none; } }
+</style>
+
 <section id="tours-list" class="container mx-auto px-4 py-16">
-    {% regroup tours by tipo as grupos %}
-    {% for grupo in grupos %}
-    <div class="{% if not forloop.first %}mt-20 {% endif %}mb-10">
-        <div class="flex items-center justify-between">
-            <h2 class="text-3xl font-bold text-gray-800">{{ grupo.grouper.nombre }}</h2>
-            <div class="hidden md:block h-px bg-gray-200 flex-grow mx-8"></div>
+    {% if zonas %}
+    {# Filtro por zona: oculto hasta que el script lo active; sin JS se ven todos los tours. #}
+    <div id="filtro-zonas" class="mb-16" hidden>
+        <div class="text-center mb-8">
+            <p class="text-orange-500 font-bold tracking-widest uppercase text-xs mb-2">Elige tu destino</p>
+            <h2 class="font-marcellus text-3xl md:text-4xl text-gray-900">Explora por zona</h2>
+        </div>
+
+        <div class="-mx-4 px-4 pt-2 pb-4 flex gap-4 overflow-x-auto snap-x [scrollbar-width:none] md:mx-0 md:px-0 md:grid md:grid-cols-[repeat(auto-fit,minmax(150px,1fr))] md:overflow-visible"
+             role="group" aria-label="Filtrar tours por zona">
+            <button type="button" data-filtro="" aria-pressed="true"
+                class="group snap-start shrink-0 w-36 md:w-auto flex flex-col items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-5 text-center shadow-sm transition hover:-translate-y-1 hover:shadow-md hover:border-orange-300 aria-pressed:border-orange-500 aria-pressed:bg-orange-50 aria-pressed:shadow-lg aria-pressed:shadow-orange-100">
+                <span class="flex h-16 w-16 items-center justify-center rounded-full bg-orange-50 text-orange-500 ring-1 ring-orange-100 transition group-aria-pressed:bg-orange-500 group-aria-pressed:text-white">
+                    <i class="fa-solid fa-compass text-2xl"></i>
+                </span>
+                <span class="font-bold text-gray-800 leading-tight">Todas</span>
+                <span class="text-xs uppercase tracking-wider text-gray-400">{{ tours|length }} tour{{ tours|length|pluralize }}</span>
+            </button>
+            {% for zona in zonas %}
+            <button type="button" data-filtro="{{ zona.slug }}" aria-pressed="false"
+                class="group snap-start shrink-0 w-36 md:w-auto flex flex-col items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-5 text-center shadow-sm transition hover:-translate-y-1 hover:shadow-md hover:border-orange-300 aria-pressed:border-orange-500 aria-pressed:bg-orange-50 aria-pressed:shadow-lg aria-pressed:shadow-orange-100">
+                <span class="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-orange-50 text-orange-500 ring-1 ring-orange-100 transition group-aria-pressed:bg-orange-500 group-aria-pressed:text-white">
+                    {% if zona.imagen %}<img src="{{ zona.imagen.url }}" alt="" class="h-full w-full object-contain p-2">{% else %}<i class="fa-solid fa-location-dot text-2xl"></i>{% endif %}
+                </span>
+                <span class="font-bold text-gray-800 leading-tight">{{ zona.nombre }}</span>
+                <span class="text-xs uppercase tracking-wider text-gray-400">{{ zona.num_tours }} tour{{ zona.num_tours|pluralize }}</span>
+            </button>
+            {% endfor %}
+        </div>
+
+        {# Descripción de la zona elegida («Todas» no muestra ninguna). #}
+        <div aria-live="polite">
+            {% for zona in zonas %}
+            <article data-zona-info="{{ zona.slug }}" hidden
+                class="zona-fade relative mt-10 overflow-hidden rounded-3xl bg-blue-dark text-white shadow-xl">
+                {% if zona.imagen %}
+                <img src="{{ zona.imagen.url }}" alt="" class="pointer-events-none absolute -right-12 -bottom-12 h-72 w-72 object-contain opacity-10">
+                {% endif %}
+                <div class="absolute inset-y-0 left-0 w-1.5 bg-orange-500"></div>
+                <div class="relative grid items-center gap-6 p-8 md:grid-cols-[auto_1fr] md:gap-10 md:p-12">
+                    <div class="flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl bg-orange-500 shadow-lg shadow-black/20">
+                        {% if zona.imagen %}<img src="{{ zona.imagen.url }}" alt="" class="h-full w-full object-contain p-3">{% else %}<i class="fa-solid fa-map-location-dot text-3xl"></i>{% endif %}
+                    </div>
+                    <div>
+                        <p class="text-orange-400 font-bold tracking-widest uppercase text-xs mb-2">
+                            Zona · {{ zona.num_tours }} tour{{ zona.num_tours|pluralize }}
+                        </p>
+                        <h3 class="font-marcellus text-3xl md:text-4xl mb-4">{{ zona.nombre }}</h3>
+                        {% if zona.descripcion %}
+                        <div class="max-w-3xl text-lg leading-relaxed text-white/80 [&_p+p]:mt-3">{{ zona.descripcion|linebreaks }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
         </div>
     </div>
+    {% endif %}
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {% for tour in grupo.list %}
-        <div class="relative w-full h-100 rounded-2xl overflow-hidden group shadow-lg">
-
-            <img src="{{ tour.imagen_principal.url }}"
-                class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-
-            <div class="absolute inset-0 "></div>
-
-            <div class="absolute inset-0 p-6 flex flex-col justify-between text-white">
-                <h3 class="text-2xl font-bold mb-1">{{ tour.nombre }}</h3>
-
-                <div class="flex justify-between items-center">
-                    {% if tour.con_precio %}
-                    <span class="text-2xl font-black">${{ tour.precio.valor_adulto }}</span>
-                    {% else %}
-                    <span class="text-2xl font-black"></span>
-                    {% endif %}
-                    <a  href="{% url 'tour' tour.slug %}" class="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-lg font-bold transition">
-                        VER TOUR
-                    </a>
-                </div>
+    <div class="flex flex-col gap-20">
+    {% regroup tours by tipo as grupos %}
+    {% for grupo in grupos %}
+    <div data-grupo>
+        <div class="mb-8 flex items-end gap-4">
+            <div>
+                <span class="block w-10 h-1 bg-orange-500 rounded mb-3"></span>
+                <h2 class="text-3xl font-bold text-gray-800">{{ grupo.grouper.nombre }}</h2>
             </div>
-
+            <span data-contador class="mb-1 text-sm font-semibold text-gray-400 whitespace-nowrap">{{ grupo.list|length }} tour{{ grupo.list|length|pluralize }}</span>
+            <div class="hidden md:block h-px bg-gray-200 grow mb-3"></div>
         </div>
-        {% endfor %}
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for tour in grupo.list %}
+            <a href="{% url 'tour' tour.slug %}" data-zona="{{ tour.zona.slug|default:'' }}"
+               class="zona-fade group relative block h-100 overflow-hidden rounded-2xl shadow-lg ring-1 ring-black/5 transition duration-300 hover:-translate-y-1 hover:shadow-2xl">
+
+                <img src="{{ tour.imagen_principal.url }}" alt="{{ tour.nombre }}" loading="lazy"
+                     class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110">
+                <div class="absolute inset-0 bg-linear-to-t from-black/90 via-black/30 to-black/10"></div>
+
+                <div class="relative flex h-full flex-col justify-between p-6 text-white">
+                    <div class="flex flex-wrap gap-2">
+                        {% if tour.zona %}
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold ring-1 ring-white/25 backdrop-blur-sm">
+                            <i class="fa-solid fa-location-dot text-orange-400"></i>{{ tour.zona.nombre }}
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <h3 class="text-2xl font-bold leading-tight mb-4 drop-shadow">{{ tour.nombre }}</h3>
+                        <div class="flex items-end justify-between gap-4 border-t border-white/20 pt-4">
+                            {% if tour.con_precio and tour.precio %}
+                            <div>
+                                <span class="block text-xs uppercase tracking-wider text-white/70">Desde</span>
+                                <span class="text-2xl font-black">${{ tour.precio.valor_adulto|clp }}</span>
+                            </div>
+                            {% else %}
+                            <div>
+                                <span class="block text-xs uppercase tracking-wider text-white/70">Precio</span>
+                                <span class="text-lg font-bold">A cotizar</span>
+                            </div>
+                            {% endif %}
+                            <span class="inline-flex items-center gap-2 rounded-lg bg-orange-500 px-4 py-2 font-bold transition group-hover:bg-orange-600">
+                                Ver tour <i class="fa-solid fa-arrow-right text-sm transition-transform group-hover:translate-x-1"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
     </div>
     {% empty %}
     <div class="text-center py-10">
         <p class="text-gray-500 italic">Próximamente más tours destacados.</p>
     </div>
     {% endfor %}
+    </div>
+
+    <div id="zona-vacia" class="text-center py-16" hidden>
+        <i class="fa-solid fa-person-hiking text-4xl text-orange-300 mb-4"></i>
+        <p class="text-gray-500">Aún no hay tours en esta zona. ¡Escríbenos y armamos uno a tu medida!</p>
+    </div>
 </section>
+
+{% if zonas %}
+<script>
+(function () {
+    const barra = document.getElementById('filtro-zonas');
+    const botones = barra.querySelectorAll('[data-filtro]');
+    const infos = barra.querySelectorAll('[data-zona-info]');
+    const grupos = document.querySelectorAll('#tours-list [data-grupo]');
+    const vacia = document.getElementById('zona-vacia');
+
+    // Reinicia la animación de entrada, escalonada, para que el cambio de zona se note.
+    function animar(el, i) {
+        el.style.animation = 'none';
+        void el.offsetHeight;
+        el.style.animation = '';
+        el.style.animationDelay = Math.min(i, 8) * 60 + 'ms';
+    }
+
+    function filtrar(zona) {
+        if (zona && !barra.querySelector('[data-filtro="' + CSS.escape(zona) + '"]')) zona = '';
+        botones.forEach(b => b.setAttribute('aria-pressed', b.dataset.filtro === zona ? 'true' : 'false'));
+        infos.forEach(info => {
+            info.hidden = info.dataset.zonaInfo !== zona;
+            if (!info.hidden) animar(info, 0);
+        });
+
+        let total = 0;
+        grupos.forEach(g => {
+            let visibles = 0;
+            g.querySelectorAll('[data-zona]').forEach(t => {
+                const ver = !zona || t.dataset.zona === zona;
+                t.hidden = !ver;
+                if (ver) animar(t, visibles++);
+            });
+            g.hidden = visibles === 0;
+            g.querySelector('[data-contador]').textContent = visibles + (visibles === 1 ? ' tour' : ' tours');
+            total += visibles;
+        });
+        vacia.hidden = total > 0;
+
+        // Deja el filtro en la URL para poder compartirlo (/tours/?zona=norte-grande).
+        const url = new URL(window.location);
+        if (zona) url.searchParams.set('zona', zona); else url.searchParams.delete('zona');
+        history.replaceState(null, '', url);
+    }
+
+    botones.forEach(b => b.addEventListener('click', () => filtrar(b.dataset.filtro)));
+    barra.hidden = false;
+    filtrar(new URLSearchParams(window.location.search).get('zona') || '');
+})();
+</script>
+{% endif %}
 {% endblock %}
