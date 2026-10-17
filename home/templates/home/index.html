@@ -15,8 +15,11 @@
     loop
     playsinline
     preload="auto"
+    poster="{% static 'img/banner-home2-poster.jpg' %}"
     aria-label="Portada Orange Travel">
-    <source src="{% static 'video/banner-home2.mp4' %}" type="video/mp4">
+    {# H.264 (no HEVC): los celulares Android no reproducen HEVC 10 bits. Celular: 720p ~7 MB; escritorio: 1080p ~19 MB #}
+    <source src="{% static 'video/banner-home2-720.mp4' %}" type="video/mp4" media="(max-width: 767px)">
+    <source src="{% static 'video/banner-home2-1080.mp4' %}" type="video/mp4">
     Tu navegador no soporta video HTML5.
 </video>
         {# Velo para legibilidad del texto sobre el video #}
