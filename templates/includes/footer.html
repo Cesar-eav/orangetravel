@@ -1,73 +1,93 @@
 {% load static %}
 <footer class="bg-blue-dark text-gray-400  border-t border-gray-800 mt-auto">
     <div class="container mx-auto md:px-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 md:gap-12 gap-6 m-10 md:mx-28">
-            <div class="col-span-1 md:col-span-1">
+        <div class="grid grid-cols-1 md:grid-cols-4 md:gap-12 gap-6 m-10 md:mx-28">
+            <div>
                 <div class="md:justify-items-left justify-items-center">
-                    <img src="{% static 'img/Footer_logo.png' %}">
+                    <img src="{% static 'img/Footer_logo.png' %}" alt="Orange Travel">
                 </div>
                 <p class="text-sm leading-relaxed font-bold text-white">Más de 20 años de experiencia en la región de Arica</p>
-            </ul>
-            <li class="mt-6 flex space-x-4">
-                <a href="https://www.facebook.com/orangetravelservice"
-                   class="w-8 h-8"
-                   target="_blank">
-                    <i class="fa-brands fa-facebook text-white text-3xl"></i>
-                </a>
-                <a href="https://www.instagram.com/orange.travel.arica/"
-                   class="w-8 h-8"
-                   target="_blank">
-                    <i class="fa-brands fa-square-instagram text-white text-3xl"></i>
-                </a>
-            </li>
-        </ul>
-        {% comment %} Logos de sellos de certificacion como empresa turistica {% endcomment %}
-                <div class="mt-6 pt-5 border-t border-gray-700">
-                    <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-3">Certificaciones</p>
-                    <div class="flex flex-wrap items-center gap-3">
-                        <img src="{% static 'img/logo_no_explotracion.jpeg' %}"
-                             class="h-12 w-auto object-contain rounded opacity-80 hover:opacity-100 transition-opacity duration-300"
-                             alt="Sello No Explotación">
-                        <img src="{% static 'img/logo_registro_nacional.jpeg' %}"
-                             class="h-12 w-auto object-contain rounded opacity-80 hover:opacity-100 transition-opacity duration-300"
-                             alt="Registro Nacional">
-                        <img src="{% static 'img/logo_sello_empresa_mujer.jpeg' %}"
-                             class="h-12 w-auto object-contain rounded opacity-80 hover:opacity-100 transition-opacity duration-300"
-                             alt="Empresa de Mujer">
-                        <img src="{% static 'img/logo_sustentable.jpeg' %}"
-                             class="h-12 w-auto object-contain rounded opacity-80 hover:opacity-100 transition-opacity duration-300"
-                             alt="Tercera Edad">
-                    </div>
+                <div class="mt-6 flex space-x-4">
+                    <a href="https://www.facebook.com/orangetravelservice"
+                       class="w-8 h-8"
+                       target="_blank">
+                        <i class="fa-brands fa-facebook text-white text-3xl"></i>
+                    </a>
+                    <a href="https://www.instagram.com/orange.travel.arica/"
+                       class="w-8 h-8"
+                       target="_blank">
+                        <i class="fa-brands fa-square-instagram text-white text-3xl"></i>
+                    </a>
                 </div>
-    </div>
-    <div>
-        <h4 class="text-white font-bold uppercase text-xs tracking-[0.2em] mb-6">Contacto</h4>
-        <ul class="space-y-4 text-sm font-medium">
-            <li class="flex items-start">
-                <i class="fa-solid fa-envelope text-white text-xl pr-2"></i>
-                <span>Agenciaorangetravel@gmail.com</span>
-            </li>
-            <li class="flex items-start">
-                <i class="fa-solid fa-phone text-white text-xl w-6 text-center"></i>
-                <span>+56 9 8869 3991</span>
-            </li>
-            <li class="flex items-start">
-                <i class="fa-solid fa-phone text-white text-xl w-6 text-center"></i>
-                <span>+56 9 3658 4003</span>
-            </li>
-            <a href="{% url 'politica_devoluciones' %}" class="text-white font-bold uppercase text-xs tracking-[0.2em] mb-6">TÉRMINOS Y CONDICIONES</a>
-            <ul class="space-y-2 text-sm font-medium">
             </div>
             <div>
-                <h4 class="text-white font-bold uppercase text-xs tracking-[0.2em] mb-6">Experiencias</h4>
-                <ul class="space-y-2 text-sm font-medium">
-                    {% for tour in footer_tours %}
-                    <li>
-                        <i class="fa-solid fa-angles-right"></i>
-                        <a href="#" class="hover:text-orange-500 transition-colors duration-300">{{ tour.nombre }}</a>
+                <h4 class="text-white font-bold uppercase text-xs tracking-[0.2em] mb-6">Contacto</h4>
+                <ul class="space-y-4 text-sm font-medium">
+                    <li class="flex items-start">
+                        <i class="fa-solid fa-envelope text-white text-xl pr-2"></i>
+                        <span>Agenciaorangetravel@gmail.com</span>
                     </li>
-                    {% endfor %}
+                    <li class="flex items-start">
+                        <i class="fa-solid fa-phone text-white text-xl w-6 text-center"></i>
+                        <span>+56 9 8869 3991</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fa-solid fa-phone text-white text-xl w-6 text-center"></i>
+                        <span>+56 9 3658 4003</span>
+                    </li>
+                    <li>
+                        <a href="{% url 'politica_devoluciones' %}" class="text-white font-bold uppercase text-xs tracking-[0.2em]">TÉRMINOS Y CONDICIONES</a>
+                    </li>
                 </ul>
+            </div>
+            {% comment %} Sellos de certificación como empresa turística {% endcomment %}
+            <div>
+                <h4 class="text-white font-bold uppercase text-xs tracking-[0.2em] mb-6">Certificaciones</h4>
+                <div class="flex flex-wrap items-center gap-3">
+                    <img src="{% static 'img/certificaciones/logo_registro_nacional.jpeg' %}"
+                         class="h-12 w-auto object-contain rounded opacity-80 hover:opacity-100 transition-opacity duration-300"
+                         alt="Registro Nacional de Prestadores de Servicios Turísticos" loading="lazy">
+                    <img src="{% static 'img/certificaciones/logo_sello_empresa_mujer.jpeg' %}"
+                         class="h-12 w-auto object-contain rounded opacity-80 hover:opacity-100 transition-opacity duration-300"
+                         alt="Sello Empresa Mujer" loading="lazy">
+                    <img src="{% static 'img/certificaciones/logo_sustentable.jpeg' %}"
+                         class="h-12 w-auto object-contain rounded opacity-80 hover:opacity-100 transition-opacity duration-300"
+                         alt="Turismo Sustentable" loading="lazy">
+                    <img src="{% static 'img/certificaciones/logo_no_explotracion.jpeg' %}"
+                         class="h-12 w-auto object-contain rounded opacity-80 hover:opacity-100 transition-opacity duration-300"
+                         alt="Sello No Explotación" loading="lazy">
+                    <img src="{% static 'img/certificaciones/cert_atta.png' %}"
+                         class="h-12 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300"
+                         alt="Miembro de Adventure Travel Trade Association" loading="lazy">
+                    <img src="{% static 'img/certificaciones/cert_angm.png' %}"
+                         class="h-12 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300"
+                         alt="Asociación Nacional de Guías de Montaña de Chile" loading="lazy">
+                </div>
+            </div>
+            <div>
+                <h4 class="text-white font-bold uppercase text-xs tracking-[0.2em] mb-6">Partnership</h4>
+                <div class="flex flex-wrap items-center gap-3">
+                    <a href="https://aricasiempreactiva.cl/" target="_blank" rel="noopener">
+                        <img src="{% static 'img/certificaciones/partner_arica_siempre_activa.png' %}"
+                             class="h-12 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300"
+                             alt="Arica Siempre Activa A.G." loading="lazy">
+                    </a>
+                    <a href="https://www.panoramasarica.cl/" target="_blank" rel="noopener">
+                        <img src="{% static 'img/certificaciones/partner_panoramas_arica.png' %}"
+                             class="h-12 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300"
+                             alt="PanoramasArica.cl" loading="lazy">
+                    </a>
+                    <a href="https://www.norteoutdoor.com/" target="_blank" rel="noopener">
+                        <img src="{% static 'img/certificaciones/partner_norte_outdoor.png' %}"
+                             class="h-12 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300"
+                             alt="Norte Outdoor" loading="lazy">
+                    </a>
+                    <a href="https://aventuraputreyork.com/" target="_blank" rel="noopener">
+                        <img src="{% static 'img/certificaciones/partner_putre_york.jpg' %}"
+                             class="h-12 w-auto object-contain rounded opacity-80 hover:opacity-100 transition-opacity duration-300"
+                             alt="Aventura Putre York" loading="lazy">
+                    </a>
+                </div>
             </div>
         </div>
         <div class="md:mt-16 mt-5 pt-8 pb-5 border-t border-gray-800 text-center">
