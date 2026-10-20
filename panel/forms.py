@@ -270,4 +270,4 @@ class MantencionForm(forms.ModelForm):
 class SitioInglesForm(forms.ModelForm):
     class Meta:
         model = SitioIngles
-        fields = ('publico',)
+        fields = ('publico', 'mostrar_banderas')

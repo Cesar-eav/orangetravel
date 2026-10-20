@@ -31,10 +31,10 @@ class MaintenanceModeMiddleware:
 
 
 class SitioInglesMiddleware:
-    """Controla /en/ con el interruptor «Sitio en inglés» (home.SitioIngles).
+    """Controla /en/ con los interruptores de home.SitioIngles.
 
-    Apagado: /en/ responde 404 salvo al staff, que la usa para revisar traducciones.
-    Encendido: /en/ es pública y quien eligió inglés en el selector (cookie de
+    «publico» apagado: /en/ responde 404 salvo al staff, que la usa para revisar traducciones.
+    «mostrar_banderas» encendido: además, quien eligió inglés en el selector (cookie de
     idioma) vuelve a /en/ al entrar por una URL en español. Nunca se decide por
     Accept-Language, para que Google indexe las dos versiones.
     """
@@ -43,14 +43,14 @@ class SitioInglesMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        publico = SitioIngles.get_solo().publico
-        request.ingles_publico = publico
+        cfg = SitioIngles.get_solo()
+        request.ingles_anunciado = anunciado = cfg.mostrar_banderas
         idioma_ruta = translation.get_language_from_path(request.path_info)
 
-        if idioma_ruta == 'en' and not publico and not request.user.is_staff:
+        if idioma_ruta == 'en' and not (cfg.publico or anunciado) and not request.user.is_staff:
             raise Http404
 
-        if (publico and idioma_ruta is None and request.method == 'GET'
+        if (anunciado and idioma_ruta is None and request.method == 'GET'
                 and request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME) == 'en'):
             actual = request.get_full_path()
             destino = translate_url(actual, 'en')

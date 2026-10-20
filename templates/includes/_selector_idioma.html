@@ -1,5 +1,5 @@
 {% load i18n %}{% if mostrar_selector_idioma %}{% get_current_language as idioma_actual %}
-{# Visible para todos solo con «Sitio en inglés» encendido en el panel; apagado, solo el staff lo ve. #}
+{# Visible para todos solo con «Mostrar banderas» encendido (panel → Sitio en inglés); apagado, solo el staff lo ve. #}
 <form action="{% url 'set_language' %}" method="post" class="flex items-center gap-1 {{ clase }}">{% csrf_token %}
     <input name="next" type="hidden" value="{{ request.get_full_path }}">
     <button type="submit" name="language" value="es" title="Español" aria-label="Español"{% if idioma_actual == 'es' %} aria-current="true"{% endif %}
@@ -13,6 +13,6 @@
         <svg viewBox="0 0 60 30" class="h-3.5 w-5 rounded-sm shadow" aria-hidden="true"><rect width="60" height="30" fill="#012169"/><path d="M0,0 60,30M60,0 0,30" stroke="#fff" stroke-width="6"/><path d="M0,0 60,30M60,0 0,30" stroke="#c8102e" stroke-width="2"/><path d="M30,0v30M0,15h60" stroke="#fff" stroke-width="10"/><path d="M30,0v30M0,15h60" stroke="#c8102e" stroke-width="6"/></svg>
         EN
     </button>
-    {% if not ingles_publico %}<span class="ml-1 rounded bg-amber-400 px-1.5 py-0.5 text-[10px] font-black uppercase text-blue-dark" title="Solo lo ven usuarios staff hasta activar «Sitio en inglés» en el panel">staff</span>{% endif %}
+    {% if not ingles_anunciado %}<span class="ml-1 rounded bg-amber-400 px-1.5 py-0.5 text-[10px] font-black uppercase text-blue-dark" title="Solo lo ven usuarios staff hasta activar «Mostrar banderas» en Panel → Sitio en inglés">staff</span>{% endif %}
 </form>
 {% endif %}

@@ -6,14 +6,20 @@ from .models import SitioIngles
 
 
 def sitio_ingles(request):
-    """Selector de idioma y enlaces hreflang (ver home.middleware.SitioInglesMiddleware)."""
-    publico = getattr(request, 'ingles_publico', None)
-    if publico is None:
-        publico = SitioIngles.get_solo().publico
+    """Selector de idioma y enlaces hreflang (ver home.middleware.SitioInglesMiddleware).
+
+    Mientras el inglés no esté anunciado (banderas apagadas), /en/ lleva noindex y solo
+    el staff ve el selector; el resto puede entrar a /en/ por link si es accesible.
+    """
+    anunciado = getattr(request, 'ingles_anunciado', None)
+    if anunciado is None:
+        anunciado = SitioIngles.get_solo().mostrar_banderas
+    en_ingles = translation.get_language() == 'en'
     ctx = {
-        'ingles_publico': publico,
-        'mostrar_selector_idioma': publico or request.user.is_staff,
-        'vista_previa_ingles': not publico and translation.get_language() == 'en',
+        'ingles_anunciado': anunciado,
+        'mostrar_selector_idioma': anunciado or request.user.is_staff,
+        'noindex_ingles': not anunciado and en_ingles,
+        'vista_previa_ingles': not anunciado and en_ingles and request.user.is_staff,
     }
     ruta = request.get_full_path()
     url_es, url_en = translate_url(ruta, settings.LANGUAGE_CODE), translate_url(ruta, 'en')

@@ -648,9 +648,9 @@ class MantencionView(SingletonFormView):
 class SitioInglesView(SingletonFormView):
     model, form_class, url_name = SitioIngles, SitioInglesForm, 'panel:sitio_ingles'
     titulo = 'Sitio en inglés'
-    ayuda = ('Apagado: el público no ve ningún cambio y /en/ responde «no encontrado»; '
-             'los usuarios staff sí pueden recorrer /en/ para revisar las traducciones. '
-             'Encendido: aparece el selector ES | EN en el sitio y Google puede indexar /en/.')
+    ayuda = ('«/en/ accesible»: cualquiera con el link puede ver el sitio en inglés (apagado, solo el staff). '
+             '«Mostrar banderas»: aparece el selector ES | EN para todos y Google puede indexar /en/; '
+             'mientras esté apagado, el sitio en español no muestra ningún cambio.')
 
 
 @_staff_only

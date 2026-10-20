@@ -20,7 +20,7 @@ from .views import EMAIL_POR_TOUR, enviar_notificaciones_cotizacion, get_email_a
 
 
 class SitioInglesTests(TestCase):
-    """Interruptor «Sitio en inglés»: apagado, /en/ solo para staff; encendido, público y con memoria."""
+    """Interruptores de «Sitio en inglés»: /en/ accesible por link y banderas (anuncio + Google)."""
 
     @classmethod
     def setUpTestData(cls):
@@ -29,25 +29,33 @@ class SitioInglesTests(TestCase):
                                        slug='valle', imagen_principal='tours/principales/a.jpg')
         cls.staff = get_user_model().objects.create_user('staff', password='x', is_staff=True)
 
-    def _publico(self, valor):
+    def _config(self, publico=True, banderas=False):
         cfg = SitioIngles.get_solo()
-        cfg.publico = valor
+        cfg.publico, cfg.mostrar_banderas = publico, banderas
         cfg.save()
 
-    def test_apagado_en_es_404_para_el_publico_y_visible_para_staff(self):
-        self._publico(False)
-        self.assertEqual(self.client.get('/en/').status_code, 404)
-        r = self.client.get('/')
-        self.assertNotContains(r, 'name="language"')
-        self.assertNotContains(r, 'hreflang')
-        self.client.force_login(self.staff)
+    def test_por_defecto_en_accesible_por_link_sin_banderas_ni_indexar(self):
+        self._config()
         r = self.client.get('/en/')
         self.assertEqual(r.status_code, 200)
         self.assertContains(r, '<html lang="en">')
         self.assertContains(r, 'name="robots" content="noindex"')
+        self.assertNotContains(r, 'name="language"')
+        r = self.client.get('/')
+        self.assertNotContains(r, 'name="language"')
+        self.assertNotContains(r, 'hreflang')
+        self.assertNotContains(r, 'noindex')
 
-    def test_encendido_publico_selector_hreflang_y_memoria(self):
-        self._publico(True)
+    def test_no_accesible_es_404_para_el_publico_y_visible_para_staff(self):
+        self._config(publico=False)
+        self.assertEqual(self.client.get('/en/').status_code, 404)
+        self.client.force_login(self.staff)
+        r = self.client.get('/en/')
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, 'name="language"')
+
+    def test_banderas_selector_hreflang_y_memoria(self):
+        self._config(banderas=True)
         r = self.client.get('/en/')
         self.assertEqual(r.status_code, 200)
         self.assertContains(r, 'hreflang="en"')
@@ -59,7 +67,7 @@ class SitioInglesTests(TestCase):
         self.assertRedirects(r, '/tours/', fetch_redirect_response=False)
 
     def test_sin_aprobar_el_publico_ve_espanol_y_el_staff_el_borrador(self):
-        self._publico(True)
+        self._config(banderas=True)
         url = f'/en/tours/tour/{self.tour.slug}/'
         r = self.client.get(url)
         self.assertContains(r, 'Valle de Azapa')
