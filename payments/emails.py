@@ -3,8 +3,12 @@ from __future__ import annotations
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.core.mail import EmailMultiAlternatives # Importante para enviar HTML
+from django.template.loader import render_to_string
+from django.utils import translation
+from django.utils.translation import gettext as _
 
 from .models import Payment
+from tours.traduccion import texto
 from tours.views import EMAIL_POR_TOUR, EMAIL_ADMIN_DEFAULT, CC_RESERVAS
 
 
@@ -140,9 +144,9 @@ def send_payment_integration_error_to_admins(*, payment: Payment, error: str) ->
     return True
 
 def _pax_detalle(payment) -> str:
-    pax_detalle = f"{payment.pax_adults} Adultos"
+    pax_detalle = _("%(n)s Adultos") % {'n': payment.pax_adults}
     if payment.pax_children > 0:
-        pax_detalle += f" / {payment.pax_children} Niños"
+        pax_detalle += _(" / %(n)s Niños") % {'n': payment.pax_children}
     return pax_detalle
 
 
@@ -151,53 +155,36 @@ def _fecha_cl(payment) -> str:
     return fecha.strftime("%d-%m-%Y") if fecha else "-"
 
 
-def _html_cliente_pago(payment, pax_detalle: str) -> str:
-    return f"""
-    <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
-        <div style="background-color: #FF8C00; padding: 20px; text-align: center;">
-            <h1 style="color: white; margin: 0;">Orange Travel</h1>
-        </div>
-        <div style="padding: 20px; color: #333;">
-            <h2>¡Hola {payment.customer_name}!</h2>
-            <p>¡Tu aventura en Arica está confirmada! Hemos recibido tu pago exitosamente.</p>
-            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                <p><strong>Código de reserva:</strong> {payment.codigo}</p>
-                <p><strong>Tour:</strong> {payment.tour.nombre}</p>
-                <p><strong>Fecha del tour:</strong> {_fecha_cl(payment)}</p>
-                <p><strong>Pasajeros:</strong> {pax_detalle}</p>
-                <p style="font-size: 18px; color: #FF8C00;"><strong>Total Pagado: ${payment.amount:,} CLP</strong></p>
-            </div>
-            <p>Te contactaremos pronto al WhatsApp {payment.customer_phone}.</p>
-        </div>
-    </div>
-    """
+def _contexto_pago(payment) -> dict:
+    return {
+        'payment': payment,
+        'pax_detalle': _pax_detalle(payment),
+        'fecha': _fecha_cl(payment),
+        'monto': f"{payment.amount:,}",
+    }
 
 
-def _html_admin_pago(payment, pax_detalle: str) -> str:
-    tel_limpio = payment.customer_phone.replace('+', '').replace(' ', '')
-    return f"""
-    <div style="border: 2px solid #FF8C00; padding: 20px; font-family: sans-serif;">
-        <h2 style="color: #FF8C00;">🚨 NUEVA VENTA CONFIRMADA</h2>
-        <p><strong>Código:</strong> {payment.codigo}</p>
-        <p><strong>Cliente:</strong> {payment.customer_name}</p>
-        <p><strong>Email:</strong> {payment.customer_email}</p>
-        <p><strong>Telefono:</strong> {payment.customer_phone}</p>
-        <p><strong>Tour:</strong> {payment.tour.nombre}</p>
-        <p><strong>Fecha del tour:</strong> {_fecha_cl(payment)}</p>
-        <p><strong>Pasajeros:</strong> {pax_detalle}</p>
-        <p><strong>Monto:</strong> ${payment.amount:,}</p>
-        <p><a href="https://wa.me/{tel_limpio}" style="color: #25D366; font-weight: bold;">📱 Contactar por WhatsApp</a></p>
-    </div>
-    """
+def _html_cliente_pago(payment) -> str:
+    ctx = _contexto_pago(payment)
+    ctx['tour_nombre'] = texto(payment.tour, 'nombre', payment.idioma)
+    return render_to_string('emails/pago_cliente.html', ctx)
+
+
+def _html_admin_pago(payment) -> str:
+    ctx = _contexto_pago(payment)
+    ctx['tel_limpio'] = payment.customer_phone.replace('+', '').replace(' ', '')
+    return render_to_string('emails/pago_admin.html', ctx)
 
 
 def send_payment_confirmation_to_customer(payment: Payment) -> None:
-    """Envía solo el correo de confirmación de pago al cliente. Propaga excepciones."""
-    pax_detalle = _pax_detalle(payment)
-    html_cliente = _html_cliente_pago(payment, pax_detalle)
+    """Envía solo el correo de confirmación de pago al cliente, en su idioma. Propaga excepciones."""
+    with translation.override(payment.idioma):
+        html_cliente = _html_cliente_pago(payment)
+        asunto = _("✅ Reserva Confirmada: %(tour)s") % {'tour': texto(payment.tour, 'nombre', payment.idioma)}
+        cuerpo = _("Tu pago ha sido confirmado.")
     msg_cli = EmailMultiAlternatives(
-        subject=f"✅ Reserva Confirmada: {payment.tour.nombre}",
-        body="Tu pago ha sido confirmado.",
+        subject=asunto,
+        body=cuerpo,
         from_email=settings.DEFAULT_FROM_EMAIL,
         to=[payment.customer_email],
     )
@@ -207,8 +194,8 @@ def send_payment_confirmation_to_customer(payment: Payment) -> None:
 
 def send_payment_confirmation_to_admins(payment: Payment) -> None:
     """Envía solo el correo de notificación de pago a los administradores. Propaga excepciones."""
-    pax_detalle = _pax_detalle(payment)
-    html_admin = _html_admin_pago(payment, pax_detalle)
+    with translation.override('es'):
+        html_admin = _html_admin_pago(payment)
     email_admin = get_email_admin_pago(payment)
     cc_admin = [email for email in CC_RESERVAS if email != email_admin]
     msg_adm = EmailMultiAlternatives(
@@ -229,7 +216,7 @@ def enviar_confirmacion_pago(payment):
         print("DEBUG: ✅ Anymail: Correo cliente enviado.")
 
         email_admin = get_email_admin_pago(payment)
-        print(f"DEBUG: 📧 Notificación pago → {email_admin} (tour: {payment.tour.nombre})")
+        print(f"DEBUG: 📧 Notificación pago → {email_admin} (tour: {payment.tour.nombre_es})")
         send_payment_confirmation_to_admins(payment)
         print("DEBUG: ✅ Anymail: Correo admin enviado.")
 

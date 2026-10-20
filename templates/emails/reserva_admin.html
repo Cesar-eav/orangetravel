@@ -1,0 +1,23 @@
+    <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 2px solid #FF8C00; border-radius: 10px; padding: 20px;">
+        <h2 style="color: #FF8C00;">NUEVA SOLICITUD WEB</h2>
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Código:</strong></td><td>{{ reserva.codigo }}</td></tr>
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Cliente:</strong></td><td>{{ reserva.nombre_cliente }}</td></tr>
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Tour:</strong></td><td>{{ reserva.tour.nombre_es }}</td></tr>
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Fecha:</strong></td><td>{{ reserva.fecha|date:"Y-m-d" }}</td></tr>
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Pasajeros:</strong></td><td>{{ reserva.adultos }} Adultos / {{ reserva.ninos }} Niños</td></tr>
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>WhatsApp:</strong></td>
+                <td><a href="https://wa.me/{{ tel_limpio }}" style="color: #25D366; font-weight: bold; text-decoration: none;">📱 {{ reserva.telefono_cliente }}</a></td>
+            </tr>
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Email:</strong></td><td>{{ reserva.email_cliente }}</td></tr>
+            {% include 'emails/_idioma_cliente.html' with idioma=reserva.idioma %}
+        </table>
+
+        <div style="margin-top: 25px; text-align: center;">
+            <p style="color: #666; font-size: 12px;">Link generado desde: {{ dominio }}</p>
+            <a href="{{ dominio }}/admin/tours/reserva/{{ reserva.id }}/change/"
+            style="background-color: #333; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            Ver en Panel Admin
+            </a>
+        </div>
+    </div>

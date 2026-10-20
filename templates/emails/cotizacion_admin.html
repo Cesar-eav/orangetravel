@@ -1,0 +1,22 @@
+    <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 2px solid #FF8C00; border-radius: 10px; padding: 20px;">
+        <h2 style="color: #FF8C00;">NUEVA SOLICITUD DE COTIZACIÓN</h2>
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Cliente:</strong></td><td>{{ cotizacion.nombre }}</td></tr>
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Tour:</strong></td><td>{{ cotizacion.tour.nombre_es }}</td></tr>
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Fecha tentativa:</strong></td><td>{% if cotizacion.fecha_tentativa %}{{ cotizacion.fecha_tentativa|date:"d-m-Y" }}{% else %}Por definir{% endif %}</td></tr>
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Pasajeros:</strong></td><td>{{ cotizacion.adultos }} Adultos / {{ cotizacion.ninos }} Niños</td></tr>
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>WhatsApp:</strong></td>
+                <td><a href="https://wa.me/{{ tel_limpio }}" style="color: #25D366; font-weight: bold; text-decoration: none;">📱 {{ cotizacion.telefono }}</a></td>
+            </tr>
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Email:</strong></td><td>{{ cotizacion.email }}</td></tr>
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Mensaje:</strong></td><td>{{ cotizacion.mensaje|linebreaksbr|default:"—" }}</td></tr>
+            {% include 'emails/_idioma_cliente.html' with idioma=cotizacion.idioma %}
+        </table>
+
+        <div style="margin-top: 25px; text-align: center;">
+            <a href="{{ dominio }}/panel/cotizaciones/{{ cotizacion.id }}/"
+            style="background-color: #333; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            Ver en el Panel
+            </a>
+        </div>
+    </div>

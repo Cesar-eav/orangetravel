@@ -16,6 +16,9 @@ from django.conf import settings
 from django.core.mail import EmailMultiAlternatives # Importante para enviar HTML
 from django.template.loader import render_to_string # Si prefieres usar archivos .html
 from django.utils.html import strip_tags, escape # Par
+from django.utils import translation
+from django.utils.translation import gettext as _
+from .traduccion import texto
 from datetime import date
 import os
 
@@ -139,35 +142,14 @@ def crear_reserva(request):
 def enviar_notificaciones_reserva(reserva):
     print(f"DEBUG: Iniciando envío de correos para la reserva {reserva.id}...") # Checkpoint 1
 
-    # --- 1. CONFIGURACIÓN PARA EL CLIENTE ---
-    asunto_cliente = f"🍊 Solicitud Recibida: {reserva.tour.nombre}"
-    
-    html_cliente = f"""
-    <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
-        <div style="background-color: #FF8C00; padding: 20px; text-align: center;">
-            <h1 style="color: white; margin: 0;">Orange Travel</h1>
-        </div>
-        <div style="padding: 20px; color: #333;">
-            <h2>¡Hola {reserva.nombre_cliente}!</h2>
-            <p>Hemos recibido tu solicitud de reserva. Nuestro equipo la revisará y te contactará a la brevedad para confirmar la disponibilidad.</p>
-            
-            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                <p><strong>Código de reserva:</strong> {reserva.codigo}</p>
-                <p><strong>Tour:</strong> {reserva.tour.nombre}</p>
-                <p><strong>Fecha:</strong> {reserva.fecha}</p>
-                <p><strong>Pasajeros:</strong> {reserva.adultos} Adultos / {reserva.ninos} Niños</p>
-                <p style="font-size: 18px; color: #FF8C00;"><strong>Total estimado: ${reserva.precio_total}</strong></p>
-            </div>
-            
-            <p style="font-style: italic; color: #666;">* Estado actual: <strong>Pendiente de Confirmación</strong>.</p>
-        </div>
-        <div style="background-color: #333; color: white; padding: 10px; text-align: center; font-size: 12px;">
-            Arica, Chile - ¡La ciudad de la eterna primavera!
-        </div>
-    </div>
-    """
+    # --- 1. CONFIGURACIÓN PARA EL CLIENTE (en su idioma) ---
+    with translation.override(reserva.idioma):
+        tour_nombre = texto(reserva.tour, 'nombre', reserva.idioma)
+        asunto_cliente = _("🍊 Solicitud Recibida: %(tour)s") % {'tour': tour_nombre}
+        html_cliente = render_to_string('emails/reserva_cliente.html', {'reserva': reserva, 'tour_nombre': tour_nombre})
+        texto_cliente = _("Solicitud recibida.")
 
-    # --- 2. CONFIGURACIÓN PARA EL ADMIN (TÚ) ---
+    # --- 2. CONFIGURACIÓN PARA EL ADMIN (TÚ), siempre en español ---
     asunto_admin = f"🚨 NUEVA RESERVA - {reserva.nombre_cliente}"
     
     # Limpiamos el teléfono para el link de WhatsApp
@@ -175,35 +157,15 @@ def enviar_notificaciones_reserva(reserva):
     
     dominio = settings.SITE_URL
 
-    html_admin = f"""
-    <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 2px solid #FF8C00; border-radius: 10px; padding: 20px;">
-        <h2 style="color: #FF8C00;">NUEVA SOLICITUD WEB</h2>
-        <table style="width: 100%; border-collapse: collapse;">
-            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Código:</strong></td><td>{reserva.codigo}</td></tr>
-            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Cliente:</strong></td><td>{reserva.nombre_cliente}</td></tr>
-            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Tour:</strong></td><td>{reserva.tour.nombre}</td></tr>
-            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Fecha:</strong></td><td>{reserva.fecha}</td></tr>
-            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Pasajeros:</strong></td><td>{reserva.adultos} Adultos / {reserva.ninos} Niños</td></tr>
-            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>WhatsApp:</strong></td>
-                <td><a href="https://wa.me/{tel_limpio}" style="color: #25D366; font-weight: bold; text-decoration: none;">📱 {reserva.telefono_cliente}</a></td>
-            </tr>
-            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Email:</strong></td><td>{reserva.email_cliente}</td></tr>
-        </table>
-        
-        <div style="margin-top: 25px; text-align: center;">
-            <p style="color: #666; font-size: 12px;">Link generado desde: {dominio}</p>
-            <a href="{dominio}/admin/tours/reserva/{reserva.id}/change/" 
-            style="background-color: #333; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
-            Ver en Panel Admin
-            </a>
-        </div>
-    </div>
-    """
+    with translation.override('es'):
+        html_admin = render_to_string('emails/reserva_admin.html', {
+            'reserva': reserva, 'tel_limpio': tel_limpio, 'dominio': dominio,
+        })
 
     try:
         print(f"DEBUG: Intentando conectar con SMTP: {settings.EMAIL_HOST}") # Checkpoint 2
         # Enviar al Cliente
-        msg_cli = EmailMultiAlternatives(asunto_cliente, "Solicitud recibida.", settings.DEFAULT_FROM_EMAIL, [reserva.email_cliente])
+        msg_cli = EmailMultiAlternatives(asunto_cliente, texto_cliente, settings.DEFAULT_FROM_EMAIL, [reserva.email_cliente])
         msg_cli.attach_alternative(html_cliente, "text/html")
         msg_cli.send()
         print("DEBUG: Correo cliente enviado con éxito.") # Checkpoint 3
@@ -211,7 +173,7 @@ def enviar_notificaciones_reserva(reserva):
         # Enviar al Admin (destinatario según el tour)
         email_admin = get_email_admin(reserva)
         cc_admin = [email for email in CC_RESERVAS if email != email_admin]
-        print(f"DEBUG: 📧 Notificación admin → {email_admin} cc={cc_admin} (tour: {reserva.tour.nombre})")
+        print(f"DEBUG: 📧 Notificación admin → {email_admin} cc={cc_admin} (tour: {reserva.tour.nombre_es})")
         msg_adm = EmailMultiAlternatives(asunto_admin, "Nueva reserva recibida.", settings.DEFAULT_FROM_EMAIL, [email_admin], cc=cc_admin)
         msg_adm.attach_alternative(html_admin, "text/html")
         msg_adm.send()
@@ -279,68 +241,29 @@ def crear_cotizacion(request):
     }, status=201)
 
 def enviar_notificaciones_cotizacion(cotizacion):
-    fecha = cotizacion.fecha_tentativa.strftime('%d-%m-%Y') if cotizacion.fecha_tentativa else 'Por definir'
-    mensaje = escape(cotizacion.mensaje).replace('\n', '<br>') or '—'
+    with translation.override(cotizacion.idioma):
+        tour_nombre = texto(cotizacion.tour, 'nombre', cotizacion.idioma)
+        asunto_cliente = _("🍊 Solicitud de cotización: %(tour)s") % {'tour': tour_nombre}
+        html_cliente = render_to_string('emails/cotizacion_cliente.html', {'cotizacion': cotizacion, 'tour_nombre': tour_nombre})
+        texto_cliente = _("Solicitud de cotización recibida.")
 
-    asunto_cliente = f"🍊 Solicitud de cotización: {cotizacion.tour.nombre}"
-    html_cliente = f"""
-    <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
-        <div style="background-color: #FF8C00; padding: 20px; text-align: center;">
-            <h1 style="color: white; margin: 0;">Orange Travel</h1>
-        </div>
-        <div style="padding: 20px; color: #333;">
-            <h2>¡Hola {escape(cotizacion.nombre)}!</h2>
-            <p>Recibimos tu solicitud de cotización. Nuestro equipo la revisará y te enviará una propuesta a la brevedad.</p>
-
-            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                <p><strong>Tour:</strong> {cotizacion.tour.nombre}</p>
-                <p><strong>Fecha tentativa:</strong> {fecha}</p>
-                <p><strong>Pasajeros:</strong> {cotizacion.adultos} Adultos / {cotizacion.ninos} Niños</p>
-                <p><strong>Mensaje:</strong> {mensaje}</p>
-            </div>
-        </div>
-        <div style="background-color: #333; color: white; padding: 10px; text-align: center; font-size: 12px;">
-            Arica, Chile - ¡La ciudad de la eterna primavera!
-        </div>
-    </div>
-    """
-
-    asunto_admin = f"🧾 COTIZACIÓN: {cotizacion.tour.nombre} - {cotizacion.nombre}"
+    asunto_admin = f"🧾 COTIZACIÓN: {cotizacion.tour.nombre_es} - {cotizacion.nombre}"
     tel_limpio = cotizacion.telefono.replace('+', '').replace(' ', '')
     dominio = settings.SITE_URL
 
-    html_admin = f"""
-    <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 2px solid #FF8C00; border-radius: 10px; padding: 20px;">
-        <h2 style="color: #FF8C00;">NUEVA SOLICITUD DE COTIZACIÓN</h2>
-        <table style="width: 100%; border-collapse: collapse;">
-            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Cliente:</strong></td><td>{escape(cotizacion.nombre)}</td></tr>
-            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Tour:</strong></td><td>{cotizacion.tour.nombre}</td></tr>
-            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Fecha tentativa:</strong></td><td>{fecha}</td></tr>
-            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Pasajeros:</strong></td><td>{cotizacion.adultos} Adultos / {cotizacion.ninos} Niños</td></tr>
-            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>WhatsApp:</strong></td>
-                <td><a href="https://wa.me/{escape(tel_limpio)}" style="color: #25D366; font-weight: bold; text-decoration: none;">📱 {escape(cotizacion.telefono)}</a></td>
-            </tr>
-            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Email:</strong></td><td>{escape(cotizacion.email)}</td></tr>
-            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Mensaje:</strong></td><td>{mensaje}</td></tr>
-        </table>
-
-        <div style="margin-top: 25px; text-align: center;">
-            <a href="{dominio}/panel/cotizaciones/{cotizacion.id}/"
-            style="background-color: #333; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
-            Ver en el Panel
-            </a>
-        </div>
-    </div>
-    """
+    with translation.override('es'):
+        html_admin = render_to_string('emails/cotizacion_admin.html', {
+            'cotizacion': cotizacion, 'tel_limpio': tel_limpio, 'dominio': dominio,
+        })
 
     try:
-        msg_cli = EmailMultiAlternatives(asunto_cliente, "Solicitud de cotización recibida.", settings.DEFAULT_FROM_EMAIL, [cotizacion.email])
+        msg_cli = EmailMultiAlternatives(asunto_cliente, texto_cliente, settings.DEFAULT_FROM_EMAIL, [cotizacion.email])
         msg_cli.attach_alternative(html_cliente, "text/html")
         msg_cli.send()
 
         email_admin = get_email_admin(cotizacion)
         cc_admin = [email for email in CC_RESERVAS if email != email_admin]
-        print(f"DEBUG: 📧 Cotización {cotizacion.id} → {email_admin} cc={cc_admin} (tour: {cotizacion.tour.nombre})")
+        print(f"DEBUG: 📧 Cotización {cotizacion.id} → {email_admin} cc={cc_admin} (tour: {cotizacion.tour.nombre_es})")
         msg_adm = EmailMultiAlternatives(asunto_admin, "Nueva solicitud de cotización.", settings.DEFAULT_FROM_EMAIL, [email_admin], cc=cc_admin, reply_to=[cotizacion.email])
         msg_adm.attach_alternative(html_admin, "text/html")
         msg_adm.send()
