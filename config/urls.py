@@ -17,23 +17,31 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
+from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 
 
+# Sin prefijo de idioma: admin/panel en español, URLs fijas para Flow
+# (pagos/) y APIs que Vue llama con rutas absolutas (tours/api/).
 urlpatterns = [
     # path('jet/', include('jet.urls', 'jet')),  # URLs de JET
     # path('jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')), #
     path('admin/', admin.site.urls),
     path('panel/', include('panel.urls')),
     path('ckeditor/', include('ckeditor_uploader.urls')),
+    path('i18n/', include('django.conf.urls.i18n')),
 
-    # APPLICACIONES
+    path('tours/api/', include('tours.api_urls')),
+    path('pagos/', include('payments.urls')),
+]
+
+# Páginas públicas: español sin prefijo (/tours/), inglés con /en/.
+urlpatterns += i18n_patterns(
     path('', include('home.urls')),
     path('tours/', include('tours.urls')),
     path('blog/', include('blog.urls')),
-    path('pagos/', include('payments.urls')),
-
-]
+    prefix_default_language=False,
+)
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

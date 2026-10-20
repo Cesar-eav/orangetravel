@@ -260,6 +260,13 @@ CKEDITOR_STORAGE_BACKEND = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # 10. INTERNACIONALIZACIÓN
 LANGUAGE_CODE = 'es-cl'
+# Solo español activo; el inglés se agrega al encender la traducción
+# (docs/PLAN_TRADUCCION_ETAPAS.md, etapa 6). 'es-cl' sigue siendo el default
+# porque de él dependen los formatos de fecha/número y el filtro clp.
+LANGUAGES = [
+    ('es', 'Español'),
+]
+LOCALE_PATHS = [BASE_DIR / 'locale']
 TIME_ZONE = 'America/Santiago'
 USE_I18N = True
 USE_TZ = True
