@@ -6,6 +6,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Orange Travel{% endblock %}</title>
+{% if vista_previa_ingles %}    <meta name="robots" content="noindex">
+{% endif %}{% if ingles_publico %}
+    {% block meta_description %}<meta name="description" content="{% trans "Tours en Arica y Parinacota, Chile: del altiplano y el Parque Nacional Lauca a las playas del Pacífico, con guías locales." %}">{% endblock %}
+    {% if url_es and not sin_version_en %}<link rel="alternate" hreflang="es-CL" href="{{ url_es }}">
+    <link rel="alternate" hreflang="en" href="{{ url_en }}">
+    <link rel="alternate" hreflang="x-default" href="{{ url_es }}">
+    {% elif url_es and LANGUAGE_CODE == 'en' %}<link rel="canonical" href="{{ url_es }}">{% endif %}
+{% endif %}
 
 
 {% load static %}
@@ -50,6 +58,9 @@
         <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
 </head>
 <body >
+    {% if vista_previa_ingles %}<div style="background:#fbbf24;color:#1e293b;font:600 13px/1.4 sans-serif;text-align:center;padding:6px 12px">
+        Vista previa del sitio en inglés: solo la ven usuarios staff. Para publicarla, actívala en Panel → Sitio en inglés.
+    </div>{% endif %}
 
     {% include 'includes/_navbar.html' %}
     <main>

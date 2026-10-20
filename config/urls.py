@@ -29,7 +29,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('panel/', include('panel.urls')),
     path('ckeditor/', include('ckeditor_uploader.urls')),
-    path('i18n/', include('django.conf.urls.i18n')),
 
     path('tours/api/', include('tours.api_urls')),
     path('pagos/', include('payments.urls')),
@@ -37,6 +36,9 @@ urlpatterns = [
 
 # Páginas públicas: español sin prefijo (/tours/), inglés con /en/.
 urlpatterns += i18n_patterns(
+    # Selector de idioma: dentro de i18n_patterns para que, desde /en/…, el cambio a
+    # español traduzca bien la página de vuelta (translate_url usa el idioma activo).
+    path('i18n/', include('django.conf.urls.i18n')),
     path('', include('home.urls')),
     path('tours/', include('tours.urls')),
     path('blog/', include('blog.urls')),

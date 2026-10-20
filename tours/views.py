@@ -122,6 +122,7 @@ def tour(request, slug):
                 'categoria': tipo_de_tour,
                 'con_precio': tour.con_precio,
                 'textos_reserva': textos_reserva(),
+                'sin_version_en': not tour.traduccion_en_aprobada,  # sin hreflang en (base.html)
                 # Enviamos una bandera para saber que estamos en modo aprendizaje
                 'debug_mode': True 
             }

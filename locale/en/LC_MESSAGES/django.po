@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-20 20:35-0300\n"
+"POT-Creation-Date: 2026-10-20 20:40-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,7 +30,7 @@ msgstr "Discover unforgettable destinations"
 msgid "Explora los mejores tours con la confianza de Orage Travel."
 msgstr "Explore the best tours with the confidence of Orange Travel."
 
-#: blog/templates/blog/post.html:72
+#: blog/templates/blog/post.html:73
 #, python-format
 msgid "Imagen %(n)s – %(titulo)s"
 msgstr "Image %(n)s – %(titulo)s"
@@ -753,11 +753,11 @@ msgstr "This tour is booked by quote."
 msgid "Se requiere un email para la reserva."
 msgstr "An email address is required for the booking."
 
-#: payments/views.py:95 tours/views.py:151 tours/views.py:259
+#: payments/views.py:95 tours/views.py:152 tours/views.py:260
 msgid "Fecha inválida."
 msgstr "Invalid date."
 
-#: payments/views.py:97 tours/views.py:153
+#: payments/views.py:97 tours/views.py:154
 msgid "Las reservas deben hacerse a partir del día siguiente."
 msgstr "Bookings must be made for tomorrow or later."
 
@@ -794,24 +794,35 @@ msgstr "We're confirming your payment. We'll email you in a few minutes."
 msgid "Lo sentimos, no encontramos una confirmación válida para este pago."
 msgstr "Sorry, we couldn't find a valid confirmation for this payment."
 
-#: templates/base.html:65
+#: templates/base.html:11
+#| msgid ""
+#| "Del altiplano y sus lagos a las playas del Pacífico, vive el norte de Chile "
+#| "con guías locales."
+msgid ""
+"Tours en Arica y Parinacota, Chile: del altiplano y el Parque Nacional Lauca"
+" a las playas del Pacífico, con guías locales."
+msgstr ""
+"Tours in Arica and Parinacota, Chile: from the high plateau and Lauca "
+"National Park to the Pacific beaches, with local guides."
+
+#: templates/base.html:76
 msgid "Hola, quiero información sobre San Pedro de Atacama"
 msgstr "Hi, I'd like information about San Pedro de Atacama"
 
-#: templates/base.html:70 templates/base.html:82 templates/base.html:94
-#: templates/base.html:106
+#: templates/base.html:81 templates/base.html:93 templates/base.html:105
+#: templates/base.html:117
 msgid "Contactar por WhatsApp"
 msgstr "Contact us on WhatsApp"
 
-#: templates/base.html:77
+#: templates/base.html:88
 msgid "Hola, quiero información sobre Trekking Lagunas Cotacotani"
 msgstr "Hi, I'd like information about the Cotacotani Lagoons Trek"
 
-#: templates/base.html:89
+#: templates/base.html:100
 msgid "Hola, quiero información sobre Salar de Surire"
 msgstr "Hi, I'd like information about the Surire Salt Flat"
 
-#: templates/base.html:101
+#: templates/base.html:112
 msgid "Hola, quiero información sobre tours"
 msgstr "Hi, I'd like information about tours"
 
@@ -913,7 +924,7 @@ msgstr "* Current status:"
 msgid "Pendiente de Confirmación"
 msgstr "Pending Confirmation"
 
-#: templates/includes/_navbar.html:16 templates/includes/_navbar.html:61
+#: templates/includes/_navbar.html:16 templates/includes/_navbar.html:62
 msgid "Inicio"
 msgstr "Home"
 
@@ -921,28 +932,28 @@ msgstr "Home"
 msgid "Tours"
 msgstr "Tours"
 
-#: templates/includes/_navbar.html:27 templates/includes/_navbar.html:73
+#: templates/includes/_navbar.html:27 templates/includes/_navbar.html:74
 msgid "Vacaciones Tercera Edad"
 msgstr "Senior Vacations"
 
-#: templates/includes/_navbar.html:32 templates/includes/_navbar.html:78
+#: templates/includes/_navbar.html:32 templates/includes/_navbar.html:79
 msgid "Otros Servicios"
 msgstr "Other Services"
 
-#: templates/includes/_navbar.html:37 templates/includes/_navbar.html:82
+#: templates/includes/_navbar.html:37 templates/includes/_navbar.html:83
 msgid "Nosotros"
 msgstr "About us"
 
-#: templates/includes/_navbar.html:41 templates/includes/_navbar.html:89
+#: templates/includes/_navbar.html:41 templates/includes/_navbar.html:90
 msgid "Términos y condiciones"
 msgstr "Terms and conditions"
 
-#: templates/includes/_navbar.html:46 templates/includes/_navbar.html:96
+#: templates/includes/_navbar.html:46 templates/includes/_navbar.html:97
 #: templates/includes/footer.html:25 templates/maintenance.html:137
 msgid "Contacto"
 msgstr "Contact"
 
-#: templates/includes/_navbar.html:67
+#: templates/includes/_navbar.html:68
 msgid "Nuestros Tours"
 msgstr "Our Tours"
 
@@ -1036,40 +1047,40 @@ msgstr "Senior Vacations | Orange Travel"
 msgid "Vacaciones<br>Tercera Edad"
 msgstr "Senior<br>Vacations"
 
-#: tours/templates/tours/tour.html:45
+#: tours/templates/tours/tour.html:46
 msgid "El tour incluye"
 msgstr "The tour includes"
 
-#: tours/templates/tours/tour.html:53
+#: tours/templates/tours/tour.html:54
 msgid "Video del Tour"
 msgstr "Tour Video"
 
-#: tours/templates/tours/tour.html:65
+#: tours/templates/tours/tour.html:66
 msgid "Estamos preparando un video increíble de este tour para ti."
 msgstr "We're preparing an amazing video of this tour for you."
 
-#: tours/templates/tours/tour.html:70
+#: tours/templates/tours/tour.html:71
 msgid "Mapa del Tour"
 msgstr "Tour Map"
 
-#: tours/templates/tours/tour.html:75
+#: tours/templates/tours/tour.html:76
 #, python-format
 msgid "Mapa del tour %(nombre)s"
 msgstr "Map of the %(nombre)s tour"
 
-#: tours/templates/tours/tour.html:77
+#: tours/templates/tours/tour.html:78
 msgid "Ampliar"
 msgstr "Enlarge"
 
-#: tours/templates/tours/tour.html:85
+#: tours/templates/tours/tour.html:86
 msgid "Galería de Fotos"
 msgstr "Photo Gallery"
 
-#: tours/templates/tours/tour.html:90
+#: tours/templates/tours/tour.html:91
 msgid "Anterior"
 msgstr "Previous"
 
-#: tours/templates/tours/tour.html:112
+#: tours/templates/tours/tour.html:113
 msgid "Siguiente"
 msgstr "Next"
 
@@ -1248,56 +1259,56 @@ msgstr "REQUEST A QUOTE"
 msgid "No se pudo enviar la solicitud. Intenta nuevamente."
 msgstr "The request could not be sent. Please try again."
 
-#: tours/views.py:145 tours/views.py:240
+#: tours/views.py:146 tours/views.py:241
 msgid "El tour no existe."
 msgstr "This tour does not exist."
 
-#: tours/views.py:178
+#: tours/views.py:179
 msgid "¡Solicitud recibida! Revisa tu correo."
 msgstr "Request received! Check your email."
 
-#: tours/views.py:191
+#: tours/views.py:192
 #, python-format
 msgid "🍊 Solicitud Recibida: %(tour)s"
 msgstr "🍊 Request Received: %(tour)s"
 
-#: tours/views.py:193
+#: tours/views.py:194
 msgid "Solicitud recibida."
 msgstr "Request received."
 
-#: tours/views.py:233
+#: tours/views.py:234
 msgid "Datos inválidos."
 msgstr "Invalid data."
 
-#: tours/views.py:242
+#: tours/views.py:243
 msgid "Este tour se reserva con pago en línea, no por cotización."
 msgstr "This tour is booked with online payment, not by quote."
 
-#: tours/views.py:248
+#: tours/views.py:249
 msgid "Completa tu nombre y teléfono."
 msgstr "Please enter your name and phone number."
 
-#: tours/views.py:252
+#: tours/views.py:253
 msgid "Email inválido."
 msgstr "Invalid email address."
 
-#: tours/views.py:261
+#: tours/views.py:262
 msgid "La fecha tentativa debe ser futura."
 msgstr "The tentative date must be in the future."
 
-#: tours/views.py:267
+#: tours/views.py:268
 msgid "Cantidad de pasajeros inválida."
 msgstr "Invalid number of passengers."
 
-#: tours/views.py:285
+#: tours/views.py:286
 msgid "¡Solicitud recibida! Te enviaremos tu cotización a la brevedad."
 msgstr "Request received! We'll send you your quote shortly."
 
-#: tours/views.py:292
+#: tours/views.py:293
 #, python-format
 msgid "🍊 Solicitud de cotización: %(tour)s"
 msgstr "🍊 Quote request: %(tour)s"
 
-#: tours/views.py:294
+#: tours/views.py:295
 msgid "Solicitud de cotización recibida."
 msgstr "Quote request received."

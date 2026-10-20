@@ -40,5 +40,7 @@ def mostrar_aprobado(objs, request, aprobado=None):
         ok = aprobado if aprobado is not None else getattr(obj, 'traduccion_en_aprobada', True)
         if not ok:
             for campo in CAMPOS.get(type(obj).__name__, ()):
-                setattr(obj, campo, getattr(obj, f'{campo}_es'))
+                valor_es = getattr(obj, f'{campo}_es')
+                if valor_es:
+                    setattr(obj, campo, valor_es)
     return objs

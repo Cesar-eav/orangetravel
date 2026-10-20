@@ -45,6 +45,7 @@
                     <i class="fa-solid fa-paper-plane text-[10px] opacity-70 group-hover:text-[#eb5f60]"></i>
                     {% trans "Contacto" %}
                 </a>
+                {% include 'includes/_selector_idioma.html' with clase='ml-2 pl-3 border-l border-white/20' %}
             </div>
 
             <div class="md:hidden flex items-center">
@@ -94,6 +95,8 @@
                 <i class="fa-solid fa-paper-plane animate-bounce-slow"></i>
             </a>
         </div>
+
+        {% include 'includes/_selector_idioma.html' with clase='justify-center pt-4' %}
 
 
 

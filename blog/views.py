@@ -41,4 +41,7 @@ def post(request, slug):
         for img in imagen_map.get(i, []):
             bloques.append({'tipo': 'imagen', 'imagen': img})
 
-    return render(request, 'blog/post.html', {'post': post_obj, 'bloques': bloques})
+    return render(request, 'blog/post.html', {
+        'post': post_obj, 'bloques': bloques,
+        'sin_version_en': not post_obj.traduccion_en_aprobada,  # sin hreflang en (base.html)
+    })

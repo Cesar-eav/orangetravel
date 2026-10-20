@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% block title %}{{ post.titulo }} | Orange Travel{% endblock %}
+{% block meta_description %}<meta name="description" content="{{ post.extracto|truncatechars:155 }}">{% endblock %}
 {% block content %}
     {% load static %}
 

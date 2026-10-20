@@ -94,6 +94,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'home.middleware.SitioInglesMiddleware',
     'home.middleware.MaintenanceModeMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -116,6 +117,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.debug',
+                'home.context_processors.sitio_ingles',
             ],
         },
     },
@@ -265,10 +267,11 @@ CKEDITOR_STORAGE_BACKEND = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 # código debe coincidir con LANGUAGES para que activar 'es' (p. ej. el idioma
 # guardado de un pago) no agregue el prefijo /es/ a las URLs.
 LANGUAGE_CODE = 'es'
-# Solo español activo; el inglés se agrega al encender la traducción
-# (docs/PLAN_TRADUCCION_ETAPAS.md, etapa 6).
+# /en/ existe, pero solo es pública con el interruptor «Sitio en inglés» del panel
+# (home.middleware.SitioInglesMiddleware); apagado, solo el staff la ve.
 LANGUAGES = [
     ('es', 'Español'),
+    ('en', 'English'),
 ]
 LOCALE_PATHS = [BASE_DIR / 'locale']
 # Columnas _es/_en desde ya, aunque el inglés no esté en LANGUAGES: encenderlo
