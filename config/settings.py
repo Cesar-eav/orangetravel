@@ -306,3 +306,5 @@ FLOW_API_KEY = os.getenv("FLOW_API_KEY")
 FLOW_SECRET_KEY = os.getenv("FLOW_SECRET_KEY")
 # En producción cambiar esto a la URL de producción de Flow
 FLOW_API_BASE = os.getenv("FLOW_API_BASE", "https://sandbox.flow.cl/api")
+# 13 Traducción automática (DeepL, cuenta de Orange Travel). En producción viene de cPanel.
+DEEPL_API_KEY = os.getenv("DEEPL_API_KEY")

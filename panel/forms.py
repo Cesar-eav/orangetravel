@@ -7,7 +7,7 @@ from django.utils.html import strip_tags
 from django.utils.text import slugify
 
 from blog.models import ImagenPost, Post
-from home.models import MaintenanceMode, Nosotros
+from home.models import MaintenanceMode, Nosotros, SitioIngles
 from tours.models import YOUTUBE_REGEX, BloqueoTour, Cotizacion, ItinerarioDia, PrecioTour, Reserva, TerceraEdad, TipoTour, Tour, Zona
 
 
@@ -33,12 +33,25 @@ class CotizacionGestionForm(forms.ModelForm):
         fields = ('atendida',)
 
 
+class InglesMixin:
+    """Etiqueta los campos <campo>_en como «<etiqueta> (inglés)». Son opcionales:
+    vacíos, el sitio en inglés muestra el texto en español."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for nombre, campo in self.fields.items():
+            if nombre.endswith('_en'):
+                base = self.fields.get(nombre[:-3])
+                campo.label = f"{base.label if base else campo.label} (inglés)"
+                campo.required = False
+
+
 def _texto_visible(html_str):
     """Texto de un campo CKEditor sin etiquetas ni &nbsp; (para detectar «vacío»)."""
     return html.unescape(strip_tags(html_str or '')).replace('\xa0', ' ').strip()
 
 
-class TourForm(forms.ModelForm):
+class TourForm(InglesMixin, forms.ModelForm):
     # La validación la hace el servidor (el <form> lleva novalidate): un campo oculto por
     # CKEditor con «required» bloquearía el envío sin mostrar ningún mensaje.
     use_required_attribute = False
@@ -48,6 +61,7 @@ class TourForm(forms.ModelForm):
         fields = (
             'nombre', 'slug', 'tipo', 'zona', 'imagen_principal', 'mapa', 'itinerario', 'incluye',
             'video_youtube', 'activo', 'destacado', 'es_prueba',
+            'nombre_en', 'itinerario_en', 'incluye_en', 'traduccion_en_aprobada',
         )
         help_texts = {
             'slug': 'Es la dirección web del tour. Se genera sola desde el nombre.',
@@ -89,21 +103,23 @@ class TourForm(forms.ModelForm):
         return url
 
 
-class ItinerarioDiaForm(forms.ModelForm):
+class ItinerarioDiaForm(InglesMixin, forms.ModelForm):
     use_required_attribute = False
 
     class Meta:
         model = ItinerarioDia
-        fields = ('orden', 'titulo', 'descripcion')
+        fields = ('orden', 'titulo', 'descripcion', 'titulo_en', 'descripcion_en')
         widgets = {
             'orden': forms.HiddenInput(),
             'titulo': forms.TextInput(attrs={'placeholder': 'Título'}),
             'descripcion': forms.Textarea(attrs={'rows': 5}),
+            'titulo_en': forms.TextInput(attrs={'placeholder': 'Título en inglés (opcional)'}),
+            'descripcion_en': forms.Textarea(attrs={'rows': 5, 'placeholder': 'Descripción en inglés (opcional)'}),
         }
 
     def has_changed(self):
         # «orden» lo rellena el JS en cada fila: una fila nueva sin texto debe ignorarse.
-        return bool({'titulo', 'descripcion'} & set(self.changed_data))
+        return bool({'titulo', 'descripcion', 'titulo_en', 'descripcion_en'} & set(self.changed_data))
 
 
 ItinerarioDiaFormSet = forms.inlineformset_factory(
@@ -135,18 +151,18 @@ class ImagenGaleriaForm(forms.Form):
     imagen = forms.ImageField()
 
 
-class TipoTourForm(forms.ModelForm):
+class TipoTourForm(InglesMixin, forms.ModelForm):
     class Meta:
         model = TipoTour
-        fields = ('nombre', 'descripcion')
-        widgets = {'descripcion': forms.Textarea(attrs={'rows': 3})}
+        fields = ('nombre', 'descripcion', 'nombre_en', 'descripcion_en')
+        widgets = {'descripcion': forms.Textarea(attrs={'rows': 3}), 'descripcion_en': forms.Textarea(attrs={'rows': 3})}
 
 
-class ZonaForm(forms.ModelForm):
+class ZonaForm(InglesMixin, forms.ModelForm):
     class Meta:
         model = Zona
-        fields = ('nombre', 'slug', 'descripcion', 'imagen', 'orden')
-        widgets = {'descripcion': forms.Textarea(attrs={'rows': 3})}
+        fields = ('nombre', 'slug', 'descripcion', 'imagen', 'orden', 'nombre_en', 'descripcion_en')
+        widgets = {'descripcion': forms.Textarea(attrs={'rows': 3}), 'descripcion_en': forms.Textarea(attrs={'rows': 3})}
         help_texts = {
             'slug': 'Aparece en la dirección del filtro (/tours/?zona=…). Se genera sola desde el nombre.',
             'descripcion': 'Se muestra en /tours/ al elegir esta zona. Separa los párrafos con una línea en blanco.',
@@ -167,17 +183,24 @@ class ZonaForm(forms.ModelForm):
 CUERPO_MAX = 10000  # caracteres de texto visible (sin etiquetas HTML)
 
 
-class PostForm(forms.ModelForm):
+class PostForm(InglesMixin, forms.ModelForm):
     class Meta:
         model = Post
         fields = (
             'titulo', 'extracto', 'contenido', 'imagen_portada',
             'video_youtube', 'publicado',
+            'titulo_en', 'extracto_en', 'contenido_en', 'traduccion_en_aprobada',
         )
-        widgets = {'extracto': forms.Textarea(attrs={'rows': 3})}
+        widgets = {'extracto': forms.Textarea(attrs={'rows': 3}), 'extracto_en': forms.Textarea(attrs={'rows': 3})}
 
     def clean_contenido(self):
-        contenido = self.cleaned_data['contenido']
+        return self._validar_cuerpo('contenido')
+
+    def clean_contenido_en(self):
+        return self._validar_cuerpo('contenido_en')
+
+    def _validar_cuerpo(self, campo):
+        contenido = self.cleaned_data[campo] or ''
         largo = len(html.unescape(strip_tags(contenido)).strip())
         if largo > CUERPO_MAX:
             raise forms.ValidationError(
@@ -200,10 +223,10 @@ class PostForm(forms.ModelForm):
         return super().save(commit)
 
 
-class ImagenPostForm(forms.ModelForm):
+class ImagenPostForm(InglesMixin, forms.ModelForm):
     class Meta:
         model = ImagenPost
-        fields = ('imagen', 'despues_del_parrafo', 'caption', 'orden')
+        fields = ('imagen', 'despues_del_parrafo', 'caption', 'caption_en', 'orden')
 
 
 ImagenPostFormSet = forms.inlineformset_factory(
@@ -226,19 +249,25 @@ class BloqueoForm(forms.ModelForm):
         return data
 
 
-class NosotrosForm(forms.ModelForm):
+class NosotrosForm(InglesMixin, forms.ModelForm):
     class Meta:
         model = Nosotros
-        fields = ('contenido',)
+        fields = ('contenido', 'contenido_en')
 
 
-class TerceraEdadForm(forms.ModelForm):
+class TerceraEdadForm(InglesMixin, forms.ModelForm):
     class Meta:
         model = TerceraEdad
-        fields = ('contenido',)
+        fields = ('contenido', 'contenido_en')
 
 
 class MantencionForm(forms.ModelForm):
     class Meta:
         model = MaintenanceMode
         fields = ('activo', 'mensaje')
+
+
+class SitioInglesForm(forms.ModelForm):
+    class Meta:
+        model = SitioIngles
+        fields = ('publico',)

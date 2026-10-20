@@ -18,7 +18,7 @@ from django.template.loader import render_to_string # Si prefieres usar archivos
 from django.utils.html import strip_tags, escape # Par
 from django.utils import translation
 from django.utils.translation import gettext as _
-from .traduccion import texto
+from .traduccion import mostrar_aprobado, texto
 from datetime import date
 import os
 
@@ -91,6 +91,7 @@ def tours_home(request):
         Zona.objects.filter(tours__activo=True, tours__es_prueba=False)
         .annotate(num_tours=Count('tours'))
     )
+    tours = mostrar_aprobado(list(tours), request)
     return render(request, 'tours/tours_home.html', {'tours': tours, 'zonas': zonas})
 
 def tercera_edad(request):
@@ -102,6 +103,7 @@ def tour(request, slug):
 
     try:
         tour = Tour.objects.get(slug=slug)
+        mostrar_aprobado([tour], request)
         
         # 2. Traemos datos de tablas relacionadas (Reverse Relationships)
         # Aunque no los veas en el modelo Tour, existen por la ForeignKey en las otras tablas
@@ -116,7 +118,7 @@ def tour(request, slug):
                 'tour': tour,
                 'fotos': galeria_fotos,
                 'precios': precios,
-                'dias': tour.dias.all(),
+                'dias': mostrar_aprobado(list(tour.dias.all()), request, aprobado=tour.traduccion_en_aprobada),
                 'categoria': tipo_de_tour,
                 'con_precio': tour.con_precio,
                 'textos_reserva': textos_reserva(),

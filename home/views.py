@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from tours.models import Tour
 from blog.models import Post
 from .models import Nosotros
+from tours.traduccion import mostrar_aprobado
 from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib import messages
@@ -20,8 +21,8 @@ def home(request):
     posts = Post.objects.filter(publicado=True).order_by('-fecha_creacion')
 
     return render(request, 'home/index.html',{
-        'tours': tours,
-        'posts': posts
+        'tours': mostrar_aprobado(list(tours), request),
+        'posts': mostrar_aprobado(list(posts), request),
     })
 
 def nosotros(request):
