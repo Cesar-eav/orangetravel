@@ -22,6 +22,10 @@ from django.shortcuts import render, redirect
 
 from .models import Payment
 from tours.models import Reserva
+from tours.views import idioma_cliente
+from tours.traduccion import mostrar_aprobado, texto
+from django.utils import translation
+from django.utils.translation import gettext as _
 
 from tours.models import Tour  # Asegúrate de que esta ruta sea correcta
 from .flow import FlowClient
@@ -72,23 +76,25 @@ class TourCheckoutView(APIView):
 
     def post(self, request, tour_id: int):
         tour = get_object_or_404(Tour, id=tour_id)
-        if not tour.con_precio:
-            return Response({"detail": "Este tour se reserva por cotización."}, status=status.HTTP_400_BAD_REQUEST)
         data = request.data
+        idioma = idioma_cliente(data)
+        translation.activate(idioma)  # mensajes de respuesta en el idioma de la página
+        if not tour.con_precio:
+            return Response({"detail": _("Este tour se reserva por cotización.")}, status=status.HTTP_400_BAD_REQUEST)
 
         print("Resreva: ", data)
         # El email debe venir en el POST ya que el usuario no está registrado
         email = request.data.get("email")
         if not email:
-            return Response({"detail": "Se requiere un email para la reserva."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": _("Se requiere un email para la reserva.")}, status=status.HTTP_400_BAD_REQUEST)
 
         # Validación de anticipación mínima: solo desde mañana (no se reserva para el mismo día)
         try:
             fecha_reserva = date.fromisoformat(str(data.get('fecha', '')))
         except (TypeError, ValueError):
-            return Response({"detail": "Fecha inválida."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": _("Fecha inválida.")}, status=status.HTTP_400_BAD_REQUEST)
         if fecha_reserva <= date.today():
-            return Response({"detail": "Las reservas deben hacerse a partir del día siguiente."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": _("Las reservas deben hacerse a partir del día siguiente.")}, status=status.HTTP_400_BAD_REQUEST)
 
         # Crear el registro de pago en nuestra DB (Estado PENDING)
         payment = Payment.objects.create(
@@ -102,6 +108,7 @@ class TourCheckoutView(APIView):
             pax_adults=data.get('adultos'),
             pax_children=data.get('ninos'),
             status=Payment.STATUS_PENDING,
+            idioma=idioma,
         )
 
         # 2. Creación de la Reserva
@@ -113,13 +120,14 @@ class TourCheckoutView(APIView):
             fecha=data.get('fecha'),
             adultos=int(data.get('adultos', 1)),
             ninos=int(data.get('ninos', 0)),
-            notas_internas=f"Solicitud web: {data.get('adultos')} ADL, {data.get('ninos')} CHD."
+            notas_internas=f"Solicitud web: {data.get('adultos')} ADL, {data.get('ninos')} CHD.",
+            idioma=idioma,
         )
 
 
         flow = FlowClient()
         if not flow.is_configured():
-            return Response({"detail": "Error de configuración en el servidor."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"detail": _("Error de configuración en el servidor.")}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         # Configurar URLs de retorno
         url_return = request.build_absolute_uri(reverse("flow_return"))
@@ -148,7 +156,7 @@ class TourCheckoutView(APIView):
             payment.status = Payment.STATUS_FAILED
             payment.raw_create_response = {"error": str(exc)}
             payment.save(update_fields=["status", "raw_create_response", "updated_at"])
-            return Response({"detail": "Error al contactar con el proveedor de pagos."}, status=status.HTTP_502_BAD_GATEWAY)
+            return Response({"detail": _("Error al contactar con el proveedor de pagos.")}, status=status.HTTP_502_BAD_GATEWAY)
 
 class FlowReturnView(APIView):
     """
@@ -172,8 +180,11 @@ class FlowReturnView(APIView):
         payment = Payment.objects.filter(provider_token=str(token)).first()
         
         if not payment:
-            messages.error(request, "No pudimos encontrar el registro de tu pago.")
+            messages.error(request, _("No pudimos encontrar el registro de tu pago."))
             return HttpResponseRedirect("/")
+
+        # /pagos/ no lleva prefijo de idioma: los mensajes siguen el idioma en que se pagó.
+        translation.activate(payment.idioma)
 
         # --- SINCRONIZACIÓN DE ESTADO (Best-effort) ---
         # Si el pago aún no figura como pagado, le preguntamos a Flow ahora mismo
@@ -194,19 +205,19 @@ class FlowReturnView(APIView):
                         enviar_confirmacion_pago(payment)
                     except Exception as e:
                         logger.error(f"Error enviando correo en retorno: {e}")
-                    messages.success(request, f"¡Gracias! Tu reserva para el tour '{payment.tour.nombre}' ha sido confirmada.")
+                    messages.success(request, _("¡Gracias! Tu reserva para el tour '%(tour)s' ha sido confirmada.") % {'tour': texto(payment.tour, 'nombre', payment.idioma)})
                 
                 elif flow_status in (3, "3", 4, "4"):
                     payment.status = Payment.STATUS_FAILED
                     payment.save()
-                    messages.error(request, "El pago fue rechazado o cancelado. Por favor, intenta nuevamente.")
+                    messages.error(request, _("El pago fue rechazado o cancelado. Por favor, intenta nuevamente."))
                 
                 else:
-                    messages.warning(request, "Tu pago está siendo procesado por la institución financiera.")
+                    messages.warning(request, _("Tu pago está siendo procesado por la institución financiera."))
 
             except Exception as e:
                 logger.error(f"Error consultando estado en retorno: {e}")
-                messages.warning(request, "Estamos confirmando tu pago. Te avisaremos por email en unos minutos.")
+                messages.warning(request, _("Estamos confirmando tu pago. Te avisaremos por email en unos minutos."))
 
         # --- REDIRECCIÓN FINAL ---
 
@@ -298,10 +309,13 @@ class FlowConfirmView(APIView):
 def VistaConfirmacionPago(request, payment_id):
 
     payment = Payment.objects.get(id=payment_id)
+    # /pagos/ no lleva prefijo de idioma: la página sigue el idioma en que se pagó.
+    translation.activate(payment.idioma)
+    tour = mostrar_aprobado([payment.tour], request)[0]
    
     context = {
         'payment': payment,
-        'tour': payment.tour,
+        'tour': tour,
         'pax_total': payment.pax_adults + payment.pax_children
     }
 
@@ -309,7 +323,7 @@ def VistaConfirmacionPago(request, payment_id):
         return render(request, 'payments/confirmacion_reserva.html', context)
 
     else:
-        messages.error(request, "Lo sentimos, no encontramos una confirmación válida para este pago.")
+        messages.error(request, _("Lo sentimos, no encontramos una confirmación válida para este pago."))
         return render(request, 'payments/fail.html', context)
     
 

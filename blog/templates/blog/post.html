@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% block title %}{{ post.titulo }} | Orange Travel{% endblock %}
 {% block content %}
     {% load static %}
@@ -68,7 +69,7 @@
                     <a href="{{ img.imagen.url }}" class="glightbox" data-gallery="post-carousel">
                         <img src="{{ img.imagen.url }}"
                              class="w-full h-56 md:h-72 object-cover"
-                             alt="Imagen {{ forloop.counter }} – {{ post.titulo }}">
+                             alt="{% blocktrans with n=forloop.counter titulo=post.titulo %}Imagen {{ n }} – {{ titulo }}{% endblocktrans %}">
                     </a>
                 </div>
                 {% endfor %}

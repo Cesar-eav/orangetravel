@@ -12,15 +12,18 @@ if (root) {
 
 
     const tourId = parseInt(root.dataset.tourId) || 0;
+    // Textos traducidos por Django (json_script en tours/tour.html) e idioma de la página.
+    const t = JSON.parse(document.getElementById('textos-reserva').textContent);
+    const idioma = (document.documentElement.lang || 'es').slice(0, 2);
 
     // Solo los tours de la categoría con precio se pagan en línea; el resto se cotiza.
     let app;
     if (root.dataset.conPrecio === '1') {
         const precioAdulto = parseInt(root.dataset.precioAdulto) || 0;
         const precioNino = parseInt(root.dataset.precioNino) || 0;
-        app = createApp(BookingApp, { precioAdulto, precioNino, tourId });
+        app = createApp(BookingApp, { precioAdulto, precioNino, tourId, t, idioma });
     } else {
-        app = createApp(CotizacionApp, { tourId });
+        app = createApp(CotizacionApp, { tourId, t, idioma });
     }
     app.mount('#reservation-widget');
 }

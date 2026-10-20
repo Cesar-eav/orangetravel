@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% load static precios %}
 
 
-{% block title %}Tours | Orange Travel{% endblock %}
+{% block title %}{% trans "Tours | Orange Travel" %}{% endblock %}
 
 {% block content %}
 
@@ -14,7 +15,7 @@
     <div class="absolute inset-0 flex items-center">
         <div class="px-8 md:px-24 text-white max-w-2xl">
             <p class="text-orange-400 font-bold tracking-widest uppercase text-sm mb-3">Arica · Chile</p>
-            <h1 class="text-4xl md:text-6xl font-black mb-4 leading-tight">Nuestros<br>Tours</h1>
+            <h1 class="text-4xl md:text-6xl font-black mb-4 leading-tight">{% trans "Nuestros<br>Tours" %}</h1>
         </div>
     </div>
 </section>
@@ -25,16 +26,16 @@
             <span class="inline-block w-12 h-1 bg-orange-500 rounded mb-6"></span>
             
             <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight mb-4">
-                Descubre el norte a tu propio ritmo
+                {% trans "Descubre el norte a tu propio ritmo" %}
             </h2>
             
             <p class="text-lg text-gray-600 leading-relaxed">
-                Desde las costas del Pacífico y las misteriosas momias Chinchorro, hasta la inmensidad del altiplano y el Parque Nacional Lauca. Hemos diseñado cada experiencia para que conectes con la historia, los paisajes y la esencia única de Arica y Parinacota.
+                {% trans "Desde las costas del Pacífico y las misteriosas momias Chinchorro, hasta la inmensidad del altiplano y el Parque Nacional Lauca. Hemos diseñado cada experiencia para que conectes con la historia, los paisajes y la esencia única de Arica y Parinacota." %}
             </p>
             
             <div class="mt-8 flex justify-center">
                 <span  class="text-gray-400 hover:text-orange-500 transition-colors duration-300 flex flex-col items-center gap-1 group">
-                    <span class="text-xs uppercase tracking-widest font-semibold">Explorar catálogo</span>
+                    <span class="text-xs uppercase tracking-widest font-semibold">{% trans "Explorar catálogo" %}</span>
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 animate-bounce group-hover:translate-y-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                     </svg>
@@ -55,18 +56,18 @@
     {# Filtro por zona: oculto hasta que el script lo active; sin JS se ven todos los tours. #}
     <div id="filtro-zonas" class="mb-16" hidden>
         <div class="text-center mb-8">
-            <p class="text-orange-500 font-bold tracking-widest uppercase text-xs mb-2">Elige tu destino</p>
-            <h2 class="font-marcellus text-3xl md:text-4xl text-gray-900">Explora por zona</h2>
+            <p class="text-orange-500 font-bold tracking-widest uppercase text-xs mb-2">{% trans "Elige tu destino" %}</p>
+            <h2 class="font-marcellus text-3xl md:text-4xl text-gray-900">{% trans "Explora por zona" %}</h2>
         </div>
 
         <div class="-mx-4 px-4 pt-2 pb-4 flex gap-4 overflow-x-auto snap-x [scrollbar-width:none] md:mx-0 md:px-0 md:grid md:grid-cols-[repeat(auto-fit,minmax(150px,1fr))] md:overflow-visible"
-             role="group" aria-label="Filtrar tours por zona">
+             role="group" aria-label="{% trans "Filtrar tours por zona" %}">
             <button type="button" data-filtro="" aria-pressed="true"
                 class="group snap-start shrink-0 w-36 md:w-auto flex flex-col items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-5 text-center shadow-sm transition hover:-translate-y-1 hover:shadow-md hover:border-orange-300 aria-pressed:border-orange-500 aria-pressed:bg-orange-50 aria-pressed:shadow-lg aria-pressed:shadow-orange-100">
                 <span class="flex h-16 w-16 items-center justify-center rounded-full bg-orange-50 text-orange-500 ring-1 ring-orange-100 transition group-aria-pressed:bg-orange-500 group-aria-pressed:text-white">
                     <i class="fa-solid fa-compass text-2xl"></i>
                 </span>
-                <span class="font-bold text-gray-800 leading-tight">Todas</span>
+                <span class="font-bold text-gray-800 leading-tight">{% trans "Todas" %}</span>
                 <span class="text-xs uppercase tracking-wider text-gray-400">{{ tours|length }} tour{{ tours|length|pluralize }}</span>
             </button>
             {% for zona in zonas %}
@@ -96,7 +97,7 @@
                     </div>
                     <div>
                         <p class="text-orange-400 font-bold tracking-widest uppercase text-xs mb-2">
-                            Zona · {{ zona.num_tours }} tour{{ zona.num_tours|pluralize }}
+                            {% trans "Zona" %} · {{ zona.num_tours }} tour{{ zona.num_tours|pluralize }}
                         </p>
                         <h3 class="font-marcellus text-3xl md:text-4xl mb-4">{{ zona.nombre }}</h3>
                         {% if zona.descripcion %}
@@ -146,17 +147,17 @@
                         <div class="flex items-end justify-between gap-4 border-t border-white/20 pt-4">
                             {% if tour.con_precio and tour.precio %}
                             <div>
-                                <span class="block text-xs uppercase tracking-wider text-white/70">Desde</span>
+                                <span class="block text-xs uppercase tracking-wider text-white/70">{% trans "Desde" %}</span>
                                 <span class="text-2xl font-black">${{ tour.precio.valor_adulto|clp }}</span>
                             </div>
                             {% else %}
                             <div>
-                                <span class="block text-xs uppercase tracking-wider text-white/70">Precio</span>
-                                <span class="text-lg font-bold">A cotizar</span>
+                                <span class="block text-xs uppercase tracking-wider text-white/70">{% trans "Precio" %}</span>
+                                <span class="text-lg font-bold">{% trans "A cotizar" %}</span>
                             </div>
                             {% endif %}
                             <span class="inline-flex items-center gap-2 rounded-lg bg-orange-500 px-4 py-2 font-bold transition group-hover:bg-orange-600">
-                                Ver tour <i class="fa-solid fa-arrow-right text-sm transition-transform group-hover:translate-x-1"></i>
+                                {% trans "Ver tour" %} <i class="fa-solid fa-arrow-right text-sm transition-transform group-hover:translate-x-1"></i>
                             </span>
                         </div>
                     </div>
@@ -167,14 +168,14 @@
     </div>
     {% empty %}
     <div class="text-center py-10">
-        <p class="text-gray-500 italic">Próximamente más tours destacados.</p>
+        <p class="text-gray-500 italic">{% trans "Próximamente más tours destacados." %}</p>
     </div>
     {% endfor %}
     </div>
 
     <div id="zona-vacia" class="text-center py-16" hidden>
         <i class="fa-solid fa-person-hiking text-4xl text-orange-300 mb-4"></i>
-        <p class="text-gray-500">Aún no hay tours en esta zona. ¡Escríbenos y armamos uno a tu medida!</p>
+        <p class="text-gray-500">{% trans "Aún no hay tours en esta zona. ¡Escríbenos y armamos uno a tu medida!" %}</p>
     </div>
 </section>
 

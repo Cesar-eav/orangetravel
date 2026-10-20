@@ -261,10 +261,12 @@ CKEDITOR_CONFIGS = {
 CKEDITOR_STORAGE_BACKEND = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # 10. INTERNACIONALIZACIÓN
-LANGUAGE_CODE = 'es-cl'
+# 'es' y no 'es-cl': Django no trae locale es_CL (usaba igual el de 'es'), y el
+# código debe coincidir con LANGUAGES para que activar 'es' (p. ej. el idioma
+# guardado de un pago) no agregue el prefijo /es/ a las URLs.
+LANGUAGE_CODE = 'es'
 # Solo español activo; el inglés se agrega al encender la traducción
-# (docs/PLAN_TRADUCCION_ETAPAS.md, etapa 6). 'es-cl' sigue siendo el default
-# porque de él dependen los formatos de fecha/número y el filtro clp.
+# (docs/PLAN_TRADUCCION_ETAPAS.md, etapa 6).
 LANGUAGES = [
     ('es', 'Español'),
 ]

@@ -62,48 +62,48 @@
 {% with url=request.path %}
     {% if 'atacama' in url|lower %}
 
-        {% with wa_number="56985174265" wa_text="Hola,%20quiero%20informaci%C3%B3n%20sobre%20San%20Pedro%20de%20Atacama" %}
+        {% trans "Hola, quiero información sobre San Pedro de Atacama" as wa_msg %}{% with wa_number="56985174265" wa_text=wa_msg|urlencode:"," %}
             <a href="https://wa.me/{{ wa_number }}?text={{ wa_text }}" 
                class="whatsapp-float" 
                target="_blank" 
                rel="noopener" 
-               aria-label="Contactar por WhatsApp">
+               aria-label="{% trans "Contactar por WhatsApp" %}">
                 <i class="fab fa-whatsapp"></i>
             </a>
         {% endwith %}
 
     {% elif 'cotacotani' in url|lower %}
 
-        {% with wa_number="56985174265" wa_text="Hola,%20quiero%20informaci%C3%B3n%20sobre%20Trekking%20Lagunas%20Cotacotani" %}
+        {% trans "Hola, quiero información sobre Trekking Lagunas Cotacotani" as wa_msg %}{% with wa_number="56985174265" wa_text=wa_msg|urlencode:"," %}
             <a href="https://wa.me/{{ wa_number }}?text={{ wa_text }}" 
                class="whatsapp-float" 
                target="_blank" 
                rel="noopener" 
-               aria-label="Contactar por WhatsApp">
+               aria-label="{% trans "Contactar por WhatsApp" %}">
                 <i class="fab fa-whatsapp"></i>
             </a>
         {% endwith %}
 
         {% elif 'surire' in url|lower %}
 
-        {% with wa_number="56985174265" wa_text="Hola,%20quiero%20informaci%C3%B3n%20sobre%20Salar%20de%20Surire" %}
+        {% trans "Hola, quiero información sobre Salar de Surire" as wa_msg %}{% with wa_number="56985174265" wa_text=wa_msg|urlencode:"," %}
             <a href="https://wa.me/{{ wa_number }}?text={{ wa_text }}" 
                class="whatsapp-float" 
                target="_blank" 
                rel="noopener" 
-               aria-label="Contactar por WhatsApp">
+               aria-label="{% trans "Contactar por WhatsApp" %}">
                 <i class="fab fa-whatsapp"></i>
             </a>
         {% endwith %}
     
     {% else %}
         {# Número por defecto #}
-        {% with wa_number="56936584003" wa_text="Hola,%20quiero%20informaci%C3%B3n%20sobre%20tours" %}
+        {% trans "Hola, quiero información sobre tours" as wa_msg %}{% with wa_number="56936584003" wa_text=wa_msg|urlencode:"," %}
             <a href="https://wa.me/{{ wa_number }}?text={{ wa_text }}" 
                class="whatsapp-float" 
                target="_blank" 
                rel="noopener" 
-               aria-label="Contactar por WhatsApp">
+               aria-label="{% trans "Contactar por WhatsApp" %}">
                 <i class="fab fa-whatsapp"></i>
             </a>
         {% endwith %}

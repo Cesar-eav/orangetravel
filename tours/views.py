@@ -6,7 +6,7 @@ from django.db.models import Count
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.admin.views.decorators import staff_member_required
-from .models import Tour, Reserva, BloqueoTour, TerceraEdad, Cotizacion, Zona
+from .models import IDIOMAS, Tour, Reserva, BloqueoTour, TerceraEdad, Cotizacion, Zona
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from payments.models import Payment
@@ -32,6 +32,43 @@ EMAIL_POR_TOUR = {
 
 EMAIL_ADMIN_DEFAULT = 'info@orangetravel.cl'
 CC_RESERVAS = ['reservas@orangetravel.cl', 'cesar.eav@gmail.com']
+
+def idioma_cliente(data):
+    """Idioma que envía Vue (el de la página); cualquier otro valor cae en español."""
+    idioma = str(data.get('idioma') or '')[:2]
+    return idioma if idioma in dict(IDIOMAS) else 'es'
+
+
+def textos_reserva():
+    """Textos de BookingApp.vue / CotizacionApp.vue, traducidos al idioma activo."""
+    return {
+        'reservarAhora': _("RESERVAR AHORA"),
+        'reservaTuCupo': _("Reserva tu Cupo"),
+        'avisoMinimo': _("Todo tour está sujeto a un número mínimo de participantes. En caso de no completarse, nos comunicaremos con usted para ofrecerle el cambio de fecha o el reembolso total de su pago."),
+        'nombreCompleto': _("Nombre Completo"),
+        'ejemploNombre': _("Ej: César Espinoza"),
+        'fechaTour': _("Fecha del Tour"),
+        'seleccionaFecha': _("Selecciona una fecha"),
+        'publicoGeneral': _("Público General"),
+        'adultos': _("Adultos"),
+        'ninos': _("Niños"),
+        'totalAPagar': _("Total a pagar:"),
+        'enviando': _("Enviando..."),
+        'solicitarReserva': _("SOLICITAR RESERVA"),
+        'errorLinkPago': _("Error al generar el link de pago."),
+        'errorServidorPagos': _("No se pudo contactar con el servidor de pagos."),
+        'cotizarAhora': _("COTIZAR AHORA"),
+        'solicitudEnviada': _("¡Solicitud enviada!"),
+        'cerrar': _("CERRAR"),
+        'solicitaCotizacion': _("Solicita tu Cotización"),
+        'introCotizacion': _("Cuéntanos cuándo y con cuántas personas quieres viajar y te enviaremos una propuesta a tu medida."),
+        'fechaTentativa': _("Fecha tentativa (opcional)"),
+        'mensajeOpcional': _("Mensaje (opcional)"),
+        'placeholderMensaje': _("Preferencias, dudas, alojamiento, etc."),
+        'solicitarCotizacion': _("SOLICITAR COTIZACIÓN"),
+        'errorEnvio': _("No se pudo enviar la solicitud. Intenta nuevamente."),
+    }
+
 
 def get_email_admin(reserva):
     # nombre_es y no nombre: con el inglés activo, nombre devuelve la traducción.
@@ -82,6 +119,7 @@ def tour(request, slug):
                 'dias': tour.dias.all(),
                 'categoria': tipo_de_tour,
                 'con_precio': tour.con_precio,
+                'textos_reserva': textos_reserva(),
                 # Enviamos una bandera para saber que estamos en modo aprendizaje
                 'debug_mode': True 
             }
@@ -95,20 +133,22 @@ def tour(request, slug):
 def crear_reserva(request):
     try:
         data = json.loads(request.body)
+        idioma = idioma_cliente(data)
+        translation.activate(idioma)  # mensajes de respuesta en el idioma de la página
         
         # 1. Validación del Tour
         try:
             tour = Tour.objects.get(id=data.get('tour_id'))
         except Tour.DoesNotExist:
-            return JsonResponse({'status': 'error', 'mensaje': 'El tour no existe.'}, status=404)
+            return JsonResponse({'status': 'error', 'mensaje': _('El tour no existe.')}, status=404)
 
         # 2. Validación de anticipación mínima: solo desde mañana (no se reserva para el mismo día)
         try:
             fecha_reserva = date.fromisoformat(data.get('fecha'))
         except (TypeError, ValueError):
-            return JsonResponse({'status': 'error', 'mensaje': 'Fecha inválida.'}, status=400)
+            return JsonResponse({'status': 'error', 'mensaje': _('Fecha inválida.')}, status=400)
         if fecha_reserva <= date.today():
-            return JsonResponse({'status': 'error', 'mensaje': 'Las reservas deben hacerse a partir del día siguiente.'}, status=400)
+            return JsonResponse({'status': 'error', 'mensaje': _('Las reservas deben hacerse a partir del día siguiente.')}, status=400)
 
         # 3. Creación de la Reserva
         reserva = Reserva.objects.create(
@@ -119,7 +159,8 @@ def crear_reserva(request):
             fecha=data.get('fecha'),
             adultos=int(data.get('adultos', 1)),
             ninos=int(data.get('ninos', 0)),
-            notas_internas=f"Solicitud web: {data.get('adultos')} ADL, {data.get('ninos')} CHD."
+            notas_internas=f"Solicitud web: {data.get('adultos')} ADL, {data.get('ninos')} CHD.",
+            idioma=idioma,
         )
 
         # --- CAMBIO CLAVE AQUÍ ---
@@ -132,7 +173,7 @@ def crear_reserva(request):
         
         return JsonResponse({
             'status': 'success',
-            'mensaje': '¡Solicitud recibida! Revisa tu correo.',
+            'mensaje': _('¡Solicitud recibida! Revisa tu correo.'),
             'reserva_id': reserva.id
         }, status=201)
         
@@ -187,39 +228,41 @@ def crear_cotizacion(request):
     try:
         data = json.loads(request.body)
     except (TypeError, ValueError):
-        return JsonResponse({'status': 'error', 'mensaje': 'Datos inválidos.'}, status=400)
+        return JsonResponse({'status': 'error', 'mensaje': _('Datos inválidos.')}, status=400)
+    idioma = idioma_cliente(data)
+    translation.activate(idioma)  # mensajes de respuesta en el idioma de la página
 
     try:
         tour = Tour.objects.get(id=data.get('tour_id'))
     except (Tour.DoesNotExist, TypeError, ValueError):
-        return JsonResponse({'status': 'error', 'mensaje': 'El tour no existe.'}, status=404)
+        return JsonResponse({'status': 'error', 'mensaje': _('El tour no existe.')}, status=404)
     if tour.con_precio:
-        return JsonResponse({'status': 'error', 'mensaje': 'Este tour se reserva con pago en línea, no por cotización.'}, status=400)
+        return JsonResponse({'status': 'error', 'mensaje': _('Este tour se reserva con pago en línea, no por cotización.')}, status=400)
 
     nombre = (data.get('nombre') or '').strip()
     email = (data.get('email') or '').strip()
     telefono = (data.get('telefono') or '').strip()
     if len(nombre) < 3 or len(telefono) < 8:
-        return JsonResponse({'status': 'error', 'mensaje': 'Completa tu nombre y teléfono.'}, status=400)
+        return JsonResponse({'status': 'error', 'mensaje': _('Completa tu nombre y teléfono.')}, status=400)
     try:
         validate_email(email)
     except ValidationError:
-        return JsonResponse({'status': 'error', 'mensaje': 'Email inválido.'}, status=400)
+        return JsonResponse({'status': 'error', 'mensaje': _('Email inválido.')}, status=400)
 
     fecha_tentativa = None
     if data.get('fecha'):
         try:
             fecha_tentativa = date.fromisoformat(data.get('fecha'))
         except (TypeError, ValueError):
-            return JsonResponse({'status': 'error', 'mensaje': 'Fecha inválida.'}, status=400)
+            return JsonResponse({'status': 'error', 'mensaje': _('Fecha inválida.')}, status=400)
         if fecha_tentativa <= date.today():
-            return JsonResponse({'status': 'error', 'mensaje': 'La fecha tentativa debe ser futura.'}, status=400)
+            return JsonResponse({'status': 'error', 'mensaje': _('La fecha tentativa debe ser futura.')}, status=400)
 
     try:
         adultos = max(int(data.get('adultos', 1)), 1)
         ninos = max(int(data.get('ninos', 0)), 0)
     except (TypeError, ValueError):
-        return JsonResponse({'status': 'error', 'mensaje': 'Cantidad de pasajeros inválida.'}, status=400)
+        return JsonResponse({'status': 'error', 'mensaje': _('Cantidad de pasajeros inválida.')}, status=400)
 
     cotizacion = Cotizacion.objects.create(
         tour=tour,
@@ -230,13 +273,14 @@ def crear_cotizacion(request):
         adultos=adultos,
         ninos=ninos,
         mensaje=(data.get('mensaje') or '').strip()[:2000],
+        idioma=idioma,
     )
 
     threading.Thread(target=enviar_notificaciones_cotizacion, args=(cotizacion,)).start()
 
     return JsonResponse({
         'status': 'success',
-        'mensaje': '¡Solicitud recibida! Te enviaremos tu cotización a la brevedad.',
+        'mensaje': _('¡Solicitud recibida! Te enviaremos tu cotización a la brevedad.'),
         'cotizacion_id': cotizacion.id
     }, status=201)
 
