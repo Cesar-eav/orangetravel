@@ -9,7 +9,8 @@ from tours.views import EMAIL_POR_TOUR, EMAIL_ADMIN_DEFAULT, CC_RESERVAS
 
 
 def get_email_admin_pago(payment):
-    nombre = payment.tour.nombre.lower()
+    # nombre_es y no nombre: con el inglés activo, nombre devuelve la traducción.
+    nombre = payment.tour.nombre_es.lower()
     for keyword, email in EMAIL_POR_TOUR.items():
         if keyword in nombre:
             return email

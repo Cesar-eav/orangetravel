@@ -4,6 +4,7 @@ from django.utils.safestring import mark_safe
 from .models import Cotizacion, TipoTour, Tour, Zona, GaleriaTour, PrecioTour, Reserva, BloqueoTour, TerceraEdad, ItinerarioDia
 from payments.models import Payment
 from solo.admin import SingletonModelAdmin
+from modeltranslation.admin import TranslationAdmin
 from django import forms
 
 # IMPORTANTE: Importamos desde unfold.admin
@@ -26,6 +27,8 @@ class GaleriaInline(TabularInline): # Cambiado a Unfold TabularInline
 class ItinerarioDiaInline(StackedInline):
     model = ItinerarioDia
     extra = 0
+    # Sin «fields» el admin mostraría también titulo_es/titulo_en; el inglés se edita en /panel/.
+    fields = ('orden', 'titulo', 'descripcion')
 
 
 class TourAdminForm(forms.ModelForm):
@@ -190,11 +193,13 @@ class CotizacionAdmin(ModelAdmin):
 @admin.register(TipoTour)
 class TipoTourAdmin(ModelAdmin): # Cambiado a Unfold ModelAdmin
     list_display = ('nombre',)
+    fields = ('nombre', 'descripcion')
 
 
 @admin.register(Zona)
 class ZonaAdmin(ModelAdmin):
     list_display = ('nombre', 'orden')
+    fields = ('nombre', 'slug', 'descripcion', 'imagen', 'orden')
     prepopulated_fields = {'slug': ('nombre',)}
 
 
@@ -258,5 +263,5 @@ class BloqueoTourAdmin(ModelAdmin):
 
 
 @admin.register(TerceraEdad)
-class TerceraEdadAdmin(SingletonModelAdmin):
+class TerceraEdadAdmin(SingletonModelAdmin, TranslationAdmin):
     pass

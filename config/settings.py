@@ -49,6 +49,8 @@ INSTALLED_APPS = [
     'cloudinary_storage', 
     'cloudinary',
 
+    # Campos _es/_en de tours, blog y páginas; debe ir antes del admin.
+    'modeltranslation',
     'django.contrib.admin',
     # 'django.contrib.humanize',
     'django.contrib.auth',
@@ -267,6 +269,11 @@ LANGUAGES = [
     ('es', 'Español'),
 ]
 LOCALE_PATHS = [BASE_DIR / 'locale']
+# Columnas _es/_en desde ya, aunque el inglés no esté en LANGUAGES: encenderlo
+# no genera migraciones. Un campo _en vacío muestra el español.
+MODELTRANSLATION_LANGUAGES = ('es', 'en')
+MODELTRANSLATION_DEFAULT_LANGUAGE = 'es'
+MODELTRANSLATION_FALLBACK_LANGUAGES = ('es',)
 TIME_ZONE = 'America/Santiago'
 USE_I18N = True
 USE_TZ = True

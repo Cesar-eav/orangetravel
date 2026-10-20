@@ -19,7 +19,7 @@ from django.utils.html import strip_tags, escape # Par
 from datetime import date
 import os
 
-# Email del admin según el tour (keyword en el slug → destinatario)
+# Email del admin según el tour (keyword en el nombre en español → destinatario)
 EMAIL_POR_TOUR = {
     'atacama':   'BastianDiaz10@gmail.com',
     'cotacotani': 'BastianDiaz10@gmail.com',
@@ -31,7 +31,8 @@ EMAIL_ADMIN_DEFAULT = 'info@orangetravel.cl'
 CC_RESERVAS = ['reservas@orangetravel.cl', 'cesar.eav@gmail.com']
 
 def get_email_admin(reserva):
-    nombre = reserva.tour.nombre.lower()
+    # nombre_es y no nombre: con el inglés activo, nombre devuelve la traducción.
+    nombre = reserva.tour.nombre_es.lower()
     for keyword, email in EMAIL_POR_TOUR.items():
         if keyword in nombre:
             return email

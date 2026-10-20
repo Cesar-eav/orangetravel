@@ -131,7 +131,7 @@ class TourCheckoutView(APIView):
         try:
             result = flow.create_payment(
                 commerce_order=str(payment.id),
-                subject=f"Reserva Tour: {tour.nombre}",
+                subject=f"Reserva Tour: {tour.nombre_es}",
                 amount=payment.amount,
                 email=email,
                 url_return=url_return,
