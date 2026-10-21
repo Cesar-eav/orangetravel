@@ -119,6 +119,30 @@ npm run build
 
 antes de `collectstatic`.
 
+### Cambios en `requirements.txt`
+
+Dependencias nuevas o actualizadas (p. ej. django-modeltranslation). Usar el pip del virtualenv del hosting:
+
+```bash
+git pull
+~/virtualenv/orangetravel/3.11/bin/pip install -r requirements.txt
+```
+
+Despues reiniciar desde cPanel → Setup Python App → Restart.
+
+### Traducciones (`locale/`)
+
+Los `.mo` se compilan en local y se commitean junto al `.po`; en el server no se corre `compilemessages`:
+
+```bash
+# local
+python manage.py makemessages -l en
+python manage.py compilemessages
+git add locale/
+```
+
+En el server: `git pull` + restart.
+
 ## Verificaciones utiles
 
 Ver si el archivo existe en el static publico:

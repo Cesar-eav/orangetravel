@@ -27,7 +27,7 @@ Leer completo antes de modificar nada. Este archivo **no debe contener valores s
 
 ## Variables de entorno (nombres)
 
-`DEBUG`, `DJANGO_SECRET_KEY`, `DATABASE_URL`, `FLOW_API_KEY`, `FLOW_SECRET_KEY`, `FLOW_API_BASE`, `MAILGUN_API_KEY`, `MAILGUN_SENDER_DOMAIN`, `DEFAULT_FROM_EMAIL`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.
+`DEBUG`, `DJANGO_SECRET_KEY`, `DATABASE_URL`, `FLOW_API_KEY`, `FLOW_SECRET_KEY`, `FLOW_API_BASE`, `MAILGUN_API_KEY`, `MAILGUN_SENDER_DOMAIN`, `DEFAULT_FROM_EMAIL`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `DEEPL_API_KEY` (traducción ES/EN; cuenta a nombre de Orange Travel).
 
 - Local: se leen del `.env` (ignorado por git).
 - Producción: cPanel Python App (ver regla 1). Detalle y valores no secretos en `docs/PRODUCCION_VARS_EMAIL.md`.
@@ -64,6 +64,17 @@ Leer completo antes de modificar nada. Este archivo **no debe contener valores s
 - `/tours/` (`tours_home.html`) muestra una tarjeta por zona con tours visibles; al elegir una se muestra su `descripcion` (párrafos separados por línea en blanco) y se filtran los tours. El filtro es JS inline (show/hide de tarjetas por `data-zona`, sin Vue) y deja `?zona=<slug>` en la URL. Tours sin zona solo salen en «Todas».
 - Precios en CLP con punto de miles: filtro `{% load precios %}{{ valor|clp }}` (`tours/templatetags/precios.py`). `floatformat:"0g"` no sirve: con `es-cl` usa espacio como separador.
 
+## Sitio bilingüe ES/EN
+
+Implementado en la rama `traduccion` (worktree `../orangetravel-i18n`); mientras no se haga merge a `fix-orange`, nada de esto está en producción. Plan y estado: `docs/PLAN_TRADUCCION_ETAPAS.md`.
+
+- Campos traducidos con django-modeltranslation (`<campo>_es` / `<campo>_en`, ver `*/translation.py`). `tour.nombre` devuelve el idioma activo: para decidir algo por el texto (ruteo `EMAIL_POR_TOUR`, `tour_nombre_al_pagar`, subject de Flow) usar **`nombre_es`**.
+- `/en/` depende de panel → Sitio en inglés (`home.SitioIngles`): `publico` (accesible por link, por defecto sí) y `mostrar_banderas` (selector para todos + `hreflang`; por defecto no, y entonces `/en/` lleva `noindex`).
+- Tours y reseñas con `traduccion_en_aprobada=False` se muestran en español al público en `/en/` (`tours/traduccion.py::mostrar_aprobado`).
+- `idioma` en `Reserva`, `Cotizacion` y `Payment` decide el idioma de los emails al cliente; los del admin van siempre en español.
+- Textos de templates públicos con `{% trans %}`; los de Vue salen de `tours/views.py::textos_reserva`. Catálogo `locale/en/LC_MESSAGES/django.po` y `.mo` versionados: `makemessages -l en --ignore='node_modules/*' --ignore='static/*' --ignore='staticfiles/*'` y `compilemessages` en local, nunca en el server.
+- Traducción automática del contenido: `python manage.py traducir_contenido --simular` y luego sin `--simular` (requiere `DEEPL_API_KEY`). Lo traducido queda sin aprobar.
+
 ## Producción y deploy
 
 - **Servidor: `int15.cpanelhost.cl` (138.117.148.165, LiteSpeed)** desde el 15 oct 2026 15:57 (el hosting trasladó la cuenta desde `srv28`, 190.107.177.38, que quedó como copia vieja sin tráfico). Antes de desplegar, confirmar con `hostname` que la sesión SSH está en int15, y en cPanel que la "Dirección IP compartida" sea 138.117.148.165. cPanel: `https://int15.cpanelhost.cl:2083`.
@@ -79,6 +90,8 @@ Leer completo antes de modificar nada. Este archivo **no debe contener valores s
 | Python (views, models, urls, admin, settings) | `migrate` si hay migraciones nuevas + `touch tmp/restart.txt` |
 | Tailwind/CSS/JS/Vue o `vite.config.mjs` | `npm run build` + `collectstatic --noinput` + restart |
 | Archivos nuevos en `static/` | `collectstatic --noinput` + restart |
+| `requirements.txt` | `~/virtualenv/orangetravel/3.11/bin/pip install -r requirements.txt` + restart |
+| Traducciones (`locale/*/LC_MESSAGES/django.po`) | `.mo` compilado en local y commiteado; en el server solo restart |
 | Variables de entorno | Editar en cPanel + **Restart desde cPanel** |
 
 - Error "Incomplete response received from application" = Django no arrancó. Revisar `passenger.log`; causa típica: una vista referenciada en `urls.py` que no existe en `views.py`.
@@ -93,3 +106,4 @@ Leer completo antes de modificar nada. Este archivo **no debe contener valores s
 - `docs/PRODUCCION_VARS_EMAIL.md`: variables en cPanel, por qué no hay `.env`, DNS y enrutamiento de emails.
 - `docs/COTIZACIONES.md`: tours con precio (categoría 1) vs. tours con cotización; flujo, modelo, panel y deploy.
 - `docs/email-deliverability.md`: SPF/DKIM/DMARC y Mailgun.
+- `docs/PROPUESTA_TRADUCCION_ES_EN.md`: sitio bilingüe ES/EN; el anexo técnico tiene las decisiones (modeltranslation, URLs, idioma en emails/webhook), los problemas conocidos y el deploy de cada entrega. Orden de ejecución y checklists: `docs/PLAN_TRADUCCION_ETAPAS.md`.
