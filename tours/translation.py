@@ -26,3 +26,12 @@ class ZonaTranslationOptions(TranslationOptions):
 @register(TerceraEdad)
 class TerceraEdadTranslationOptions(TranslationOptions):
     fields = ('contenido',)
+
+
+# modeltranslation copia unique=True de «nombre» a cada idioma. En inglés dos nombres
+# distintos pueden traducirse igual («Zona Sur» y «Zona Austral» → «Southern Region»),
+# así que la unicidad queda solo en nombre_es.
+for _modelo in (TipoTour, Zona):
+    _campo = _modelo._meta.get_field('nombre_en')
+    _campo._unique = False
+    _campo._field_options_kwargs = {'unique': False}  # para que las migraciones lo vean
