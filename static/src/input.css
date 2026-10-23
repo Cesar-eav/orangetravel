@@ -3,7 +3,7 @@
 @import "v-calendar/style.css"; 
 @plugin "../../node_modules/@tailwindcss/typography";
 
-@import url('https://fonts.googleapis.com/css2?family=Marcellus&display=swap');
+/* Las fuentes de Google se cargan con <link> en templates/base.html (Vite descarta el @import url() aquí). */
 
 @theme {
   /* Definimos los colores de Orange Travel estilo Tailwind 4 */
@@ -14,6 +14,7 @@
   /* Agregamos el azul oscuro para contraste si gustas */
   --color-blue-dark: #293D54;
   --font-marcellus: "Marcellus", serif;
+  --font-cinzel: "Cinzel", serif;
 }
 
 /* Rutas relativas a la RAÍZ del proyecto (donde está vite.config.mjs) */

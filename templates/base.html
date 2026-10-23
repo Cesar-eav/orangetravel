@@ -38,6 +38,11 @@
 
 
 
+<!-- Fuentes de Google: van aquí porque Vite descarta el @import url() de input.css -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Cinzel:wght@500;700&display=swap">
+
 {% if debug %}
 <link rel="stylesheet" href="{% static 'js/dist/assets/styles.css' %}">
 {% else %}
