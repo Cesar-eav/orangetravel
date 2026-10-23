@@ -24,14 +24,17 @@ Con las banderas apagadas:
 
 Al desplegar no hay que configurar nada: el registro se crea solo con los valores por defecto (`/en/` activa, sin banderas).
 
-## Estado (20 oct 2026)
+## Estado (23 oct 2026)
 
-- Etapas 1 a 6 implementadas y commiteadas en la rama `traduccion` (worktree `../orangetravel-i18n`), **sin desplegar**.
-- Tests: pasan los 7 de traducción (`tours/tests_traduccion.py`). Sigue fallando `test_listado_muestra_a_cotizar` (espera `$20000`), que ya fallaba antes de este trabajo.
+- Etapas 1 a 6 implementadas y commiteadas en la rama `traduccion` (worktree `../orangetravel-i18n`), **sin desplegar**. Último commit: `ef4618f`.
+- Contenido traducido en local (BD `orage_db_i18n`): 54 textos con `traducir_contenido` (tours, itinerarios, tipos, zonas, tercera edad, posts, nosotros), todo **sin aprobar**. Falta revisarlo y aprobarlo en el panel; en particular «Zona Sur» y «Zona Austral» quedaron ambas como «Southern Region».
+- Migración nueva `tours 0018_nombre_en_sin_unique`: `Zona.nombre_en` y `TipoTour.nombre_en` ya no son únicos (modeltranslation copiaba `unique=True` y DeepL tradujo dos zonas igual). Se suma a las migraciones del deploy.
+- La `DEEPL_API_KEY` está en el `.env` local de ambas carpetas. En producción falta cargarla en cPanel.
+- Tests: pasan los 7 de traducción (`tours/tests_traduccion.py`) según el registro del 20 oct; el 23 oct no se pudieron correr (el usuario de BD local no puede crear la BD de test). Sigue fallando `test_listado_muestra_a_cotizar` (espera `$20000`), que ya fallaba antes de este trabajo.
 - Pendiente para la entrega 1 (30 oct):
-  1. Commitear en `fix-orange` los docs (`CLAUDE.md`, este plan, el anexo de la propuesta y `docs/DEPLOY.md`) y hacer merge de `traduccion`.
-  2. Deploy en int15 (anexo §7): modo mantención, respaldo de la BD, `git pull`, `pip install -r requirements.txt`, `export DATABASE_URL`, `migrate`, `npm run build`, `collectstatic`, Restart desde cPanel. Probar que `/` quedó igual, que `/en/` abre sin sesión y hacer un pago real desde `/en/`.
-  3. `DEEPL_API_KEY` y glosario del cliente → `python manage.py traducir_contenido` y aprobar en el panel.
+  1. Hacer merge de `traduccion` en `fix-orange` (los docs ya están en `fix-orange`).
+  2. Deploy en int15 (anexo §7): modo mantención, respaldo de la BD, `git pull`, `pip install -r requirements.txt`, `export DATABASE_URL`, `migrate` (incluye `tours 0018`), `npm run build`, `collectstatic`, Restart desde cPanel. Probar que `/` quedó igual, que `/en/` abre sin sesión y hacer un pago real desde `/en/`.
+  3. Cargar `DEEPL_API_KEY` en cPanel (+ Restart desde cPanel), correr `python manage.py traducir_contenido` en producción y aprobar en el panel.
 - El avance día a día vive en el seguimiento (artifact «Avance Orange Travel ES/EN»).
 
 | Etapa | Qué | Semana | ¿Cambia el sitio? | Deploy |

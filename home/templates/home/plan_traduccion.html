@@ -1,0 +1,394 @@
+{% verbatim %}<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plan bilingüe ES/EN</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap">
+<style>
+  /* Layout: documento de trabajo en una columna ancha; resumen, etapas, cronograma, acciones. */
+  :root {
+    --bg: #FBFAF7;
+    --surface: #FFFFFF;
+    --fg: #1F1B16;
+    --muted: #6A6358;
+    --line: #E7E2D8;
+    --accent: #C85A08;
+    --accent-bg: #FCEBDD;
+    --ok: #2B7448;
+    --ok-bg: #E2F1E8;
+    --warn: #9A5F00;
+    --warn-bg: #FBEBC8;
+    --todo: #6A6358;
+    --todo-bg: #ECE8DF;
+    --bar-ok: #5FAE80;
+    --bar-warn: #E3A431;
+    --bar-todo: #C9C2B4;
+    --font-display: "Schibsted Grotesk", system-ui, sans-serif;
+    --font-body: "Schibsted Grotesk", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #16130F; --surface: #1E1A15; --fg: #F1ECE4; --muted: #A39B8F; --line: #34302A;
+      --accent: #F28A3C; --accent-bg: #3A2512;
+      --ok: #7CCB98; --ok-bg: #1B3326; --warn: #E7B24A; --warn-bg: #3A2D0F;
+      --todo: #A39B8F; --todo-bg: #2C2822;
+      --bar-ok: #3F8A5E; --bar-warn: #B8821F; --bar-todo: #4A453C;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #16130F; --surface: #1E1A15; --fg: #F1ECE4; --muted: #A39B8F; --line: #34302A;
+    --accent: #F28A3C; --accent-bg: #3A2512;
+    --ok: #7CCB98; --ok-bg: #1B3326; --warn: #E7B24A; --warn-bg: #3A2D0F;
+    --todo: #A39B8F; --todo-bg: #2C2822;
+    --bar-ok: #3F8A5E; --bar-warn: #B8821F; --bar-todo: #4A453C;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--fg);
+    font-family: var(--font-body); font-size: 15px; line-height: 1.55;
+    padding-block: 32px 64px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; display: flex; flex-direction: column; gap: 44px; }
+  h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.2; }
+  h1 { font-size: clamp(1.7rem, 4vw, 2.3rem); font-weight: 700; letter-spacing: -0.02em; }
+  h2 { font-size: 1.25rem; font-weight: 650; letter-spacing: -0.01em; }
+  p { margin: 0; }
+  code, .mono { font-family: var(--font-mono); font-size: 0.86em; }
+  code { background: var(--todo-bg); padding: 1px 5px; border-radius: 4px; }
+  .muted { color: var(--muted); }
+  .eyebrow { font-size: 0.74rem; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+
+  header { display: flex; flex-direction: column; gap: 14px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px 18px; color: var(--muted); font-size: 0.9rem; }
+  .meta b { color: var(--fg); font-weight: 600; }
+  .deadline { display: inline-flex; align-items: baseline; gap: 8px; background: var(--accent-bg); color: var(--accent); padding: 6px 12px; border-radius: 6px; font-weight: 600; width: fit-content; }
+  .deadline .mono { font-weight: 500; }
+
+  .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+  .summary > div { padding: 16px 18px; border-left: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .summary > div:first-child { border-left: 0; }
+  .summary .big { font-size: 1.05rem; font-weight: 650; }
+  @media (max-width: 720px) { .summary > div { border-left: 0; border-top: 1px solid var(--line); } .summary > div:first-child { border-top: 0; } }
+
+  section { display: flex; flex-direction: column; gap: 16px; }
+  .section-head { display: flex; flex-direction: column; gap: 4px; }
+
+  .pill { display: inline-block; font-size: 0.76rem; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+  .pill.ok { background: var(--ok-bg); color: var(--ok); }
+  .pill.warn { background: var(--warn-bg); color: var(--warn); }
+  .pill.todo { background: var(--todo-bg); color: var(--todo); }
+
+  .scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; min-width: 760px; }
+  th, td { text-align: left; vertical-align: top; padding: 11px 14px; border-bottom: 1px solid var(--line); }
+  th { font-size: 0.74rem; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); font-weight: 600; background: var(--bg); }
+  tr:last-child td { border-bottom: 0; }
+  td.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .stage-name { font-weight: 600; }
+  .stage-note { color: var(--muted); font-size: 0.86rem; margin-top: 2px; }
+  .prog { display: flex; align-items: center; gap: 8px; min-width: 120px; }
+  .prog .track { flex: 1; height: 6px; border-radius: 3px; background: var(--todo-bg); overflow: hidden; }
+  .prog .fill { height: 100%; background: var(--bar-ok); }
+  .prog .fill.warn { background: var(--bar-warn); }
+  .prog .fill.todo { background: var(--bar-todo); }
+  .prog span { font-family: var(--font-mono); font-size: 0.8rem; font-variant-numeric: tabular-nums; color: var(--muted); }
+
+  /* Gantt del plan original */
+  .gantt { display: grid; grid-template-columns: 12.5rem repeat(6, minmax(70px, 1fr)); min-width: 720px; }
+  .gantt > * { padding: 9px 10px; border-bottom: 1px solid var(--line); }
+  .gantt .gh { font-size: 0.74rem; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); font-weight: 600; background: var(--bg); text-align: center; border-left: 1px solid var(--line); }
+  .gantt .gh.w { grid-column: span 2; }
+  .gantt .gh.first { border-left: 0; text-align: left; grid-column: 1; }
+  .gantt .lbl { font-weight: 550; font-size: 0.9rem; }
+  .gantt .lbl small { display: block; color: var(--muted); font-weight: 400; font-size: 0.78rem; }
+  .gantt .cell { border-left: 1px solid var(--line); }
+  .gantt .bar { align-self: center; height: 22px; border-radius: 4px; margin: 0 4px; padding: 0 8px; font-size: 0.75rem; font-weight: 600; line-height: 22px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
+  .bar.ok { background: var(--bar-ok); } .bar.warn { background: var(--bar-warn); } .bar.todo { background: var(--bar-todo); color: var(--fg); }
+  .gantt .last-row > * { border-bottom: 0; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 0.84rem; color: var(--muted); }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 6px; }
+
+  /* Días de la propuesta */
+  .days { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+  .day { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .day.final { border-color: var(--accent); }
+  .day-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .day-head b { font-size: 0.98rem; }
+  .day-head .mono { color: var(--muted); font-size: 0.8rem; }
+  .day ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 5px; font-size: 0.9rem; }
+  .day li .t { font-family: var(--font-mono); font-size: 0.78rem; color: var(--muted); white-space: nowrap; }
+
+  .who { font-size: 0.8rem; font-weight: 600; }
+  .who.yo { color: var(--accent); }
+  tfoot td { font-weight: 650; background: var(--bg); }
+
+  ul.notes { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 9px; }
+  footer { color: var(--muted); font-size: 0.84rem; border-top: 1px solid var(--line); padding-top: 16px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Orange Travel · uso interno</span>
+  <h1>Sitio bilingüe ES/EN: plan por etapas</h1>
+  <div class="meta">
+    <span>Estado al <b>23 oct 2026</b></span>
+    <span>Rama <code>traduccion</code> · último commit <code>ef4618f</code></span>
+    <span>Producción despliega <code>fix-orange</code> en <code>int15</code></span>
+  </div>
+  <div class="deadline">Entrega 1: viernes 30 oct <span class="mono">· quedan 7 días</span></div>
+</header>
+
+<div class="summary">
+  <div>
+    <span class="eyebrow">Código</span>
+    <span class="big">Etapas 1 a 6 terminadas</span>
+    <span class="muted">Commiteadas en <code>traduccion</code>. La etapa 7 no ha empezado, salvo 2 tareas adelantadas.</span>
+  </div>
+  <div>
+    <span class="eyebrow">Producción</span>
+    <span class="big">Nada desplegado</span>
+    <span class="muted">Las etapas 1 a 6 salen juntas en un solo merge y un solo deploy.</span>
+  </div>
+  <div>
+    <span class="eyebrow">Falta para la entrega 1</span>
+    <span class="big">9 acciones, 1 h 50 a 2 h 55</span>
+    <span class="muted">Más 1 a 2 h para aprobar las traducciones, que no bloquea el deploy.</span>
+  </div>
+</div>
+
+<section>
+  <div class="section-head">
+    <h2>Etapas y estado</h2>
+    <p class="muted">El avance cuenta las casillas marcadas del plan. «Cambia el sitio» se refiere a lo que ve el público en español.</p>
+  </div>
+  <div class="scroll">
+    <table>
+      <thead>
+        <tr><th>Etapa</th><th>Estado</th><th>Avance</th><th>Cambia el sitio</th><th>Deploy</th><th>Qué falta</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div class="stage-name">0 · Preparación</div><div class="stage-note">Worktree, BD <code>orage_db_i18n</code>, <code>npm ci</code></div></td>
+          <td><span class="pill warn">Casi lista</span></td>
+          <td><div class="prog"><div class="track"><div class="fill warn" style="width:83%"></div></div><span>5/6</span></div></td>
+          <td>No</td><td class="muted">—</td>
+          <td>Pedir al cliente el glosario y una persona que apruebe traducciones.</td>
+        </tr>
+        <tr>
+          <td><div class="stage-name">1 · Base i18n</div><div class="stage-note"><code>i18n_patterns</code>, APIs fuera del prefijo</div></td>
+          <td><span class="pill ok">Código listo</span></td>
+          <td><div class="prog"><div class="track"><div class="fill" style="width:100%"></div></div><span>4/4</span></div></td>
+          <td>No</td><td>Python + restart</td>
+          <td class="muted">Solo el deploy.</td>
+        </tr>
+        <tr>
+          <td><div class="stage-name">2 · Modelos traducibles e idioma</div><div class="stage-note">Columnas <code>_es</code>/<code>_en</code>, campo <code>idioma</code></div></td>
+          <td><span class="pill ok">Código listo</span></td>
+          <td><div class="prog"><div class="track"><div class="fill" style="width:100%"></div></div><span>7/7</span></div></td>
+          <td>No</td><td>pip + <code>migrate</code></td>
+          <td>Solo el deploy. Es el paso crítico: respaldo de la BD y modo mantención.</td>
+        </tr>
+        <tr>
+          <td><div class="stage-name">3 · Emails a templates</div><div class="stage-note">Cliente en su idioma, admin en español</div></td>
+          <td><span class="pill ok">Código listo</span></td>
+          <td><div class="prog"><div class="track"><div class="fill" style="width:100%"></div></div><span>2/2</span></div></td>
+          <td>No</td><td>Python + restart</td>
+          <td>Comparar un email real con el nuevo tras el deploy.</td>
+        </tr>
+        <tr>
+          <td><div class="stage-name">4 · Templates y Vue con <code>{% trans %}</code></div><div class="stage-note">Textos de Django enviados a Vue</div></td>
+          <td><span class="pill ok">Código listo</span></td>
+          <td><div class="prog"><div class="track"><div class="fill" style="width:100%"></div></div><span>5/5</span></div></td>
+          <td>No</td><td><code>npm run build</code> + collectstatic</td>
+          <td>Revisar que reserva y cotización en español sigan igual.</td>
+        </tr>
+        <tr>
+          <td><div class="stage-name">5 · Contenido en inglés</div><div class="stage-note">DeepL, panel, aprobación por tour</div></td>
+          <td><span class="pill ok">Código listo</span></td>
+          <td><div class="prog"><div class="track"><div class="fill" style="width:100%"></div></div><span>5/5</span></div></td>
+          <td>No</td><td><code>migrate</code> + restart</td>
+          <td>Traducciones de la BD local sin aprobar; repetir en producción.</td>
+        </tr>
+        <tr>
+          <td><div class="stage-name">6 · Inglés activo por link, sin banderas</div><div class="stage-note"><b>Entrega 1.</b> <code>/en/</code> con <code>noindex</code></div></td>
+          <td><span class="pill warn">Falta desplegar</span></td>
+          <td><div class="prog"><div class="track"><div class="fill warn" style="width:78%"></div></div><span>7/9</span></div></td>
+          <td>No (sin banderas)</td><td>Completo</td>
+          <td>Cargar <code>DEEPL_API_KEY</code> en cPanel; publicar y probar un pago Flow real desde <code>/en/</code>.</td>
+        </tr>
+        <tr>
+          <td><div class="stage-name">7 · Entrega 2</div><div class="stage-note">Blog, emails EN, DeepL en el panel</div></td>
+          <td><span class="pill todo">Por empezar</span></td>
+          <td><div class="prog"><div class="track"><div class="fill todo" style="width:29%"></div></div><span>2/7</span></div></td>
+          <td>Sí</td><td>Completo</td>
+          <td>Traducir posts en lote, botón «Traducir con DeepL», glosario editable, ajustes de la ronda 1.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <h2>Cronograma</h2>
+    <p class="muted">Primero el calendario previsto en el plan; después la propuesta para lo que queda.</p>
+  </div>
+
+  <div class="scroll">
+    <div class="gantt" role="table" aria-label="Calendario previsto por etapa">
+      <div class="gh first">Previsto en el plan</div>
+      <div class="gh w">Semana 1</div><div class="gh w">Semana 2</div><div class="gh w">Semana 3</div>
+
+      <div class="lbl">0 · Preparación<small>antes / día 1</small></div>
+      <div class="cell" style="grid-column:2"><div class="bar warn" style="margin:0">Día 1</div></div>
+      <div class="cell" style="grid-column:3 / 8"></div>
+
+      <div class="lbl">1 · Base i18n<small>semana 1</small></div>
+      <div class="bar ok" style="grid-column:2 / 4">Código listo</div>
+      <div class="cell" style="grid-column:4 / 8"></div>
+
+      <div class="lbl">2 · Modelos e idioma<small>semana 1</small></div>
+      <div class="bar ok" style="grid-column:2 / 4">Código listo</div>
+      <div class="cell" style="grid-column:4 / 8"></div>
+
+      <div class="lbl">3 · Emails a templates<small>semana 1</small></div>
+      <div class="bar ok" style="grid-column:2 / 4">Código listo</div>
+      <div class="cell" style="grid-column:4 / 8"></div>
+
+      <div class="lbl">4 · Templates y Vue<small>semanas 1 a 2</small></div>
+      <div class="cell" style="grid-column:2"></div>
+      <div class="bar ok" style="grid-column:3 / 6">Código listo</div>
+      <div class="cell" style="grid-column:6 / 8"></div>
+
+      <div class="lbl">5 · Contenido en inglés<small>semana 2</small></div>
+      <div class="cell" style="grid-column:2 / 4"></div>
+      <div class="bar ok" style="grid-column:4 / 6">Código listo</div>
+      <div class="cell" style="grid-column:6 / 8"></div>
+
+      <div class="lbl">6 · Entrega 1<small>fin de la semana 2</small></div>
+      <div class="cell" style="grid-column:2 / 5"></div>
+      <div class="bar warn" style="grid-column:5">Falta deploy</div>
+      <div class="cell" style="grid-column:6 / 8"></div>
+
+      <div class="lbl">7 · Entrega 2<small>semana 3</small></div>
+      <div class="cell" style="grid-column:2 / 6"></div>
+      <div class="bar todo" style="grid-column:6 / 8">Por empezar</div>
+    </div>
+  </div>
+  <div class="legend">
+    <span><i style="background:var(--bar-ok)"></i>Código terminado</span>
+    <span><i style="background:var(--bar-warn)"></i>Falta algo para cerrar</span>
+    <span><i style="background:var(--bar-todo)"></i>No empezado</span>
+  </div>
+
+  <div class="section-head" style="margin-top:12px">
+    <h3>Propuesta para llegar al 30 oct</h3>
+    <p class="muted">Los tiempos son estimaciones, no mediciones. El primer deploy en int15 puede tomar más: <code>touch tmp/restart.txt</code> y el log aún no están verificados allí.</p>
+  </div>
+  <div class="days">
+    <div class="day">
+      <div class="day-head"><b>Vie 23 oct</b><span class="mono">≈ 30 a 45 min</span></div>
+      <ul>
+        <li>Apagar <code>publico</code> por defecto, commit y merge local <span class="t">10–15 min</span></li>
+        <li>Resolver la BD de test y correr los tests <span class="t">15–30 min</span></li>
+      </ul>
+    </div>
+    <div class="day">
+      <div class="day-head"><b>Lun 26 y mar 27</b><span class="mono">margen</span></div>
+      <ul>
+        <li>Pedir al cliente el glosario y la persona que aprobará</li>
+        <li>Revisar el diff final antes del push</li>
+      </ul>
+    </div>
+    <div class="day">
+      <div class="day-head"><b>Mié 28 oct</b><span class="mono">≈ 1 h 25 a 2 h 10</span></div>
+      <ul>
+        <li>Mantención, respaldo y <code>git pull</code> <span class="t">10–15 min</span></li>
+        <li><code>pip</code>, <code>DATABASE_URL</code>, <code>migrate</code> <span class="t">10 min</span></li>
+        <li>Build, collectstatic, Restart <span class="t">10–15 min</span></li>
+        <li><code>DEEPL_API_KEY</code> en cPanel + Restart <span class="t">5–10 min</span></li>
+        <li><code>traducir_contenido</code> en producción <span class="t">5 min</span></li>
+        <li>Checklist de verificación <span class="t">30–45 min</span></li>
+        <li>Pago Flow real desde <code>/en/</code> y <code>/</code> <span class="t">15–30 min</span></li>
+      </ul>
+    </div>
+    <div class="day">
+      <div class="day-head"><b>Jue 29 oct</b><span class="mono">1 a 2 h</span></div>
+      <ul>
+        <li>Revisar y aprobar traducciones en <code>/panel/</code></li>
+        <li>Corregir «Zona Sur» y «Zona Austral», hoy iguales</li>
+        <li>Margen para arreglos</li>
+      </ul>
+    </div>
+    <div class="day final">
+      <div class="day-head"><b>Vie 30 oct</b><span class="pill warn">Entrega 1</span></div>
+      <ul>
+        <li>Se abre la ronda 1 de ajustes del cliente (2 a 3 días)</li>
+        <li>Encender «Mostrar banderas» es decisión del cliente y no requiere deploy</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <h2>Acciones pendientes</h2>
+    <p class="muted">Quién las hace y cuánto tardan. Las filas 1 a 9 son las que cierran la entrega 1.</p>
+  </div>
+  <div class="scroll">
+    <table>
+      <thead>
+        <tr><th>#</th><th>Acción</th><th>Etapa</th><th>Quién</th><th>Tiempo</th><th>Bloquea la entrega</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="num">1</td><td>Cambiar <code>publico</code> a apagado por defecto (migración nueva), commit y merge local sin push <div class="stage-note">Por confirmar: depende de que elijas esta opción.</div></td><td>6</td><td><span class="who yo">Claude</span></td><td class="num">10–15 min</td><td>Sí, si se elige</td></tr>
+        <tr><td class="num">2</td><td>Resolver el permiso de la BD de test y correr <code>tours.tests_traduccion</code></td><td>6</td><td><span class="who">Tú, con ayuda</span></td><td class="num">15–30 min</td><td>Recomendado</td></tr>
+        <tr><td class="num">3</td><td>Modo mantención, respaldo de la BD, <code>git pull</code> en int15</td><td>6</td><td><span class="who">Tú</span></td><td class="num">10–15 min</td><td>Sí</td></tr>
+        <tr><td class="num">4</td><td><code>pip install -r requirements.txt</code>, <code>export DATABASE_URL</code>, <code>migrate</code> (incluye <code>tours 0018</code>)</td><td>2, 5</td><td><span class="who">Tú</span></td><td class="num">10 min</td><td>Sí</td></tr>
+        <tr><td class="num">5</td><td><code>npm run build</code>, <code>collectstatic --noinput</code>, Restart desde cPanel</td><td>4</td><td><span class="who">Tú</span></td><td class="num">10–15 min</td><td>Sí</td></tr>
+        <tr><td class="num">6</td><td>Cargar <code>DEEPL_API_KEY</code> en cPanel → Setup Python App y Restart</td><td>6</td><td><span class="who">Tú</span></td><td class="num">5–10 min</td><td>Sí</td></tr>
+        <tr><td class="num">7</td><td>Correr <code>traducir_contenido</code> en producción (la BD de allá no tiene los <code>_en</code>)</td><td>6</td><td><span class="who">Tú</span></td><td class="num">5 min</td><td>Sí</td></tr>
+        <tr><td class="num">8</td><td>Checklist de verificación: <code>/</code>, <code>/en/</code>, tours, reserva, cotización, emails, <code>hreflang</code></td><td>6</td><td><span class="who">Tú</span></td><td class="num">30–45 min</td><td>Sí</td></tr>
+        <tr><td class="num">9</td><td>Pago Flow real desde <code>/en/</code> y desde <code>/</code> <div class="stage-note">Cobra dinero de verdad: decidir antes cómo se reembolsa.</div></td><td>6</td><td><span class="who">Tú</span></td><td class="num">15–30 min</td><td>Sí</td></tr>
+        <tr><td class="num">·</td><td>Revisar y aprobar las traducciones en <code>/panel/</code> de producción</td><td>5, 6</td><td><span class="who">Tú o el cliente</span></td><td class="num">1–2 h</td><td>No</td></tr>
+        <tr><td class="num">·</td><td>Pedir al cliente el glosario y una persona de contacto para aprobar</td><td>0</td><td><span class="who">Tú</span></td><td class="num">—</td><td>No</td></tr>
+        <tr><td class="num">·</td><td>Etapa 7: posts en lote, botón DeepL en el panel, glosario editable, ajustes de la ronda 1, publicación</td><td>7</td><td><span class="who">Claude y tú</span></td><td class="num">sin estimar</td><td>No (entrega 2)</td></tr>
+      </tbody>
+      <tfoot>
+        <tr><td></td><td>Total filas 1 a 9</td><td></td><td></td><td class="num">1 h 50 – 2 h 55</td><td></td></tr>
+      </tfoot>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>Cosas a tener presentes</h2></div>
+  <ul class="notes">
+    <li><b>Orden del deploy.</b> El middleware nuevo consulta <code>SitioIngles</code> en cada request. Si se reinicia antes de <code>migrate</code>, el sitio entero falla.</li>
+    <li><b><code>/en/</code> abierta por defecto.</b> Hoy <code>publico</code> viene encendido: cualquiera con el link entra. La fila 1 lo deja cerrado desde el primer minuto; si no, hay que apagarlo en el panel durante la mantención.</li>
+    <li><b>Tests.</b> No se pudieron correr el 23 oct (el usuario de BD local no puede crear la BD de test). El plan registra 7 pasando el 20 oct. <code>test_listado_muestra_a_cotizar</code> ya fallaba antes de este trabajo.</li>
+    <li><b>Traducciones.</b> Las 54 traducciones de la BD local no viajan al servidor: la aprobación vive en la BD de producción, así que hay que correr el comando allá y aprobar allá.</li>
+    <li><b>Variables de entorno.</b> La <code>DEEPL_API_KEY</code> en un <code>.env</code> local no llega a Passenger. Solo vale la que se cargue en cPanel y se reinicie desde el panel.</li>
+  </ul>
+</section>
+
+<footer>
+  Fuente: <code>docs/PLAN_TRADUCCION_ETAPAS.md</code> y <code>docs/PROPUESTA_TRADUCCION_ES_EN.md</code>. Los tiempos y el orden por día son una propuesta de trabajo, no un compromiso con el cliente.
+</footer>
+
+</div>
+</body>
+</html>
+{% endverbatim %}
