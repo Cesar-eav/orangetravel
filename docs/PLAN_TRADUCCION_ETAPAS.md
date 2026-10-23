@@ -32,10 +32,32 @@ Al desplegar no hay que configurar nada: el registro se crea solo con los valore
 - La `DEEPL_API_KEY` está en el `.env` local de ambas carpetas. En producción falta cargarla en cPanel.
 - Tests: pasan los 7 de traducción (`tours/tests_traduccion.py`) según el registro del 20 oct; el 23 oct no se pudieron correr (el usuario de BD local no puede crear la BD de test). Sigue fallando `test_listado_muestra_a_cotizar` (espera `$20000`), que ya fallaba antes de este trabajo.
 - Pendiente para la entrega 1 (30 oct):
-  1. Hacer merge de `traduccion` en `fix-orange` (los docs ya están en `fix-orange`).
+  1. Hacer merge de `traduccion` en `fix-orange` (los docs ya están en `fix-orange`). **Hay un conflicto en `tours/templates/tours/tour.html`**: ver «Merge con los cambios de `fix-orange` del 23 oct», más abajo.
   2. Deploy en int15 (anexo §7): modo mantención, respaldo de la BD, `git pull`, `pip install -r requirements.txt`, `export DATABASE_URL`, `migrate` (incluye `tours 0018`), `npm run build`, `collectstatic`, Restart desde cPanel. Probar que `/` quedó igual, que `/en/` abre sin sesión y hacer un pago real desde `/en/`.
   3. Cargar `DEEPL_API_KEY` en cPanel (+ Restart desde cPanel), correr `python manage.py traducir_contenido` en producción y aprobar en el panel.
 - El avance día a día vive en el seguimiento (artifact «Avance Orange Travel ES/EN»).
+
+### Merge con los cambios de `fix-orange` del 23 oct
+
+El commit `f437bb0` de `fix-orange` cambió la página del tour después de que `traduccion` le pusiera los `{% trans %}`. Simulado con `git merge-tree`: `templates/base.html` se fusiona solo y **`tours/templates/tours/tour.html` da conflicto**.
+
+Qué cambió en `fix-orange`:
+- Nuevo orden de secciones: resumen → itinerario por día → incluye → **galería → mapa → video**. Se quitó el `<hr>` que había antes de la galería.
+- El nombre del tour en la portada usa `font-cinzel` (`text-3xl md:text-5xl tracking-wider`).
+- Marcellus y Cinzel se cargan con `<link>` a Google Fonts en `templates/base.html`. Antes había un `@import url()` en `static/src/input.css` que Vite descartaba, así que Marcellus nunca cargaba.
+
+Cómo resolver el conflicto de `tour.html`:
+1. El bloque en conflicto (entre `<<<<<<< fix-orange` y `>>>>>>> traduccion`) trae el video y el mapa **en su posición vieja**, ya con `{% trans %}`. **Borrar el bloque entero**, marcadores incluidos. No elegir «aceptar traduccion»: los dos bloques quedarían duplicados.
+2. Git deja el mapa y el video **en su posición nueva (después de la galería) sin traducir**. Volver a ponerles los `{% trans %}` de `traduccion`:
+   - `{% trans "Mapa del Tour" %}`
+   - `alt="{% blocktrans with nombre=tour.nombre %}Mapa del tour {{ nombre }}{% endblocktrans %}"`
+   - `{% trans "Ampliar" %}`
+   - `{% trans "Video del Tour" %}`
+   - `{% trans "Estamos preparando un video increíble de este tour para ti." %}`
+3. Revisar que la galería conserve `{% trans "Galería de Fotos" %}`, `{% trans "Anterior" %}` y `{% trans "Siguiente" %}` (git los fusiona solos), y que arriba sigan `{% load i18n %}`, `{% block meta_description %}` y `{{ textos_reserva|json_script:"textos-reserva" }}`.
+4. Comprobar: `grep -c "<<<<<<<\|>>>>>>>" tours/templates/tours/tour.html` da 0; hay un solo `Mapa del Tour` y un solo `Video del Tour`, y los dos con `trans`; `makemessages` no deja textos nuevos sin traducir; `/tours/<slug>/` y `/en/tours/<slug>/` muestran galería → mapa → video.
+
+No hay textos nuevos para traducir: el título usa `{{ tour.nombre }}`, que en `/en/` ya sale de `nombre_en` (o `nombre_es` si la traducción no está aprobada).
 
 | Etapa | Qué | Semana | ¿Cambia el sitio? | Deploy |
 |---|---|---|---|---|
