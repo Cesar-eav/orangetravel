@@ -3,10 +3,11 @@ from datetime import timedelta
 
 from django.contrib import messages
 from django.contrib.auth.views import LoginView, redirect_to_login
-from django.db.models import Count, Q
+from django.db.models import Count, F, Q, Sum
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
+from django.utils.dateparse import parse_date
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, ListView, TemplateView, UpdateView
@@ -20,12 +21,12 @@ from home.models import MaintenanceMode, Nosotros
 from payments.models import Payment
 from django.db import transaction
 from django.db.models import ProtectedError
-from tours.models import TIPO_CON_PRECIO_ID, BloqueoTour, Cotizacion, GaleriaTour, PrecioTour, Reserva, TerceraEdad, TipoTour, Tour, Zona
+from tours.models import TIPO_CON_PRECIO_ID, BloqueoTour, Cotizacion, GaleriaTour, PrecioTour, Reserva, TerceraEdad, TipoTour, Tour, Venta, Zona
 
 from .forms import (
     CUERPO_MAX, BloqueoForm, CotizacionGestionForm, ImagenGaleriaForm, ItinerarioDiaFormSet, ImagenPostFormSet, MantencionForm, NosotrosForm,
     PanelLoginForm, PostForm, TerceraEdadForm,
-    PrecioTourForm, ReservaGestionForm, TipoTourForm, TourForm, ZonaForm,
+    PrecioTourForm, ReservaGestionForm, TipoTourForm, TourForm, VentaForm, ZonaForm,
 )
 from .mixins import StaffRequiredMixin
 
@@ -220,6 +221,92 @@ class PagoDetailView(PanelView, DetailView):
         ctx = super().get_context_data(**kwargs)
         ctx['estado_texto'] = ESTADO_PAGO.get(self.object.status, self.object.status)
         return ctx
+
+
+# ---------------------------------------------------------------- Ventas
+
+class VentaListView(PanelView, ListView):
+    template_name = 'panel/ventas_list.html'
+    context_object_name = 'ventas'
+    paginate_by = PAGE_SIZE
+
+    def get_queryset(self):
+        qs = Venta.objects.select_related('tour')
+        g = self.request.GET
+        if q := g.get('q', '').strip():
+            qs = qs.filter(
+                Q(nombre_cliente__icontains=q) | Q(email__icontains=q) | Q(telefono__icontains=q)
+                | Q(servicio__icontains=q)
+            )
+        filtros = (
+            ('canal', Venta.Canal), ('tipo_servicio', Venta.TipoServicio),
+            ('estado_pago', Venta.EstadoPago), ('estado_reserva', Venta.EstadoReserva),
+        )
+        for campo, choices in filtros:
+            if g.get(campo) in choices.values:
+                qs = qs.filter(**{campo: g[campo]})
+        for param, lookup in (('desde', 'fecha_servicio__gte'), ('hasta', 'fecha_servicio__lte')):
+            try:
+                fecha = parse_date(g.get(param, ''))
+            except ValueError:
+                fecha = None
+            if fecha:
+                qs = qs.filter(**{lookup: fecha})
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        params = self.request.GET.copy()
+        params.pop('page', None)
+        totales = self.object_list.aggregate(
+            total=Sum('precio_total'), pagado=Sum('monto_pagado'),
+            saldo=Sum(F('precio_total') - F('monto_pagado')),
+        )
+        ctx.update(
+            canales=Venta.Canal.choices,
+            tipos_servicio=Venta.TipoServicio.choices,
+            estados_pago=Venta.EstadoPago.choices,
+            estados_reserva=Venta.EstadoReserva.choices,
+            totales=totales,
+            querystring=params.urlencode(),
+        )
+        return ctx
+
+
+class VentaFormView(PanelView, TemplateView):
+    """Crear (sin pk) y editar (con pk) una venta ingresada a mano."""
+    template_name = 'panel/venta_form.html'
+
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        pk = kwargs.get('pk')
+        self.venta = get_object_or_404(Venta, pk=pk) if pk else None
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx.setdefault('form', VentaForm(instance=self.venta))
+        ctx['venta'] = self.venta
+        return ctx
+
+    def post(self, request, *args, **kwargs):
+        form = VentaForm(request.POST, instance=self.venta)
+        if form.is_valid():
+            venta = form.save(commit=False)
+            if venta.creada_por_id is None and not venta.pk:
+                venta.creada_por = request.user
+            venta.save()
+            messages.success(request, f'Venta de {venta.nombre_cliente} guardada.')
+            return redirect('panel:ventas')
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+@_staff_only
+@require_POST
+def venta_eliminar(request, pk):
+    venta = get_object_or_404(Venta, pk=pk)
+    venta.delete()  # borrado lógico
+    messages.success(request, f'Venta de {venta.nombre_cliente} eliminada.')
+    return redirect('panel:ventas')
 
 
 # ---------------------------------------------------------------- Tours

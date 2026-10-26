@@ -32,8 +32,8 @@ textarea{width:100%}
 .filters{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-bottom:16px}
 .filters label{display:block;font-size:13px;color:var(--mu)}
 .badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:13px;font-weight:600}
-.b-PENDIENTE,.b-pending{background:#ffedd5;color:#9a3412}.b-CONFIRMADA,.b-paid{background:#dcfce7;color:#166534}
-.b-CANCELADA,.b-RECHAZADA,.b-failed,.b-canceled{background:#fee2e2;color:#991b1b}
+.b-PENDIENTE,.b-pending,.b-pendiente{background:#ffedd5;color:#9a3412}.b-CONFIRMADA,.b-paid,.b-pagado,.b-confirmada{background:#dcfce7;color:#166534}
+.b-CANCELADA,.b-RECHAZADA,.b-failed,.b-canceled,.b-cancelada{background:#fee2e2;color:#991b1b}.b-abono{background:#dbeafe;color:#1e40af}
 .msgs{list-style:none;padding:0;margin:0 0 18px}.msgs li{padding:12px 16px;border-radius:8px;margin-bottom:8px;background:#dcfce7;color:#166534}
 .msgs li.error{background:#fee2e2;color:#991b1b}
 dl{display:grid;grid-template-columns:200px 1fr;gap:8px 16px;margin:0}dt{color:var(--mu)}dd{margin:0}
@@ -54,6 +54,7 @@ dl{display:grid;grid-template-columns:200px 1fr;gap:8px 16px;margin:0}dt{color:v
     <a href="{% url 'panel:reservas' %}" class="{% if 'reserva' in request.resolver_match.url_name %}on{% endif %}">Reservas</a>
     <a href="{% url 'panel:cotizaciones' %}" class="{% if 'cotizacion' in request.resolver_match.url_name %}on{% endif %}">Cotizaciones</a>
     <a href="{% url 'panel:pagos' %}" class="{% if 'pago' in request.resolver_match.url_name %}on{% endif %}">Pagos</a>
+    <a href="{% url 'panel:ventas' %}" class="{% if 'venta' in request.resolver_match.url_name %}on{% endif %}">Ventas</a>
     <a href="{% url 'panel:tours' %}" class="{% if 'tour' in request.resolver_match.url_name or 'galeria' in request.resolver_match.url_name %}on{% endif %}">Tours</a>
     <a href="{% url 'panel:tipos' %}" class="{% if 'tipo' in request.resolver_match.url_name %}on{% endif %}">Categorías</a>
     <a href="{% url 'panel:zonas' %}" class="{% if request.resolver_match.url_name in 'zonas,zona_nueva,zona_editar' %}on{% endif %}">Zonas</a>

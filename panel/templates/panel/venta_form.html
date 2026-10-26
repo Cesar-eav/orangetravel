@@ -1,0 +1,63 @@
+{% extends 'panel/base.html' %}
+{% load precios %}
+{% block title %}{% if venta %}Editar venta{% else %}Nueva venta{% endif %}{% endblock %}
+{% block content %}
+<p><a href="{% url 'panel:ventas' %}">← Volver a ventas</a></p>
+<h2>{% if venta %}Editar venta{% else %}Nueva venta{% endif %}</h2>
+<form class="card" method="post" id="venta-form">{% csrf_token %}
+{{ form.non_field_errors }}
+<h3>Cliente</h3>
+{% include 'panel/_campo.html' with f=form.nombre_cliente %}
+{% include 'panel/_campo.html' with f=form.telefono %}
+{% include 'panel/_campo.html' with f=form.email %}
+<h3>Servicio</h3>
+{% include 'panel/_campo.html' with f=form.fecha_venta %}
+{% include 'panel/_campo.html' with f=form.fecha_servicio %}
+{% include 'panel/_campo.html' with f=form.canal %}
+{% include 'panel/_campo.html' with f=form.tipo_servicio %}
+{% include 'panel/_campo.html' with f=form.tour %}
+{% include 'panel/_campo.html' with f=form.servicio %}
+{% include 'panel/_campo.html' with f=form.destino %}
+{% include 'panel/_campo.html' with f=form.pasajeros %}
+<h3>Pago</h3>
+{% include 'panel/_campo.html' with f=form.precio_total %}
+{% include 'panel/_campo.html' with f=form.monto_pagado %}
+<div class="frow"><b>Saldo pendiente</b><br>$<span id="saldo">{% if venta %}{{ venta.saldo_pendiente|clp }}{% else %}0{% endif %}</span>
+  · <span class="badge" id="estado-pago">{% if venta %}{{ venta.get_estado_pago_display }}{% else %}Pendiente{% endif %}</span>
+  <div class="help">Se calculan solos al guardar: pagado si no queda saldo, abono si se pagó una parte, pendiente si no se ha pagado nada.</div></div>
+{% include 'panel/_campo.html' with f=form.medio_pago %}
+<h3>Reserva</h3>
+{% include 'panel/_campo.html' with f=form.estado_reserva %}
+{% include 'panel/_campo.html' with f=form.observaciones %}
+<button class="btn">Guardar</button>
+</form>
+{% if venta %}
+<form method="post" action="{% url 'panel:venta_eliminar' venta.pk %}" onsubmit="return confirm('¿Eliminar esta venta?')">{% csrf_token %}
+<button class="btn red">Eliminar venta</button></form>
+{% endif %}
+<script>
+(function () {
+  const f = document.getElementById('venta-form');
+  const tour = f.elements['tour'], servicio = f.elements['servicio'];
+  const total = f.elements['precio_total'], pagado = f.elements['monto_pagado'];
+  const saldo = document.getElementById('saldo'), estado = document.getElementById('estado-pago');
+
+  // Al elegir un tour del catálogo, usar su nombre si el servicio está vacío.
+  tour.addEventListener('change', function () {
+    if (tour.value && !servicio.value.trim()) servicio.value = tour.options[tour.selectedIndex].text;
+  });
+
+  function recalcular() {
+    const t = parseInt(total.value, 10) || 0, p = parseInt(pagado.value, 10) || 0;
+    const s = t - p;
+    saldo.textContent = s.toLocaleString('es-CL');
+    const [clase, texto] = s <= 0 ? ['pagado', 'Pagado'] : p > 0 ? ['abono', 'Abono'] : ['pendiente', 'Pendiente'];
+    estado.className = 'badge b-' + clase;
+    estado.textContent = texto;
+  }
+  total.addEventListener('input', recalcular);
+  pagado.addEventListener('input', recalcular);
+  recalcular();
+})();
+</script>
+{% endblock %}

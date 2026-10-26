@@ -8,7 +8,7 @@ from django.utils.text import slugify
 
 from blog.models import ImagenPost, Post
 from home.models import MaintenanceMode, Nosotros
-from tours.models import YOUTUBE_REGEX, BloqueoTour, Cotizacion, ItinerarioDia, PrecioTour, Reserva, TerceraEdad, TipoTour, Tour, Zona
+from tours.models import YOUTUBE_REGEX, BloqueoTour, Cotizacion, ItinerarioDia, PrecioTour, Reserva, TerceraEdad, TipoTour, Tour, Venta, Zona
 
 
 class PanelLoginForm(AuthenticationForm):
@@ -31,6 +31,46 @@ class CotizacionGestionForm(forms.ModelForm):
     class Meta:
         model = Cotizacion
         fields = ('atendida',)
+
+
+class VentaForm(forms.ModelForm):
+    class Meta:
+        model = Venta
+        fields = (
+            'nombre_cliente', 'telefono', 'email',
+            'fecha_venta', 'fecha_servicio', 'canal', 'tipo_servicio',
+            'tour', 'servicio', 'destino', 'pasajeros',
+            'precio_total', 'monto_pagado', 'medio_pago',
+            'estado_reserva', 'observaciones',
+        )
+        widgets = {
+            'fecha_venta': forms.DateInput(attrs={'type': 'date'}, format='%Y-%m-%d'),
+            'fecha_servicio': forms.DateInput(attrs={'type': 'date'}, format='%Y-%m-%d'),
+            'observaciones': forms.Textarea(attrs={'rows': 4}),
+        }
+        help_texts = {
+            'tour': 'Opcional. Para traslados u otros servicios déjalo vacío y escribe el servicio abajo.',
+            'servicio': 'Si eliges un tour del catálogo y lo dejas vacío, se usa el nombre del tour.',
+            'medio_pago': 'Ej.: efectivo, transferencia, tarjeta, Flow.',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['tour'].queryset = Tour.objects.order_by('nombre')
+        self.fields['servicio'].required = False
+
+    def clean(self):
+        data = super().clean()
+        tour = data.get('tour')
+        if not data.get('servicio'):
+            if tour:
+                data['servicio'] = tour.nombre
+            else:
+                self.add_error('servicio', 'Elige un tour o escribe el servicio.')
+        total, pagado = data.get('precio_total'), data.get('monto_pagado')
+        if total is not None and pagado is not None and pagado > total:
+            self.add_error('monto_pagado', 'El monto pagado no puede ser mayor que el precio total.')
+        return data
 
 
 def _texto_visible(html_str):
