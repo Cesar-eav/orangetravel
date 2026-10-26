@@ -1,0 +1,36 @@
+{% extends 'panel/base.html' %}
+{% load precios %}
+{% block title %}Ventas{% endblock %}
+{% block content %}
+<h2>Ventas <a class="btn" href="{% url 'panel:venta_nueva' %}" style="float:right;font-size:15px">+ Nueva venta</a></h2>
+<details class="ayuda"><summary>¿Cómo funciona esta pantalla?</summary><p>Aquí se registran a mano las ventas hechas por oficina, WhatsApp, email, agencia u otro canal. Es un registro aparte: no crea reservas ni pagos Flow, no envía emails y no bloquea fechas. El saldo y el estado del pago se calculan solos a partir del precio total y el monto pagado. Los totales de abajo suman todas las ventas que cumplen los filtros.</p></details>
+<form class="filters" method="get">
+  <div><label>Buscar</label><input name="q" value="{{ request.GET.q }}" placeholder="Cliente, email, teléfono o servicio"></div>
+  <div><label>Canal</label><select name="canal"><option value="">Todos</option>
+    {% for v, l in canales %}<option value="{{ v }}" {% if request.GET.canal == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+  <div><label>Tipo</label><select name="tipo_servicio"><option value="">Todos</option>
+    {% for v, l in tipos_servicio %}<option value="{{ v }}" {% if request.GET.tipo_servicio == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+  <div><label>Pago</label><select name="estado_pago"><option value="">Todos</option>
+    {% for v, l in estados_pago %}<option value="{{ v }}" {% if request.GET.estado_pago == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+  <div><label>Reserva</label><select name="estado_reserva"><option value="">Todos</option>
+    {% for v, l in estados_reserva %}<option value="{{ v }}" {% if request.GET.estado_reserva == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+  <div><label>Servicio desde</label><input type="date" name="desde" value="{{ request.GET.desde }}"></div>
+  <div><label>hasta</label><input type="date" name="hasta" value="{{ request.GET.hasta }}"></div>
+  <button class="btn">Filtrar</button> <a class="btn sec" href="{% url 'panel:ventas' %}">Limpiar</a>
+</form>
+<div class="card" style="overflow-x:auto"><table>
+<tr><th>Servicio</th><th>Cliente</th><th>Tour o servicio</th><th>Canal</th><th>Pax</th><th>Total</th><th>Pagado</th><th>Saldo</th><th>Pago</th><th>Reserva</th></tr>
+{% for v in ventas %}<tr>
+<td><a href="{% url 'panel:venta_editar' v.pk %}">{{ v.fecha_servicio|date:"d/m/Y" }}</a><br><small>Venta {{ v.fecha_venta|date:"d/m/Y" }}</small></td>
+<td>{{ v.nombre_cliente }}{% if v.telefono %}<br><small>{{ v.telefono }}</small>{% endif %}</td>
+<td>{{ v.servicio }}<br><small>{{ v.get_tipo_servicio_display }}{% if v.destino %} · {{ v.destino }}{% endif %}</small></td>
+<td>{{ v.get_canal_display }}</td><td>{{ v.pasajeros }}</td>
+<td>${{ v.precio_total|clp }}</td><td>${{ v.monto_pagado|clp }}</td><td>${{ v.saldo_pendiente|clp }}</td>
+<td><span class="badge b-{{ v.estado_pago }}">{{ v.get_estado_pago_display }}</span></td>
+<td><span class="badge b-{{ v.estado_reserva }}">{{ v.get_estado_reserva_display }}</span></td></tr>
+{% empty %}<tr><td colspan="10">No hay ventas con esos filtros.</td></tr>{% endfor %}
+{% if ventas %}<tr><th colspan="5">Totales ({{ paginator.count }} venta{{ paginator.count|pluralize }})</th>
+<th>${{ totales.total|clp }}</th><th>${{ totales.pagado|clp }}</th><th>${{ totales.saldo|clp }}</th><th colspan="2"></th></tr>{% endif %}
+</table>
+{% include 'panel/_pager.html' %}</div>
+{% endblock %}

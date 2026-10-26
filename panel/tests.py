@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from payments.models import Payment
-from tours.models import Reserva, TipoTour, Tour
+from tours.models import Reserva, TipoTour, Tour, Venta
 
 User = get_user_model()
 
@@ -395,3 +395,85 @@ class AyudaYNavegacionTests(PanelBase):
                      'galeria_eliminar', 'carrusel_eliminar'):
             r = self.client.get(reverse(f'panel:{name}', args=[self.reserva.pk]))
             self.assertIn(r.status_code, (404, 405), name)
+
+
+class VentaTests(PanelBase):
+    def setUp(self):
+        self.client.force_login(self.staff)
+
+    def _datos(self, **extra):
+        datos = {
+            'nombre_cliente': 'Luis', 'telefono': '+56911111111', 'email': '',
+            'fecha_venta': date.today().isoformat(),
+            'fecha_servicio': (date.today() + timedelta(days=3)).isoformat(),
+            'canal': 'whatsapp', 'tipo_servicio': 'traslado', 'tour': '',
+            'servicio': 'Traslado aeropuerto', 'destino': 'Aeropuerto - Centro', 'pasajeros': 2,
+            'precio_total': 30000, 'monto_pagado': 10000, 'medio_pago': 'Transferencia',
+            'estado_reserva': 'confirmada', 'observaciones': '',
+        }
+        datos.update(extra)
+        return datos
+
+    def test_anonimo_redirige(self):
+        self.client.logout()
+        for name in ('ventas', 'venta_nueva'):
+            self.assertEqual(self.client.get(reverse(f'panel:{name}')).status_code, 302)
+
+    def test_crear_servicio_escrito(self):
+        r = self.client.post(reverse('panel:venta_nueva'), self._datos())
+        self.assertRedirects(r, reverse('panel:ventas'))
+        v = Venta.objects.get()
+        self.assertEqual(v.servicio, 'Traslado aeropuerto')
+        self.assertEqual(v.estado_pago, Venta.EstadoPago.ABONO)
+        self.assertEqual(v.saldo_pendiente, 20000)
+        self.assertEqual(v.creada_por, self.staff)
+
+    def test_tour_sin_servicio_usa_nombre_del_tour(self):
+        self.client.post(reverse('panel:venta_nueva'), self._datos(tour=self.tour.pk, servicio='', tipo_servicio='tour'))
+        self.assertEqual(Venta.objects.get().servicio, self.tour.nombre_es)
+
+    def test_sin_tour_ni_servicio_da_error(self):
+        r = self.client.post(reverse('panel:venta_nueva'), self._datos(servicio=''))
+        self.assertContains(r, 'Elige un tour o escribe el servicio.')
+        self.assertFalse(Venta.objects.exists())
+
+    def test_pagado_mayor_que_total_da_error(self):
+        r = self.client.post(reverse('panel:venta_nueva'), self._datos(monto_pagado=40000))
+        self.assertContains(r, 'no puede ser mayor que el precio total')
+        self.assertFalse(Venta.objects.exists())
+
+    def test_estado_pago_se_calcula(self):
+        for pagado, estado in ((30000, 'pagado'), (1, 'abono'), (0, 'pendiente')):
+            v = Venta.objects.create(
+                nombre_cliente='X', fecha_servicio=date.today(), canal='oficina',
+                tipo_servicio='otro', servicio='S', precio_total=30000, monto_pagado=pagado,
+            )
+            self.assertEqual(v.estado_pago, estado, pagado)
+
+    def test_editar_recalcula_estado_pago(self):
+        self.client.post(reverse('panel:venta_nueva'), self._datos())
+        v = Venta.objects.get()
+        self.client.post(reverse('panel:venta_editar', args=[v.pk]), self._datos(monto_pagado=30000))
+        v.refresh_from_db()
+        self.assertEqual(v.estado_pago, Venta.EstadoPago.PAGADO)
+        self.assertEqual(v.creada_por, self.staff)
+
+    def test_filtros_y_totales(self):
+        self.client.post(reverse('panel:venta_nueva'), self._datos(nombre_cliente='Luis'))
+        self.client.post(reverse('panel:venta_nueva'), self._datos(nombre_cliente='Marta', canal='oficina', monto_pagado=0))
+        r = self.client.get(reverse('panel:ventas'))
+        self.assertEqual(r.context['totales'], {'total': 60000, 'pagado': 10000, 'saldo': 50000})
+        r = self.client.get(reverse('panel:ventas'), {'canal': 'oficina'})
+        self.assertContains(r, 'Marta')
+        self.assertNotContains(r, 'Luis')
+        r = self.client.get(reverse('panel:ventas'), {'estado_pago': 'abono', 'desde': 'no-es-fecha'})
+        self.assertContains(r, 'Luis')
+        self.assertNotContains(r, 'Marta')
+
+    def test_eliminar_es_borrado_logico(self):
+        self.client.post(reverse('panel:venta_nueva'), self._datos())
+        v = Venta.objects.get()
+        self.assertEqual(self.client.get(reverse('panel:venta_eliminar', args=[v.pk])).status_code, 405)
+        self.client.post(reverse('panel:venta_eliminar', args=[v.pk]))
+        self.assertFalse(Venta.objects.filter(pk=v.pk).exists())
+        self.assertTrue(Venta.all_objects.filter(pk=v.pk).exists())

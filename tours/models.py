@@ -276,6 +276,106 @@ class Cotizacion(models.Model):
         return f"{self.nombre} - {self.tour.nombre}"
 
 
+class Venta(models.Model):
+    """Venta ingresada a mano desde el panel (oficina, WhatsApp, agencia...).
+    Registro aparte: no crea Reserva ni Payment, no envía emails ni bloquea fechas."""
+
+    class Canal(models.TextChoices):
+        WEB = 'web', 'Web'
+        OFICINA = 'oficina', 'Oficina'
+        WHATSAPP = 'whatsapp', 'WhatsApp'
+        EMAIL = 'email', 'Email'
+        AGENCIA = 'agencia', 'Agencia'
+        OTRO = 'otro', 'Otro'
+
+    class TipoServicio(models.TextChoices):
+        TOUR = 'tour', 'Tour'
+        TRASLADO = 'traslado', 'Traslado'
+        COMBINADO = 'combinado', 'Combinado'
+        OTRO = 'otro', 'Otro'
+
+    class EstadoPago(models.TextChoices):
+        PAGADO = 'pagado', 'Pagado'
+        ABONO = 'abono', 'Abono'
+        PENDIENTE = 'pendiente', 'Pendiente'
+
+    class EstadoReserva(models.TextChoices):
+        CONFIRMADA = 'confirmada', 'Confirmada'
+        PENDIENTE = 'pendiente', 'Pendiente'
+        CANCELADA = 'cancelada', 'Cancelada'
+
+    # --- Cliente ---
+    nombre_cliente = models.CharField("Nombre del cliente", max_length=100)
+    telefono = models.CharField("Teléfono / WhatsApp", max_length=20, blank=True)
+    email = models.EmailField("Email", blank=True)
+
+    # --- Servicio ---
+    fecha_venta = models.DateField("Fecha de venta", default=timezone.localdate)
+    fecha_servicio = models.DateField("Fecha del servicio")
+    canal = models.CharField("Canal de venta", max_length=20, choices=Canal.choices)
+    tipo_servicio = models.CharField("Tipo de servicio", max_length=20, choices=TipoServicio.choices)
+    tour = models.ForeignKey(
+        Tour, on_delete=models.SET_NULL, null=True, blank=True, related_name='ventas',
+        verbose_name="Tour del catálogo",
+    )
+    servicio = models.CharField("Tour o servicio", max_length=200)
+    destino = models.CharField("Destino o ruta", max_length=200, blank=True)
+    pasajeros = models.PositiveIntegerField("Cantidad de pasajeros", default=1)
+
+    # --- Pago (CLP) ---
+    precio_total = models.PositiveIntegerField("Precio total ($)")
+    monto_pagado = models.PositiveIntegerField("Monto pagado ($)", default=0)
+    medio_pago = models.CharField("Medio de pago", max_length=100, blank=True)
+    estado_pago = models.CharField(
+        "Estado del pago", max_length=20, choices=EstadoPago.choices,
+        default=EstadoPago.PENDIENTE, editable=False,
+    )
+    estado_reserva = models.CharField(
+        "Estado de la reserva", max_length=20, choices=EstadoReserva.choices,
+        default=EstadoReserva.PENDIENTE,
+    )
+    observaciones = models.TextField("Observaciones / detalle de servicios", blank=True)
+
+    # --- Auditoría y borrado lógico ---
+    creada_por = models.ForeignKey(
+        'auth.User', on_delete=models.SET_NULL, null=True, blank=True, editable=False,
+        related_name='+',
+    )
+    creada_el = models.DateTimeField(auto_now_add=True)
+    actualizada_el = models.DateTimeField(auto_now=True)
+    borrado_el = models.DateTimeField("Fecha de borrado", null=True, blank=True, editable=False)
+
+    objects = SoftDeleteManager()
+    all_objects = models.Manager()
+
+    class Meta:
+        verbose_name = "Venta"
+        verbose_name_plural = "Ventas"
+        ordering = ['-fecha_venta', '-creada_el']
+
+    def __str__(self):
+        return f"{self.nombre_cliente} - {self.servicio} ({self.fecha_servicio})"
+
+    @property
+    def saldo_pendiente(self):
+        return (self.precio_total or 0) - (self.monto_pagado or 0)
+
+    def save(self, *args, **kwargs):
+        # Se guarda calculado para poder filtrar por estado del pago.
+        if self.saldo_pendiente <= 0:
+            self.estado_pago = self.EstadoPago.PAGADO
+        elif self.monto_pagado:
+            self.estado_pago = self.EstadoPago.ABONO
+        else:
+            self.estado_pago = self.EstadoPago.PENDIENTE
+        super().save(*args, **kwargs)
+
+    def delete(self, using=None, keep_parents=False):
+        """Borrado lógico: marca la fecha pero no elimina la fila."""
+        self.borrado_el = timezone.now()
+        self.save()
+
+
 class BloqueoTour(models.Model):
     tour = models.ForeignKey(Tour, on_delete=models.CASCADE, related_name='bloqueos')
     fecha = models.DateField()
