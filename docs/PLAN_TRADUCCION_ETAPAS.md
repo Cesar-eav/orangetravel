@@ -32,8 +32,9 @@ Al desplegar no hay que configurar nada: el registro se crea solo con los valore
 - La `DEEPL_API_KEY` está en el `.env` local de ambas carpetas. En producción falta cargarla en cPanel.
 - Tests: pasan los 7 de traducción (`tours/tests_traduccion.py`) según el registro del 20 oct; el 23 oct no se pudieron correr (el usuario de BD local no puede crear la BD de test). Sigue fallando `test_listado_muestra_a_cotizar` (espera `$20000`), que ya fallaba antes de este trabajo.
 - Pendiente para la entrega 1 (30 oct):
-  1. Hacer merge de `traduccion` en `fix-orange` (los docs ya están en `fix-orange`). **Hay un conflicto en `tours/templates/tours/tour.html`**: ver «Merge con los cambios de `fix-orange` del 23 oct», más abajo.
-  2. Deploy en int15 (anexo §7): modo mantención, respaldo de la BD, `git pull`, `pip install -r requirements.txt`, `export DATABASE_URL`, `migrate` (incluye `tours 0018`), `npm run build`, `collectstatic`, Restart desde cPanel. Probar que `/` quedó igual, que `/en/` abre sin sesión y hacer un pago real desde `/en/`.
+  1. Hacer merge de `traduccion` en `fix-orange` (los docs ya están en `fix-orange`). **Hay un conflicto en `tours/templates/tours/tour.html`** (ver «Merge con los cambios de `fix-orange` del 23 oct») y **hay que ajustar ventas** (ver «Merge con ventas manuales, 26 oct»), más abajo.
+  2. Deploy en int15 (anexo §7): modo mantención, respaldo de la BD, `git pull`, `pip install -r requirements.txt`, `export DATABASE_URL`, `migrate` (incluye `tours 0017_traduccion_idioma`, `0018` y la migración de merge), `npm run build`, `collectstatic`, Restart desde cPanel. Probar que `/` quedó igual, que `/en/` abre sin sesión, que `/panel/ventas/` sigue funcionando y hacer un pago real desde `/en/`.
+     - **Nada de `git pull` suelto en el server** una vez que `fix-orange` tenga el merge: el 26 oct un pull sin `pip install` botó el sitio (Django no arranca sin `modeltranslation`) y hubo que volver con `git reset --hard 685711a` + Restart. El pull va dentro del deploy completo.
   3. Cargar `DEEPL_API_KEY` en cPanel (+ Restart desde cPanel), correr `python manage.py traducir_contenido` en producción y aprobar en el panel.
 - El avance día a día vive en el seguimiento (artifact «Avance Orange Travel ES/EN»).
 
@@ -58,6 +59,17 @@ Cómo resolver el conflicto de `tour.html`:
 4. Comprobar: `grep -c "<<<<<<<\|>>>>>>>" tours/templates/tours/tour.html` da 0; hay un solo `Mapa del Tour` y un solo `Video del Tour`, y los dos con `trans`; `makemessages` no deja textos nuevos sin traducir; `/tours/<slug>/` y `/en/tours/<slug>/` muestran galería → mapa → video.
 
 No hay textos nuevos para traducir: el título usa `{{ tour.nombre }}`, que en `/en/` ya sale de `nombre_en` (o `nombre_es` si la traducción no está aprobada).
+
+### Merge con ventas manuales, 26 oct
+
+El 26 oct se hizo el merge de `traduccion` y se subió junto con el registro de ventas (`/panel/ventas/`). El `git pull` en el server sin el deploy completo botó el sitio. Se volvió atrás y `fix-orange` se rehízo **sin el merge**: `685711a` + `d82e9c4` (ventas adaptado para funcionar sin modeltranslation). El merge ya resuelto quedó en la rama `respaldo-merge-traduccion` (`ad6dbb6`), solo como referencia: no hacerle merge, porque trae ventas en su versión vieja (`0019_venta`).
+
+Al hacer el merge de `traduccion` en `fix-orange`, además del conflicto de `tour.html`:
+1. **Migraciones en paralelo.** `fix-orange` tiene `tours 0017_venta` y `traduccion` tiene `tours 0017_traduccion_idioma` → `0018_nombre_en_sin_unique`, las dos ramas sobre `0016`. Después de resolver los conflictos: `python manage.py makemigrations --merge tours` (crea una `0019_merge_…` que depende de `0017_venta` y `0018`) y commitearla en el mismo merge. En producción `0017_venta` ya está aplicada; `migrate` aplica `0017_traduccion_idioma`, `0018` y la de merge.
+2. **`VentaForm` usa el nombre en español.** En `panel/forms.py`, `VentaForm.clean()` autocompleta el servicio con `tour.nombre`; con modeltranslation devuelve el idioma activo, así que cambiarlo a `tour.nombre_es` (regla de `CLAUDE.md`). Igual en `panel/tests.py` (`test_tour_sin_servicio_usa_nombre_del_tour`).
+3. **Commit sin subir en `traduccion`.** Al 26 oct, la `traduccion` local está 1 commit adelante de `origin/traduccion` (`ef4618f`). Hacer `git push origin traduccion` antes del merge para que GitHub tenga la misma versión.
+4. **BD local.** `orage_db` ya tiene las columnas de traducción y la tabla de ventas (se aplicaron durante el merge del 26 oct; `0017_venta` se marcó con `--fake`). Tras el merge, si `migrate` intenta crear algo que ya existe, marcar esa migración con `--fake`.
+5. Comprobar: `python manage.py makemigrations --check` no detecta cambios, pasan los tests de `panel` y `tours.tests_traduccion`, y `/panel/ventas/nueva/` guarda una venta con un tour elegido y el servicio vacío.
 
 | Etapa | Qué | Semana | ¿Cambia el sitio? | Deploy |
 |---|---|---|---|---|
