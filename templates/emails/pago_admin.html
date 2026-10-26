@@ -1,0 +1,13 @@
+    <div style="border: 2px solid #FF8C00; padding: 20px; font-family: sans-serif;">
+        <h2 style="color: #FF8C00;">🚨 NUEVA VENTA CONFIRMADA</h2>
+        <p><strong>Código:</strong> {{ payment.codigo }}</p>
+        <p><strong>Cliente:</strong> {{ payment.customer_name }}</p>
+        <p><strong>Email:</strong> {{ payment.customer_email }}</p>
+        <p><strong>Telefono:</strong> {{ payment.customer_phone }}</p>
+        <p><strong>Tour:</strong> {{ payment.tour.nombre_es }}</p>
+        <p><strong>Fecha del tour:</strong> {{ fecha }}</p>
+        <p><strong>Pasajeros:</strong> {{ pax_detalle }}</p>
+        <p><strong>Monto:</strong> ${{ monto }}</p>
+        {% if payment.idioma == 'en' %}<p><strong>Idioma del cliente:</strong> Inglés (el cliente recibió su email en inglés)</p>{% endif %}
+        <p><a href="https://wa.me/{{ tel_limpio }}" style="color: #25D366; font-weight: bold;">📱 Contactar por WhatsApp</a></p>
+    </div>

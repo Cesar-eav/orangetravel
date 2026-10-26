@@ -49,6 +49,9 @@
     <b class="dia-n">Día {{ forloop.counter }}</b>
     <p>{{ f.titulo }}{{ f.titulo.errors }}</p>
     <p>{{ f.descripcion }}{{ f.descripcion.errors }}</p>
+    <details class="dia-en"{% if f.instance.titulo_en or f.instance.descripcion_en %} open{% endif %}><summary class="help">Inglés (opcional)</summary>
+      <p>{{ f.titulo_en }}{{ f.titulo_en.errors }}</p>
+      <p>{{ f.descripcion_en }}{{ f.descripcion_en.errors }}</p></details>
     {% if f.instance.pk %}<label>{{ f.DELETE }} Quitar este día</label>{% else %}<button type="button" class="btn red dia-del" style="padding:4px 10px;font-size:13px">Quitar</button>{% endif %}
   </div>
   {% endfor %}
@@ -59,6 +62,9 @@
     <b class="dia-n"></b>
     <p>{{ dias_form.empty_form.titulo }}</p>
     <p>{{ dias_form.empty_form.descripcion }}</p>
+    <details class="dia-en"><summary class="help">Inglés (opcional)</summary>
+      <p>{{ dias_form.empty_form.titulo_en }}</p>
+      <p>{{ dias_form.empty_form.descripcion_en }}</p></details>
     <button type="button" class="btn red dia-del" style="padding:4px 10px;font-size:13px">Quitar</button>
   </div>
   </template>
@@ -115,6 +121,16 @@
   <p><label for="galeria"><b>Agregar imágenes</b></label><br>
   <input type="file" id="galeria" name="galeria" accept="image/*" multiple></p>
   <p class="help">Puedes seleccionar varias. Se suben al guardar.</p>
+</div>
+<div class="card" id="ingles">
+  <h3>Versión en inglés</h3>
+  <p class="help">Se muestra en orangetravel.cl/en/. Un campo vacío muestra el texto en español.
+    Mientras no marques «Traducción al inglés aprobada», el público ve este tour en español; los usuarios staff ven el borrador para revisarlo.
+    Los días del itinerario en inglés se editan en cada día, arriba.</p>
+  {% include 'panel/_campo.html' with f=form.nombre_en %}
+  {% include 'panel/_campo.html' with f=form.itinerario_en %}
+  {% include 'panel/_campo.html' with f=form.incluye_en %}
+  <div class="frow"><label>{{ form.traduccion_en_aprobada }} <b>{{ form.traduccion_en_aprobada.label }}</b></label>{{ form.traduccion_en_aprobada.errors }}</div>
 </div>
 <div class="card">
   <h3>Publicación</h3>

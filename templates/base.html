@@ -1,11 +1,19 @@
-{% load static %}
+{% load static i18n %}
 
 <!DOCTYPE html>
-<html lang="es">
+{% get_current_language as LANGUAGE_CODE %}<html lang="{{ LANGUAGE_CODE }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Orange Travel{% endblock %}</title>
+{% if noindex_ingles %}    <meta name="robots" content="noindex">
+{% endif %}{% if ingles_anunciado %}
+    {% block meta_description %}<meta name="description" content="{% trans "Tours en Arica y Parinacota, Chile: del altiplano y el Parque Nacional Lauca a las playas del Pacífico, con guías locales." %}">{% endblock %}
+    {% if url_es and not sin_version_en %}<link rel="alternate" hreflang="es-CL" href="{{ url_es }}">
+    <link rel="alternate" hreflang="en" href="{{ url_en }}">
+    <link rel="alternate" hreflang="x-default" href="{{ url_es }}">
+    {% elif url_es and LANGUAGE_CODE == 'en' %}<link rel="canonical" href="{{ url_es }}">{% endif %}
+{% endif %}
 
 
 {% load static %}
@@ -55,6 +63,9 @@
         <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
 </head>
 <body >
+    {% if vista_previa_ingles %}<div style="background:#fbbf24;color:#1e293b;font:600 13px/1.4 sans-serif;text-align:center;padding:6px 12px">
+        Sitio en inglés sin anunciar: sin banderas para el público y sin indexar en Google. Se anuncia en Panel → Sitio en inglés.
+    </div>{% endif %}
 
     {% include 'includes/_navbar.html' %}
     <main>
@@ -67,48 +78,48 @@
 {% with url=request.path %}
     {% if 'atacama' in url|lower %}
 
-        {% with wa_number="56985174265" wa_text="Hola,%20quiero%20informaci%C3%B3n%20sobre%20San%20Pedro%20de%20Atacama" %}
+        {% trans "Hola, quiero información sobre San Pedro de Atacama" as wa_msg %}{% with wa_number="56985174265" wa_text=wa_msg|urlencode:"," %}
             <a href="https://wa.me/{{ wa_number }}?text={{ wa_text }}" 
                class="whatsapp-float" 
                target="_blank" 
                rel="noopener" 
-               aria-label="Contactar por WhatsApp">
+               aria-label="{% trans "Contactar por WhatsApp" %}">
                 <i class="fab fa-whatsapp"></i>
             </a>
         {% endwith %}
 
     {% elif 'cotacotani' in url|lower %}
 
-        {% with wa_number="56985174265" wa_text="Hola,%20quiero%20informaci%C3%B3n%20sobre%20Trekking%20Lagunas%20Cotacotani" %}
+        {% trans "Hola, quiero información sobre Trekking Lagunas Cotacotani" as wa_msg %}{% with wa_number="56985174265" wa_text=wa_msg|urlencode:"," %}
             <a href="https://wa.me/{{ wa_number }}?text={{ wa_text }}" 
                class="whatsapp-float" 
                target="_blank" 
                rel="noopener" 
-               aria-label="Contactar por WhatsApp">
+               aria-label="{% trans "Contactar por WhatsApp" %}">
                 <i class="fab fa-whatsapp"></i>
             </a>
         {% endwith %}
 
         {% elif 'surire' in url|lower %}
 
-        {% with wa_number="56985174265" wa_text="Hola,%20quiero%20informaci%C3%B3n%20sobre%20Salar%20de%20Surire" %}
+        {% trans "Hola, quiero información sobre Salar de Surire" as wa_msg %}{% with wa_number="56985174265" wa_text=wa_msg|urlencode:"," %}
             <a href="https://wa.me/{{ wa_number }}?text={{ wa_text }}" 
                class="whatsapp-float" 
                target="_blank" 
                rel="noopener" 
-               aria-label="Contactar por WhatsApp">
+               aria-label="{% trans "Contactar por WhatsApp" %}">
                 <i class="fab fa-whatsapp"></i>
             </a>
         {% endwith %}
     
     {% else %}
         {# Número por defecto #}
-        {% with wa_number="56936584003" wa_text="Hola,%20quiero%20informaci%C3%B3n%20sobre%20tours" %}
+        {% trans "Hola, quiero información sobre tours" as wa_msg %}{% with wa_number="56936584003" wa_text=wa_msg|urlencode:"," %}
             <a href="https://wa.me/{{ wa_number }}?text={{ wa_text }}" 
                class="whatsapp-float" 
                target="_blank" 
                rel="noopener" 
-               aria-label="Contactar por WhatsApp">
+               aria-label="{% trans "Contactar por WhatsApp" %}">
                 <i class="fab fa-whatsapp"></i>
             </a>
         {% endwith %}

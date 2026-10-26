@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
-{% block title %}Política de Devoluciones | Orange Travel{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Política de Devoluciones | Orange Travel" %}{% endblock %}
 {% block content %}
     {% load static %}
 
@@ -10,7 +11,7 @@
     <div class="absolute inset-0 flex items-center">
         <div class="px-8 md:px-24 text-white max-w-2xl">
             <p class="text-orange-400 font-bold tracking-widest uppercase text-sm mb-3">Arica · Chile</p>
-            <h1 class="text-4xl md:text-6xl font-black mb-4 leading-tight">Términos<br> y condiciones</h1>
+            <h1 class="text-4xl md:text-6xl font-black mb-4 leading-tight">{% trans "Términos<br> y condiciones" %}</h1>
         </div>
     </div>
 </section>
@@ -22,17 +23,17 @@
                 
                 <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-xl shadow-gray-50/50">
                     <i class="fa-solid fa-user-check text-orange-500 text-3xl mb-6"></i>
-                    <h3 class="text-2xl font-extrabold text-gray-950 tracking-tight mb-4 text-balance">Cambios de fecha y nombre</h3>
+                    <h3 class="text-2xl font-extrabold text-gray-950 tracking-tight mb-4 text-balance">{% trans "Cambios de fecha y nombre" %}</h3>
                     <p class="text-gray-700 leading-relaxed text-md">
-                        Orange Travel permite cambios de fecha de los tours sin cargo hasta 1 día antes de la salida, pagando sólo la diferencia tarifaria si aplica. Los cambios de nombre por pasajeros están permitidos.
+                        {% blocktrans trimmed %}Orange Travel permite cambios de fecha de los tours sin cargo hasta 1 día antes de la salida, pagando sólo la diferencia tarifaria si aplica. Los cambios de nombre por pasajeros están permitidos.{% endblocktrans %}
                     </p>
                 </div>
 
                 <div class="bg-gray-50 p-8 rounded-3xl border border-gray-100">
                     <i class="fa-solid fa-user-slash text-gray-400 text-3xl mb-6"></i>
-                    <h3 class="text-2xl font-extrabold text-gray-950 tracking-tight mb-4 text-balance">No Show y servicios no utilizados</h3>
+                    <h3 class="text-2xl font-extrabold text-gray-950 tracking-tight mb-4 text-balance">{% trans "No Show y servicios no utilizados" %}</h3>
                     <p class="text-gray-600 leading-relaxed text-md">
-                        No se aplica reembolso por NO SHOW o servicios no utilizados previamente reservados.
+                        {% blocktrans trimmed %}No se aplica reembolso por NO SHOW o servicios no utilizados previamente reservados.{% endblocktrans %}
                     </p>
                 </div>
 
@@ -40,9 +41,9 @@
                     <div class="flex flex-col md:flex-row gap-8">
                         <i class="fa-solid fa-clock-rotate-left text-orange-500 text-4xl shrink-0"></i>
                         <div>
-                            <h3 class="text-2xl font-extrabold text-gray-950 tracking-tight mb-4">Anulaciones con menos de 12 horas</h3>
+                            <h3 class="text-2xl font-extrabold text-gray-950 tracking-tight mb-4">{% trans "Anulaciones con menos de 12 horas" %}</h3>
                             <p class="text-gray-700 leading-relaxed text-md mb-6">
-                                Las anulaciones con menos de 12 horas antes del servicio, no tendrán devolución, salvo que presenten certificado médico correspondiente al día del tour, sin embargo Orange Travel cargará cualquier gasto que incurra pérdida de depósitos (alojamiento, entradas a museos, almuerzos, entradas a parques, etc.) En estos casos se retendrá un 20% + IVA.
+                                {% blocktrans trimmed %}Las anulaciones con menos de 12 horas antes del servicio, no tendrán devolución, salvo que presenten certificado médico correspondiente al día del tour, sin embargo Orange Travel cargará cualquier gasto que incurra pérdida de depósitos (alojamiento, entradas a museos, almuerzos, entradas a parques, etc.) En estos casos se retendrá un 20% + IVA.{% endblocktrans %}
                             </p>
                         </div>
                     </div>
@@ -50,18 +51,18 @@
 
                 <div class="bg-blue-dark p-8 rounded-3xl col-span-1 md:col-span-2 text-white">
                     <i class="fa-solid fa-building-shield text-orange-500 text-3xl mb-6"></i>
-                    <h3 class="text-2xl font-extrabold tracking-tight mb-4 italic">Suspensión o cancelación por la empresa</h3>
+                    <h3 class="text-2xl font-extrabold tracking-tight mb-4 italic">{% trans "Suspensión o cancelación por la empresa" %}</h3>
                     <p class="text-gray-200 leading-relaxed text-md mb-6">
-                        La empresa está obligada a efectuar el tour en la fecha y horario estipulado por el pasajero. No obstante, puede suspender, retrasar o cancelar el tour por las siguientes razones:
+                        {% blocktrans trimmed %}La empresa está obligada a efectuar el tour en la fecha y horario estipulado por el pasajero. No obstante, puede suspender, retrasar o cancelar el tour por las siguientes razones:{% endblocktrans %}
                     </p>
                     <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-100 text-md">
                         <li class="flex items-start gap-3 bg-white/5 p-4 rounded-xl">
                             <i class="fa-solid fa-users-slash text-orange-500 mt-1"></i>
-                            <span>Que no se complete el cupo mínimo para realizar el tour.</span>
+                            <span>{% trans "Que no se complete el cupo mínimo para realizar el tour." %}</span>
                         </li>
                         <li class="flex items-start gap-3 bg-white/5 p-4 rounded-xl">
                             <i class="fa-solid fa-triangle-exclamation text-orange-500 mt-1"></i>
-                            <span>Razones de seguridad o de fuerza mayor producidas por fenómenos meteorológicos, conflictos armados, disturbios civiles o restricciones gubernamentales.</span>
+                            <span>{% trans "Razones de seguridad o de fuerza mayor producidas por fenómenos meteorológicos, conflictos armados, disturbios civiles o restricciones gubernamentales." %}</span>
                         </li>
                     </ul>
                 </div>
@@ -69,7 +70,7 @@
 
             <div class="bg-gray-100 p-8 rounded-3xl text-center border-2 border-dashed border-gray-200">
                 <p class="text-xl font-bold text-gray-800 italic">
-                    ***En estos casos, cualquiera de las partes podrá dejar sin efecto el contrato, soportando cada uno sus propias pérdidas.
+                    {% blocktrans trimmed %}***En estos casos, cualquiera de las partes podrá dejar sin efecto el contrato, soportando cada uno sus propias pérdidas.{% endblocktrans %}
                 </p>
             </div>
 

@@ -28,6 +28,11 @@ class Post(models.Model):
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
     publicado = models.BooleanField(default=True)
+    traduccion_en_aprobada = models.BooleanField(
+        default=False,
+        verbose_name="Traducción al inglés aprobada",
+        help_text="Mientras no se marque, la versión en inglés del sitio muestra esta reseña en español."
+    )
 
     class Meta:
         ordering = ['-fecha_creacion']

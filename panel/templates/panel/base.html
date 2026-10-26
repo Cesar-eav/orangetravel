@@ -62,6 +62,7 @@ dl{display:grid;grid-template-columns:200px 1fr;gap:8px 16px;margin:0}dt{color:v
     <a href="{% url 'panel:nosotros' %}" class="{% if request.resolver_match.url_name == 'nosotros' %}on{% endif %}">Página Nosotros</a>
     <a href="{% url 'panel:tercera_edad' %}" class="{% if request.resolver_match.url_name == 'tercera_edad' %}on{% endif %}">Página Tercera Edad</a>
     <a href="{% url 'panel:mantencion' %}" class="{% if request.resolver_match.url_name == 'mantencion' %}on{% endif %}">Modo mantención</a>
+    <a href="{% url 'panel:sitio_ingles' %}" class="{% if request.resolver_match.url_name == 'sitio_ingles' %}on{% endif %}">Sitio en inglés</a>
     <div class="user">{{ request.user.get_username }}
       <form method="post" action="{% url 'panel:logout' %}" style="margin-top:8px">{% csrf_token %}
         <button class="btn sec" style="padding:6px 12px;font-size:14px">Cerrar sesión</button></form>

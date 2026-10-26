@@ -2,16 +2,18 @@ import re
 from collections import defaultdict
 from django.shortcuts import render
 from .models import Post
+from tours.traduccion import mostrar_aprobado
 
 
 def blog_home(request):
-    posts = Post.objects.all()
+    posts = mostrar_aprobado(list(Post.objects.all()), request)
     return render(request, 'blog/blog_home.html', {'posts': posts})
 
 
 def post(request, slug):
     post_obj = Post.objects.get(slug=slug)
-    imagenes = list(post_obj.imagenes_post.all())
+    mostrar_aprobado([post_obj], request)
+    imagenes = mostrar_aprobado(list(post_obj.imagenes_post.all()), request, aprobado=post_obj.traduccion_en_aprobada)
 
     # Dividir el contenido HTML en bloques por etiquetas de bloque
     content = post_obj.contenido or ''
@@ -39,4 +41,7 @@ def post(request, slug):
         for img in imagen_map.get(i, []):
             bloques.append({'tipo': 'imagen', 'imagen': img})
 
-    return render(request, 'blog/post.html', {'post': post_obj, 'bloques': bloques})
+    return render(request, 'blog/post.html', {
+        'post': post_obj, 'bloques': bloques,
+        'sin_version_en': not post_obj.traduccion_en_aprobada,  # sin hreflang en (base.html)
+    })

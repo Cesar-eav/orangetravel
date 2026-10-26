@@ -49,6 +49,8 @@ INSTALLED_APPS = [
     'cloudinary_storage', 
     'cloudinary',
 
+    # Campos _es/_en de tours, blog y páginas; debe ir antes del admin.
+    'modeltranslation',
     'django.contrib.admin',
     # 'django.contrib.humanize',
     'django.contrib.auth',
@@ -92,6 +94,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'home.middleware.SitioInglesMiddleware',
     'home.middleware.MaintenanceModeMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -114,6 +117,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.debug',
+                'home.context_processors.sitio_ingles',
             ],
         },
     },
@@ -259,7 +263,22 @@ CKEDITOR_CONFIGS = {
 CKEDITOR_STORAGE_BACKEND = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # 10. INTERNACIONALIZACIÓN
-LANGUAGE_CODE = 'es-cl'
+# 'es' y no 'es-cl': Django no trae locale es_CL (usaba igual el de 'es'), y el
+# código debe coincidir con LANGUAGES para que activar 'es' (p. ej. el idioma
+# guardado de un pago) no agregue el prefijo /es/ a las URLs.
+LANGUAGE_CODE = 'es'
+# /en/ existe, pero solo es pública con el interruptor «Sitio en inglés» del panel
+# (home.middleware.SitioInglesMiddleware); apagado, solo el staff la ve.
+LANGUAGES = [
+    ('es', 'Español'),
+    ('en', 'English'),
+]
+LOCALE_PATHS = [BASE_DIR / 'locale']
+# Columnas _es/_en desde ya, aunque el inglés no esté en LANGUAGES: encenderlo
+# no genera migraciones. Un campo _en vacío muestra el español.
+MODELTRANSLATION_LANGUAGES = ('es', 'en')
+MODELTRANSLATION_DEFAULT_LANGUAGE = 'es'
+MODELTRANSLATION_FALLBACK_LANGUAGES = ('es',)
 TIME_ZONE = 'America/Santiago'
 USE_I18N = True
 USE_TZ = True
@@ -290,3 +309,5 @@ FLOW_API_KEY = os.getenv("FLOW_API_KEY")
 FLOW_SECRET_KEY = os.getenv("FLOW_SECRET_KEY")
 # En producción cambiar esto a la URL de producción de Flow
 FLOW_API_BASE = os.getenv("FLOW_API_BASE", "https://sandbox.flow.cl/api")
+# 13 Traducción automática (DeepL, cuenta de Orange Travel). En producción viene de cPanel.
+DEEPL_API_KEY = os.getenv("DEEPL_API_KEY")

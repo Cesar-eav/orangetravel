@@ -24,6 +24,10 @@ def generar_codigo_reserva(queryset, campo='codigo', longitud=6, prefijo='OT'):
 # Única categoría que se vende con precio y pago Flow; el resto se cotiza.
 TIPO_CON_PRECIO_ID = 1
 
+# Idioma en que el cliente usó el sitio: decide el idioma de sus emails.
+# Fijo (no settings.LANGUAGES) para que agregar idiomas no genere migraciones.
+IDIOMAS = [('es', 'Español'), ('en', 'Inglés')]
+
 class TipoTour(models.Model):
     nombre = models.CharField(max_length=100, unique=True, verbose_name="Nombre del Tipo")
     descripcion = models.TextField(blank=True, verbose_name="Descripción del tipo (opcional)")
@@ -86,6 +90,12 @@ class Tour(models.Model):
         default=False,
         verbose_name="Tour de prueba",
         help_text="Si se marca, el tour NO aparecerá en el listado público aunque esté activo. Solo accesible por URL directa."
+    )
+
+    traduccion_en_aprobada = models.BooleanField(
+        default=False,
+        verbose_name="Traducción al inglés aprobada",
+        help_text="Mientras no se marque, la versión en inglés del sitio muestra este tour en español."
     )
 
     def __str__(self):
@@ -173,6 +183,7 @@ class Reserva(models.Model):
         blank=True, 
         null=True
     )
+    idioma = models.CharField("Idioma del cliente", max_length=5, choices=IDIOMAS, default='es')
     
     # --- Auditoría y Borrado Lógico ---
     creada_el = models.DateTimeField(auto_now_add=True)
@@ -252,6 +263,7 @@ class Cotizacion(models.Model):
     adultos = models.PositiveIntegerField("Adultos", default=1)
     ninos = models.PositiveIntegerField("Niños", default=0)
     mensaje = models.TextField("Mensaje", blank=True)
+    idioma = models.CharField("Idioma del cliente", max_length=5, choices=IDIOMAS, default='es')
     atendida = models.BooleanField("Atendida", default=False)
     creada_el = models.DateTimeField(auto_now_add=True)
 

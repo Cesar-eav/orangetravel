@@ -1,3 +1,4 @@
+{% load i18n %}
 {% load static %}
 <footer class="bg-blue-dark text-gray-400  border-t border-gray-800 mt-auto">
     <div class="container mx-auto md:px-6">
@@ -6,7 +7,7 @@
                 <div class="md:justify-items-left justify-items-center">
                     <img src="{% static 'img/Footer_logo.png' %}" alt="Orange Travel">
                 </div>
-                <p class="text-sm leading-relaxed font-bold text-white">Más de 20 años de experiencia en la región de Arica</p>
+                <p class="text-sm leading-relaxed font-bold text-white">{% trans "Más de 20 años de experiencia en la región de Arica" %}</p>
                 <div class="mt-6 flex space-x-4">
                     <a href="https://www.facebook.com/orangetravelservice"
                        class="w-8 h-8"
@@ -21,7 +22,7 @@
                 </div>
             </div>
             <div>
-                <h4 class="text-white font-bold uppercase text-xs tracking-[0.2em] mb-6">Contacto</h4>
+                <h4 class="text-white font-bold uppercase text-xs tracking-[0.2em] mb-6">{% trans "Contacto" %}</h4>
                 <ul class="space-y-4 text-sm font-medium">
                     <li class="flex items-start">
                         <i class="fa-solid fa-envelope text-white text-xl pr-2"></i>
@@ -36,39 +37,39 @@
                         <span>+56 9 3658 4003</span>
                     </li>
                     <li>
-                        <a href="{% url 'politica_devoluciones' %}" class="text-white font-bold uppercase text-xs tracking-[0.2em]">TÉRMINOS Y CONDICIONES</a>
+                        <a href="{% url 'politica_devoluciones' %}" class="text-white font-bold uppercase text-xs tracking-[0.2em]">{% trans "TÉRMINOS Y CONDICIONES" %}</a>
                     </li>
                 </ul>
             </div>
             {% comment %} Sellos de certificación como empresa turística {% endcomment %}
             <div>
-                <h4 class="text-white font-bold uppercase text-xs tracking-[0.2em] mb-6">Certificaciones</h4>
+                <h4 class="text-white font-bold uppercase text-xs tracking-[0.2em] mb-6">{% trans "Certificaciones" %}</h4>
                 <div class="flex flex-wrap items-center gap-3">
                     <img src="{% static 'img/certificaciones/logo_registro_nacional.jpeg' %}"
                          class="h-12 w-auto object-contain rounded opacity-80 hover:opacity-100 transition-opacity duration-300"
-                         alt="Registro Nacional de Prestadores de Servicios Turísticos" loading="lazy">
+                         alt="{% trans "Registro Nacional de Prestadores de Servicios Turísticos" %}" loading="lazy">
                     <img src="{% static 'img/certificaciones/logo_sello_empresa_mujer.jpeg' %}"
                          class="h-12 w-auto object-contain rounded opacity-80 hover:opacity-100 transition-opacity duration-300"
-                         alt="Sello Empresa Mujer" loading="lazy">
+                         alt="{% trans "Sello Empresa Mujer" %}" loading="lazy">
                     <img src="{% static 'img/certificaciones/logo_sustentable.jpeg' %}"
                          class="h-12 w-auto object-contain rounded opacity-80 hover:opacity-100 transition-opacity duration-300"
-                         alt="Turismo Sustentable" loading="lazy">
+                         alt="{% trans "Turismo Sustentable" %}" loading="lazy">
                     <img src="{% static 'img/certificaciones/logo_no_explotracion.jpeg' %}"
                          class="h-12 w-auto object-contain rounded opacity-80 hover:opacity-100 transition-opacity duration-300"
-                         alt="Sello No Explotación" loading="lazy">
+                         alt="{% trans "Sello No Explotación" %}" loading="lazy">
                     <img src="{% static 'img/certificaciones/cert_atta.png' %}"
                          class="h-12 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300"
-                         alt="Miembro de Adventure Travel Trade Association" loading="lazy">
+                         alt="{% trans "Miembro de Adventure Travel Trade Association" %}" loading="lazy">
                     <img src="{% static 'img/certificaciones/cert_angm.png' %}"
                          class="h-12 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300"
-                         alt="Asociación Nacional de Guías de Montaña de Chile" loading="lazy">
+                         alt="{% trans "Asociación Nacional de Guías de Montaña de Chile" %}" loading="lazy">
                     <img src="{% static 'img/certificaciones/cert_marca_chile.png' %}"
                          class="h-12 w-auto object-contain rounded opacity-80 hover:opacity-100 transition-opacity duration-300"
                          alt="Marca Chile" loading="lazy">
                 </div>
             </div>
             <div>
-                <h4 class="text-white font-bold uppercase text-xs tracking-[0.2em] mb-6">Partnership</h4>
+                <h4 class="text-white font-bold uppercase text-xs tracking-[0.2em] mb-6">{% trans "Partnership" %}</h4>
                 <div class="flex flex-wrap items-center gap-3">
                     <a href="https://aricasiempreactiva.cl/" target="_blank" rel="noopener">
                         <img src="{% static 'img/certificaciones/partner_arica_siempre_activa.png' %}"
@@ -95,7 +96,7 @@
         </div>
         <div class="md:mt-16 mt-5 pt-8 pb-5 border-t border-gray-800 text-center">
             <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
-                &copy; 2026 Orange Travel - Diseñado con ❤️ para viajeros audaces
+                {% trans "&copy; 2026 Orange Travel - Diseñado con ❤️ para viajeros audaces" %}
             </p>
         </div>
     </div>

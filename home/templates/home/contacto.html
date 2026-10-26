@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
-{% block title %}Contacto | Orange Travel{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Contacto | Orange Travel" %}{% endblock %}
 {% block content %}
     {% load static %}
 <!-- HERO con banner de fondo -->
@@ -10,25 +11,25 @@
     <div class="absolute inset-0 flex items-center">
         <div class="px-8 md:px-24 text-white max-w-2xl">
             <p class="text-orange-400 font-bold tracking-widest uppercase text-sm mb-3">Arica · Chile</p>
-            <h1 class="text-4xl md:text-6xl font-black mb-4 leading-tight">Contáctanos</h1>
+            <h1 class="text-4xl md:text-6xl font-black mb-4 leading-tight">{% trans "Contáctanos" %}</h1>
         </div>
     </div>
 </section>
     <section class="container mx-auto px-4 py-16">
-        <h2 class="text-3xl font-bold text-gray-800 mb-2 text-center">Queremos saber de tí</h2>
-        <h2 class="text-xl text-gray-800 mb-10 text-center">Siente libre de contactarnos usando el formulario o uno de los links que te dejamos aquí debajo.</h3>
+        <h2 class="text-3xl font-bold text-gray-800 mb-2 text-center">{% trans "Queremos saber de tí" %}</h2>
+        <h2 class="text-xl text-gray-800 mb-10 text-center">{% trans "Siente libre de contactarnos usando el formulario o uno de los links que te dejamos aquí debajo." %}</h3>
 
         <div class="flex flex-col md:flex-row gap-6 px-4 md:px-20 justify-center">
 
             <div class="flex flex-col w-full md:w-64 py-8 px-6 justify-center bg-gray-200 rounded-2xl border-2 border-gray-300 shadow-2xl text-center">
                 <i class="fa-solid fa-phone text-5xl text-amber-500 pb-2"></i>
-                <p>Llamanos</p>
+                <p>{% trans "Llamanos" %}</p>
                 <p>+56 9 3658 4003</p>
             </div>
 
             <div class="flex flex-col w-full md:w-64 py-8 px-6 justify-center bg-gray-200 rounded-2xl border-2 border-gray-300 shadow-2xl text-center">
                 <i class="fa-solid fa-envelopes-bulk text-5xl text-amber-500"></i>
-                <p>Escríbenos al correo</p>
+                <p>{% trans "Escríbenos al correo" %}</p>
                 <p>info@orangetravel.cl</p>
             </div>
 
@@ -40,7 +41,7 @@
 
         {% comment %} MAPA {% endcomment %}
         <div class="container mx-auto px-6">
-            <h2 class="text-3xl font-bold text-gray-800 mb-10 text-center">Vive una aventura en la belleza natural de Arica</h2>
+            <h2 class="text-3xl font-bold text-gray-800 mb-10 text-center">{% trans "Vive una aventura en la belleza natural de Arica" %}</h2>
             <div class="flex justify-center flex-wrap">
                 {% for post in posts %}
                     <div class="relative h-72 md:h-96 w-full sm:w-80 md:w-96 overflow-hidden m-3 rounded-2xl shadow-lg group">
@@ -53,7 +54,7 @@
                             <p class="text-sm opacity-90 ">{{ post.extracto }}</p>
                             <div class="mt-4">
                                 <a href="{% url 'post' post.slug %}">
-                                    <span class="text-xs font-bold tracking-widest uppercase border-b border-orange-500">Leer más</span>
+                                    <span class="text-xs font-bold tracking-widest uppercase border-b border-orange-500">{% trans "Leer más" %}</span>
                                 </a>
                             </div>
                         </div>
@@ -71,8 +72,8 @@
             
             <div class="bg-blue-dark p-5  text-white  flex flex-col justify-between">
                 <div class="text-center">
-                    <h2 class="text-3xl font-black mb-6">¿Tienes alguna consulta, solicitud o sugerencia?</h2>
-                    <p class="text-blue-100 mb-8">Escríbenos, te responderemos a la brevedad.</p>
+                    <h2 class="text-3xl font-black mb-6">{% trans "¿Tienes alguna consulta, solicitud o sugerencia?" %}</h2>
+                    <p class="text-blue-100 mb-8">{% trans "Escríbenos, te responderemos a la brevedad." %}</p>
                 </div>
             </div>
 
@@ -82,12 +83,12 @@
                     {% csrf_token %}
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Nombre Completo</label>
+                            <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">{% trans "Nombre Completo" %}</label>
                             <input type="text" name="nombre" required
                                 class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all">
                         </div>
                         <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Correo Electrónico</label>
+                            <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">{% trans "Correo Electrónico" %}</label>
                             <input type="email" name="email" required
                                 class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all">
                         </div>
@@ -95,32 +96,32 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Asunto</label>
+                        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">{% trans "Asunto" %}</label>
                         <select name="asunto" 
                             class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all appearance-none">
-                            <option value="consulta">Consulta General</option>
-                            <option value="reserva">Problemas con una Reserva</option>
-                            <option value="tour_especial">Tour Personalizado / Grupal</option>
-                            <option value="otro">Otro</option>
+                            <option value="consulta">{% trans "Consulta General" %}</option>
+                            <option value="reserva">{% trans "Problemas con una Reserva" %}</option>
+                            <option value="tour_especial">{% trans "Tour Personalizado / Grupal" %}</option>
+                            <option value="otro">{% trans "Otro" %}</option>
                         </select>
                     </div>
                         <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Teléfono</label>
+                            <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">{% trans "Teléfono" %}</label>
                             <input type="phone" name="phone" required
                                 class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Tu Mensaje</label>
+                        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">{% trans "Tu Mensaje" %}</label>
                         <textarea name="mensaje" rows="4" required
                             class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all resize-none"
-                            placeholder="Cuéntanos qué tienes en mente..."></textarea>
+                            placeholder="{% trans "Cuéntanos qué tienes en mente..." %}"></textarea>
                     </div>
 
                     <button type="submit" 
                         class="w-full bg-orange-500 hover:bg-orange-600 text-white font-black py-4 rounded-xl shadow-lg shadow-orange-200 transition-all transform hover:-translate-y-1 uppercase tracking-widest">
-                        Enviar Mensaje
+                        {% trans "Enviar Mensaje" %}
                     </button>
                 </form>
             </div>
@@ -135,19 +136,19 @@
 <section class="py-16 bg-gray-50">
     <div class="container mx-auto px-4">
         <div class="text-center mb-10">
-            <h2 class="text-3xl font-bold text-gray-800 mb-2">Nuestra oficina</h2>
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">{% trans "Nuestra oficina" %}</h2>
             <p class="text-gray-500">Rafael Sotomayor 165, Arica</p>
         </div>
         <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="relative h-72 md:h-96 overflow-hidden rounded-2xl shadow-lg group">
                 <img src="{% static 'img/oficina_por_fuera_1.jpeg' %}"
-                     alt="Fachada de la oficina Orange Travel"
+                     alt="{% trans "Fachada de la oficina Orange Travel" %}"
                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                 <div class="absolute inset-0 bg-linear-to-t from-black/50 to-transparent"></div>
             </div>
             <div class="relative h-72 md:h-96 overflow-hidden rounded-2xl shadow-lg group">
                 <img src="{% static 'img/oficina_por_dentro.jpeg' %}"
-                     alt="Interior de la oficina Orange Travel"
+                     alt="{% trans "Interior de la oficina Orange Travel" %}"
                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                 <div class="absolute inset-0 bg-linear-to-t from-black/50 to-transparent"></div>
             </div>
@@ -159,8 +160,8 @@
 <section class="py-16 bg-white">
     <div class="container mx-auto px-4">
         <div class="text-center mb-10">
-            <h2 class="text-3xl font-bold text-gray-800 mb-2">¿Dónde estamos?</h2>
-            <p class="text-gray-500">Visítanos en el corazón de Arica</p>
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">{% trans "¿Dónde estamos?" %}</h2>
+            <p class="text-gray-500">{% trans "Visítanos en el corazón de Arica" %}</p>
         </div>
         <div class="max-w-5xl mx-auto rounded-3xl overflow-hidden shadow-2xl border border-gray-100">
             <iframe
@@ -171,7 +172,7 @@
                 allowfullscreen=""
                 loading="lazy"
                 referrerpolicy="no-referrer-when-downgrade"
-                title="Ubicación Orange Travel Arica">
+                title="{% trans "Ubicación Orange Travel Arica" %}">
             </iframe>
         </div>
         <div class="max-w-5xl mx-auto mt-4 flex flex-wrap items-center gap-6 px-2 text-sm text-gray-500">

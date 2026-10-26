@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% load static %}
 {% block title %}{{ tour.nombre }} | Orange Travel{% endblock %}
+{% block meta_description %}<meta name="description" content="{{ tour.itinerario|striptags|truncatechars:155 }}">{% endblock %}
 {% block content %}
 <section class="relative w-full h-100 group shadow-lg">
         <img src="{{ tour.imagen_principal.url }}"
@@ -10,6 +12,7 @@
         <div class="absolute inset-0 p-6 flex flex-col text-white uppercase justify-center items-center">
             <h3 class="font-cinzel text-3xl md:text-5xl font-bold tracking-wider mb-1 text-center">{{ tour.nombre }}</h3>
 
+        {{ textos_reserva|json_script:"textos-reserva" }}
         <div id="reservation-widget" class="t-20"
                     data-precio-adulto="{{ precios.valor_adulto }}"
                     data-precio-nino="{{ precios.valor_nino }}"
@@ -40,19 +43,19 @@
         </section>
         {% if tour.incluye %}
         <section class="container mx-auto px-4 md:px-50 py-10 border-b border-gray-100">
-            <h2 class="font-marcellus text-4xl text-gray-900 mb-8 text-center">El tour incluye</h2>
+            <h2 class="font-marcellus text-4xl text-gray-900 mb-8 text-center">{% trans "El tour incluye" %}</h2>
             <div class="prose prose-slate max-w-none prose-p:text-lg prose-p:leading-relaxed prose-strong:text-orange-600">
                 {{ tour.incluye|safe }}
             </div>
         </section>
         {% endif %}
         <section class="container mx-auto px-4 py-8 text-center">
-            <h2 class="text-3xl font-bold mb-6 text-gray-800">Galería de Fotos</h2>
+            <h2 class="text-3xl font-bold mb-6 text-gray-800">{% trans "Galería de Fotos" %}</h2>
             <div class="relative">
                 <!-- Botón anterior -->
                 <button id="gallery-prev"
                         class="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white shadow-lg rounded-full w-10 h-10 flex items-center justify-center text-gray-700 hover:text-orange-500 transition -translate-x-1/2"
-                        aria-label="Anterior">
+                        aria-label="{% trans "Anterior" %}">
                     <i class="fa fa-chevron-left"></i>
                 </button>
 
@@ -74,28 +77,28 @@
                 <!-- Botón siguiente -->
                 <button id="gallery-next"
                         class="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white shadow-lg rounded-full w-10 h-10 flex items-center justify-center text-gray-700 hover:text-orange-500 transition translate-x-1/2"
-                        aria-label="Siguiente">
+                        aria-label="{% trans "Siguiente" %}">
                     <i class="fa fa-chevron-right"></i>
                 </button>
             </div>
         </section>
         {% if tour.mapa %}
             <section class="container mx-auto px-4 py-8 text-center">
-                <h2 class="text-3xl font-bold mb-6 text-gray-800">Mapa del Tour</h2>
+                <h2 class="text-3xl font-bold mb-6 text-gray-800">{% trans "Mapa del Tour" %}</h2>
                 <a href="{{ tour.mapa.url }}"
                    class="glightbox relative block w-full max-w-3xl h-96 mx-auto bg-gray-100 rounded-2xl shadow-2xl overflow-hidden cursor-pointer"
                    data-gallery="mapa"
                    data-type="image">
-                    <img src="{{ tour.mapa.url }}" alt="Mapa del tour {{ tour.nombre }}" class="w-full h-full object-contain">
+                    <img src="{{ tour.mapa.url }}" alt="{% blocktrans with nombre=tour.nombre %}Mapa del tour {{ nombre }}{% endblocktrans %}" class="w-full h-full object-contain">
                     <span class="absolute bottom-3 right-3 flex items-center gap-2 bg-black/50 text-white text-sm rounded-full px-3 py-1">
-                        <i class="fa fa-magnifying-glass-plus"></i> Ampliar
+                        <i class="fa fa-magnifying-glass-plus"></i> {% trans "Ampliar" %}
                     </span>
                 </a>
             </section>
         {% endif %}
         {% if tour.youtube_embed_url %}
             <section class="container mx-auto px-4 py-8 text-center">
-                <h2 class="text-3xl font-bold mb-6 text-gray-800">Video del Tour</h2>
+                <h2 class="text-3xl font-bold mb-6 text-gray-800">{% trans "Video del Tour" %}</h2>
                 <div class="max-w-4xl mx-auto overflow-hidden rounded-2xl shadow-2xl">
                     <iframe class="w-full aspect-video"
                             src="{{ tour.youtube_embed_url }}"
@@ -107,7 +110,7 @@
             </section>
         {% else %}
             <section class="container mx-auto px-4 py-8 text-center opacity-50">
-                <p class="italic text-gray-500">Estamos preparando un video increíble de este tour para ti.</p>
+                <p class="italic text-gray-500">{% trans "Estamos preparando un video increíble de este tour para ti." %}</p>
             </section>
         {% endif %}
 <script type="text/javascript">

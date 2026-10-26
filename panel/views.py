@@ -16,7 +16,7 @@ from payments.emails import (
     send_payment_confirmation_to_customer,
 )
 from blog.models import ImagenCarousel, Post
-from home.models import MaintenanceMode, Nosotros
+from home.models import MaintenanceMode, Nosotros, SitioIngles
 from payments.models import Payment
 from django.db import transaction
 from django.db.models import ProtectedError
@@ -25,7 +25,7 @@ from tours.models import TIPO_CON_PRECIO_ID, BloqueoTour, Cotizacion, GaleriaTou
 from .forms import (
     CUERPO_MAX, BloqueoForm, CotizacionGestionForm, ImagenGaleriaForm, ItinerarioDiaFormSet, ImagenPostFormSet, MantencionForm, NosotrosForm,
     PanelLoginForm, PostForm, TerceraEdadForm,
-    PrecioTourForm, ReservaGestionForm, TipoTourForm, TourForm, ZonaForm,
+    PrecioTourForm, ReservaGestionForm, SitioInglesForm, TipoTourForm, TourForm, ZonaForm,
 )
 from .mixins import StaffRequiredMixin
 
@@ -643,6 +643,14 @@ class MantencionView(SingletonFormView):
     titulo = 'Modo mantención'
     ayuda = ('Si lo activas, los visitantes verán el mensaje con error 503. '
              'Los usuarios staff siguen viendo el sitio normal y el panel.')
+
+
+class SitioInglesView(SingletonFormView):
+    model, form_class, url_name = SitioIngles, SitioInglesForm, 'panel:sitio_ingles'
+    titulo = 'Sitio en inglés'
+    ayuda = ('«/en/ accesible»: cualquiera con el link puede ver el sitio en inglés (apagado, solo el staff). '
+             '«Mostrar banderas»: aparece el selector ES | EN para todos y Google puede indexar /en/; '
+             'mientras esté apagado, el sitio en español no muestra ningún cambio.')
 
 
 @_staff_only
