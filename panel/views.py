@@ -65,6 +65,13 @@ def _staff_only(view):
     return wrapper
 
 
+def ventas_confirmadas_proximas():
+    """Ventas manuales confirmadas con servicio desde hoy; cuentan como «Confirmadas próximas»."""
+    return Venta.objects.filter(
+        estado_reserva=Venta.EstadoReserva.CONFIRMADA, fecha_servicio__gte=timezone.localdate()
+    )
+
+
 class DashboardView(PanelView, TemplateView):
     template_name = 'panel/dashboard.html'
 
@@ -72,9 +79,11 @@ class DashboardView(PanelView, TemplateView):
         ctx = super().get_context_data(**kwargs)
         hoy = timezone.localdate()
         pagos_ok = Payment.objects.filter(status=Payment.STATUS_PAID, deleted_at__isnull=True)
+        proximas_ventas = ventas_confirmadas_proximas().count()
         ctx.update(
             pendientes=Reserva.objects.filter(estado=Reserva.Estado.PENDIENTE, fecha__gte=hoy).count(),
-            proximas=Reserva.objects.filter(estado=Reserva.Estado.CONFIRMADA, fecha__gte=hoy).count(),
+            proximas=Reserva.objects.filter(estado=Reserva.Estado.CONFIRMADA, fecha__gte=hoy).count() + proximas_ventas,
+            proximas_ventas=proximas_ventas,
             cotizaciones=Cotizacion.objects.filter(atendida=False).count(),
             pagos_semana=pagos_ok.filter(paid_at__gte=timezone.now() - timedelta(days=7)).count(),
             ultimas_reservas=Reserva.objects.select_related('tour').order_by('-creada_el')[:5],
@@ -112,6 +121,16 @@ class ReservaListView(PanelView, ListView):
             tours=Tour.objects.order_by('nombre'),
             querystring=params.urlencode(),
         )
+        g = self.request.GET
+        if g.get('estado') == Reserva.Estado.CONFIRMADA and g.get('proximas'):
+            ventas = ventas_confirmadas_proximas().select_related('tour').order_by('fecha_servicio')
+            if q := g.get('q', '').strip():
+                ventas = ventas.filter(
+                    Q(nombre_cliente__icontains=q) | Q(email__icontains=q) | Q(telefono__icontains=q)
+                )
+            if g.get('tour', '').isdigit():
+                ventas = ventas.filter(tour_id=g['tour'])
+            ctx['ventas_proximas'] = ventas
         return ctx
 
 
@@ -127,7 +146,14 @@ class ReservaDetailView(PanelView, UpdateView):
     def form_valid(self, form):
         # save() normal: el signal de tours/signals.py envía el correo si cambia el estado
         response = super().form_valid(form)
-        messages.success(self.request, 'Reserva actualizada.')
+        if getattr(self.object, 'email_estado_fallido', False):
+            messages.error(
+                self.request,
+                f'Reserva guardada como {self.object.get_estado_display()}, pero no se pudo enviar el email '
+                f'al cliente ({self.object.email_cliente}). Avísale por otro medio.',
+            )
+        else:
+            messages.success(self.request, 'Reserva actualizada.')
         return response
 
 

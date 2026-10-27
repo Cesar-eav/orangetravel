@@ -1,8 +1,9 @@
 {% extends 'panel/base.html' %}
+{% load precios %}
 {% block title %}Reservas{% endblock %}
 {% block content %}
 <h2>Reservas</h2>
-<details class="ayuda"><summary>¿Cómo funciona esta pantalla?</summary><p>Busca por código, nombre o email. Entra a una reserva para cambiar su estado o escribir notas internas. Al pasar a Confirmada, Rechazada o Cancelada se envía un email al cliente automáticamente.</p></details>
+<details class="ayuda"><summary>¿Cómo funciona esta pantalla?</summary><p>Busca por código, nombre o email. Entra a una reserva para cambiar su estado o escribir notas internas. Al pasar a Confirmada, Rechazada o Cancelada se envía un email al cliente automáticamente. Con el filtro de confirmadas próximas también se listan las ventas manuales confirmadas; esas se editan en Ventas y no envían emails.</p></details>
 <form class="filters" method="get">
   <div><label>Buscar</label><input name="q" value="{{ request.GET.q }}" placeholder="Código, nombre o email"></div>
   <div><label>Estado</label><select name="estado"><option value="">Todos</option>
@@ -20,4 +21,15 @@
 <td><span class="badge b-{{ r.estado }}">{{ r.get_estado_display }}</span></td></tr>
 {% empty %}<tr><td colspan="7">No hay reservas con esos filtros.</td></tr>{% endfor %}</table>
 {% include 'panel/_pager.html' %}</div>
+{% if ventas_proximas is not None %}
+<div class="card" style="overflow-x:auto"><h3>Ventas manuales confirmadas próximas</h3><table>
+<tr><th>Servicio</th><th>Cliente</th><th>Tour o servicio</th><th>Pax</th><th>Total</th><th>Pago</th></tr>
+{% for v in ventas_proximas %}<tr>
+<td><a href="{% url 'panel:venta_editar' v.pk %}">{{ v.fecha_servicio|date:"d/m/Y" }}</a></td>
+<td>{{ v.nombre_cliente }}{% if v.telefono %}<br><small>{{ v.telefono }}</small>{% endif %}</td>
+<td>{{ v.servicio }}{% if v.destino %}<br><small>{{ v.destino }}</small>{% endif %}</td>
+<td>{{ v.pasajeros }}</td><td>${{ v.precio_total|clp }}</td>
+<td><span class="badge b-{{ v.estado_pago }}">{{ v.get_estado_pago_display }}</span></td></tr>
+{% empty %}<tr><td colspan="6">No hay ventas manuales confirmadas próximas.</td></tr>{% endfor %}</table></div>
+{% endif %}
 {% endblock %}

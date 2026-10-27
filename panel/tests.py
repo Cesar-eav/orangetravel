@@ -85,6 +85,32 @@ class ReservaTests(PanelBase):
         self.assertEqual(self.reserva.estado, 'CONFIRMADA')
         self.assertEqual(send_mail.call_count, 1)
 
+    @patch('tours.signals.send_mail', side_effect=Exception('Mailgun 403'))
+    def test_falla_del_email_no_impide_confirmar(self, send_mail):
+        with self.assertLogs('tours.signals', 'ERROR'):
+            r = self.client.post(reverse('panel:reserva_detalle', args=[self.reserva.pk]),
+                                 {'estado': 'CONFIRMADA', 'notas_internas': 'ok'}, follow=True)
+        self.reserva.refresh_from_db()
+        self.assertEqual(self.reserva.estado, 'CONFIRMADA')
+        self.assertContains(r, 'no se pudo enviar el email')
+        self.assertNotContains(r, 'Reserva actualizada.')
+
+    @patch('tours.signals.send_mail', side_effect=Exception('Mailgun 403'))
+    def test_falla_del_email_igual_libera_la_fecha(self, send_mail):
+        with self.assertLogs('tours.signals', 'ERROR'):
+            self.client.post(reverse('panel:reserva_detalle', args=[self.reserva.pk]),
+                             {'estado': 'CANCELADA', 'notas_internas': ''})
+        self.reserva.refresh_from_db()
+        self.assertEqual(self.reserva.estado, 'CANCELADA')
+        self.pago.refresh_from_db()
+        self.assertEqual(self.pago.status, Payment.STATUS_CANCELED)
+
+    @patch('tours.signals.send_mail')
+    def test_guardar_sin_cambiar_estado_no_envia_email(self, send_mail):
+        self.client.post(reverse('panel:reserva_detalle', args=[self.reserva.pk]),
+                         {'estado': 'PENDIENTE', 'notas_internas': 'solo nota'})
+        send_mail.assert_not_called()
+
     def test_eliminar_es_borrado_logico(self):
         self.client.post(reverse('panel:reserva_eliminar', args=[self.reserva.pk]))
         self.assertFalse(Reserva.objects.filter(pk=self.reserva.pk).exists())
@@ -477,3 +503,23 @@ class VentaTests(PanelBase):
         self.client.post(reverse('panel:venta_eliminar', args=[v.pk]))
         self.assertFalse(Venta.objects.filter(pk=v.pk).exists())
         self.assertTrue(Venta.all_objects.filter(pk=v.pk).exists())
+
+    def test_confirmadas_proximas_incluye_ventas(self):
+        hoy = date.today()
+        for nombre, dias, estado in (
+            ('Ana Futura', 3, 'confirmada'), ('Beto Pasado', -3, 'confirmada'),
+            ('Ciro Sinconfirmar', 3, 'pendiente'), ('Dora Anulada', 3, 'cancelada'),
+        ):
+            Venta.objects.create(
+                nombre_cliente=nombre, fecha_servicio=hoy + timedelta(days=dias), canal='oficina',
+                tipo_servicio='otro', servicio='S', precio_total=1000, estado_reserva=estado,
+            )
+        r = self.client.get(reverse('panel:dashboard'))
+        self.assertEqual(r.context['proximas'], 1)
+        self.assertEqual(r.context['proximas_ventas'], 1)
+        r = self.client.get(reverse('panel:reservas'), {'estado': 'CONFIRMADA', 'proximas': '1'})
+        self.assertContains(r, 'Ana Futura')
+        for nombre in ('Beto Pasado', 'Ciro Sinconfirmar', 'Dora Anulada'):
+            self.assertNotContains(r, nombre)
+        r = self.client.get(reverse('panel:reservas'))
+        self.assertNotContains(r, 'Ana Futura')
