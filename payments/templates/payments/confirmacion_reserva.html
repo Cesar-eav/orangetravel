@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
-{% block title %}Confirmación de Reserva | Orange Travel{% endblock %}
+{% block title %}{% trans "Confirmación de Reserva | Orange Travel" %}{% endblock %}
 
 {% block content %}
 <div class="min-h-screen bg-slate-50 py-12 px-4">
@@ -12,37 +13,37 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                 </svg>
             </div>
-            <h1 class="text-3xl font-black uppercase tracking-tighter">¡Reserva Confirmada!</h1>
-            <p class="opacity-90 font-medium">Gracias por confiar en Orange Travel Arica</p>
+            <h1 class="text-3xl font-black uppercase tracking-tighter">{% trans "¡Reserva Confirmada!" %}</h1>
+            <p class="opacity-90 font-medium">{% trans "Gracias por confiar en Orange Travel Arica" %}</p>
         </div>
 
         <div class="p-8 space-y-6">
             <div class="flex justify-between items-center pb-4 border-bottom border-slate-100">
                 <div>
                     <h2 class="text-xl font-bold text-slate-800">{{ tour.nombre }}</h2>
-                    <p class="text-slate-500 text-sm">📍 Punto de encuentro: Arica, Chile</p>
+                    <p class="text-slate-500 text-sm">{% trans "📍 Punto de encuentro: Arica, Chile" %}</p>
                 </div>
                 <div class="text-right">
-                    <span class="text-xs font-bold text-slate-400 uppercase">Código de reserva</span>
+                    <span class="text-xs font-bold text-slate-400 uppercase">{% trans "Código de reserva" %}</span>
                     <p class="font-black text-orange-600">{{ payment.codigo }}</p>
                 </div>
             </div>
 
             <div class="grid grid-cols-2 gap-6 bg-slate-50 p-6 rounded-2xl">
                 <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase">Fecha del Viaje</label>
+                    <label class="block text-xs font-bold text-slate-400 uppercase">{% trans "Fecha del Viaje" %}</label>
                     <p class="font-bold text-slate-800">{{ payment.reservation_date|date:"d M, Y" }}</p>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase">Pasajeros</label>
-                    <p class="font-bold text-slate-800">{{ pax_total }} Persona(s)</p>
+                    <label class="block text-xs font-bold text-slate-400 uppercase">{% trans "Pasajeros" %}</label>
+                    <p class="font-bold text-slate-800">{% blocktrans with n=pax_total %}{{ n }} Persona(s){% endblocktrans %}</p>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase">Cliente</label>
+                    <label class="block text-xs font-bold text-slate-400 uppercase">{% trans "Cliente" %}</label>
                     <p class="font-bold text-slate-800">{{ payment.customer_name }}</p>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase">Total Pagado</label>
+                    <label class="block text-xs font-bold text-slate-400 uppercase">{% trans "Total Pagado" %}</label>
                     <p class="font-black text-orange-600 text-xl">${{ payment.amount|floatformat:"0" }}</p>
                 </div>
             </div>
@@ -56,7 +57,7 @@
                     </div>
                     <div class="ml-3">
                         <p class="text-sm text-blue-700">
-                            Te hemos enviado un comprobante a <strong>{{ payment.customer_email }}</strong>. Revisa tu carpeta de spam si no lo ves.
+                            {% blocktrans with email=payment.customer_email %}Te hemos enviado un comprobante a <strong>{{ email }}</strong>. Revisa tu carpeta de spam si no lo ves.{% endblocktrans %}
                         </p>
                     </div>
                 </div>
@@ -64,10 +65,10 @@
 
             <div class="flex gap-4 pt-4">
                 <a href="{% url 'tours_home' %}" class="flex-1 text-center py-4 bg-slate-800 text-white rounded-2xl font-bold hover:bg-slate-900 transition-all">
-                    Volver al Inicio
+                    {% trans "Volver al Inicio" %}
                 </a>
                 <button onclick="window.print()" class="px-6 py-4 border-2 border-slate-200 text-slate-600 rounded-2xl font-bold hover:bg-slate-50 transition-all">
-                    🖨️ Imprimir
+                    {% trans "🖨️ Imprimir" %}
                 </button>
             </div>
         </div>

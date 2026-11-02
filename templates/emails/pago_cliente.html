@@ -1,0 +1,18 @@
+{% load i18n %}
+    <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
+        <div style="background-color: #FF8C00; padding: 20px; text-align: center;">
+            <h1 style="color: white; margin: 0;">Orange Travel</h1>
+        </div>
+        <div style="padding: 20px; color: #333;">
+            <h2>{% blocktrans with nombre=payment.customer_name %}¡Hola {{ nombre }}!{% endblocktrans %}</h2>
+            <p>{% trans "¡Tu aventura en Arica está confirmada! Hemos recibido tu pago exitosamente." %}</p>
+            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <p><strong>{% trans "Código de reserva:" %}</strong> {{ payment.codigo }}</p>
+                <p><strong>{% trans "Tour:" %}</strong> {{ tour_nombre }}</p>
+                <p><strong>{% trans "Fecha del tour:" %}</strong> {{ fecha }}</p>
+                <p><strong>{% trans "Pasajeros:" %}</strong> {{ pax_detalle }}</p>
+                <p style="font-size: 18px; color: #FF8C00;"><strong>{% blocktrans %}Total Pagado: ${{ monto }} CLP{% endblocktrans %}</strong></p>
+            </div>
+            <p>{% blocktrans with telefono=payment.customer_phone %}Te contactaremos pronto al WhatsApp {{ telefono }}.{% endblocktrans %}</p>
+        </div>
+    </div>

@@ -1,0 +1,20 @@
+{% load i18n %}
+    <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
+        <div style="background-color: #FF8C00; padding: 20px; text-align: center;">
+            <h1 style="color: white; margin: 0;">Orange Travel</h1>
+        </div>
+        <div style="padding: 20px; color: #333;">
+            <h2>{% blocktrans with nombre=cotizacion.nombre %}¡Hola {{ nombre }}!{% endblocktrans %}</h2>
+            <p>{% trans "Recibimos tu solicitud de cotización. Nuestro equipo la revisará y te enviará una propuesta a la brevedad." %}</p>
+
+            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <p><strong>{% trans "Tour:" %}</strong> {{ tour_nombre }}</p>
+                <p><strong>{% trans "Fecha tentativa:" %}</strong> {% if cotizacion.fecha_tentativa %}{{ cotizacion.fecha_tentativa|date:"d-m-Y" }}{% else %}{% trans "Por definir" %}{% endif %}</p>
+                <p><strong>{% trans "Pasajeros:" %}</strong> {% blocktrans with adultos=cotizacion.adultos ninos=cotizacion.ninos %}{{ adultos }} Adultos / {{ ninos }} Niños{% endblocktrans %}</p>
+                <p><strong>{% trans "Mensaje:" %}</strong> {{ cotizacion.mensaje|linebreaksbr|default:"—" }}</p>
+            </div>
+        </div>
+        <div style="background-color: #333; color: white; padding: 10px; text-align: center; font-size: 12px;">
+            {% trans "Arica, Chile - ¡La ciudad de la eterna primavera!" %}
+        </div>
+    </div>

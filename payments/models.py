@@ -6,7 +6,7 @@ from django.db import models
 from django.db import models
 from django.utils import timezone
 
-from tours.models import generar_codigo_reserva
+from tours.models import IDIOMAS, generar_codigo_reserva
 
 class Payment(models.Model):
     # --- Constantes de Proveedor y Estado ---
@@ -61,7 +61,7 @@ class Payment(models.Model):
 
             # 📸 Capturamos los datos solo al CREAR el pago
             if not self.pk and self.tour:
-                self.tour_nombre_al_pagar = self.tour.nombre
+                self.tour_nombre_al_pagar = self.tour.nombre_es
                 
                 # Verificamos si el tour tiene un objeto PrecioTour asociado
                 if hasattr(self.tour, 'precio'):
@@ -106,6 +106,7 @@ class Payment(models.Model):
     reservation_date = models.DateField(null=True)
     pax_adults = models.PositiveIntegerField(default=1)
     pax_children = models.PositiveIntegerField(default=0)
+    idioma = models.CharField("Idioma del cliente", max_length=5, choices=IDIOMAS, default='es')
 
     class Meta:
         indexes = [

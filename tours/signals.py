@@ -4,7 +4,10 @@ from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.core.mail import send_mail
 from django.conf import settings
+from django.utils import translation
+from django.utils.translation import gettext as _
 from .models import Reserva
+from .traduccion import texto
 from payments.models import Payment
 
 logger = logging.getLogger(__name__)
@@ -31,18 +34,26 @@ def notificar_cambio_estado(sender, instance, created, **kwargs):
 
     # Si el estado cambió a CONFIRMADA
     if instance.estado == Reserva.Estado.CONFIRMADA:
-        asunto = f"✅ ¡Reserva Confirmada! - Orange Travel"
-        mensaje = (
-            f"¡Hola {instance.nombre_cliente}!\n\n"
-            f"Tu reserva para el tour '{instance.tour.nombre}' el día {instance.fecha} ha sido CONFIRMADA.\n"
-            f"Prepárate para una gran experiencia en Arica.\n\n"
-            f"Detalles:\n- Pasajeros: {instance.adultos} Adl / {instance.ninos} Chd\n- Total: ${instance.precio_total}"
-        )
+        with translation.override(instance.idioma):
+            asunto = _("✅ ¡Reserva Confirmada! - Orange Travel")
+            mensaje = _(
+                "¡Hola %(nombre)s!\n\n"
+                "Tu reserva para el tour '%(tour)s' el día %(fecha)s ha sido CONFIRMADA.\n"
+                "Prepárate para una gran experiencia en Arica.\n\n"
+                "Detalles:\n- Pasajeros: %(adultos)s Adl / %(ninos)s Chd\n- Total: $%(total)s"
+            ) % {
+                'nombre': instance.nombre_cliente, 'tour': texto(instance.tour, 'nombre', instance.idioma),
+                'fecha': instance.fecha, 'adultos': instance.adultos, 'ninos': instance.ninos,
+                'total': instance.precio_total,
+            }
 
     # Si el estado cambió a RECHAZADA o CANCELADA
     elif instance.estado in (Reserva.Estado.RECHAZADA, Reserva.Estado.CANCELADA):
-        asunto = f"⚠️ Actualización de tu reserva - Orange Travel"
-        mensaje = f"Hola {instance.nombre_cliente}, lamentamos informarte que no tenemos disponibilidad para el tour '{instance.tour.nombre}' en la fecha solicitada."
+        with translation.override(instance.idioma):
+            asunto = _("⚠️ Actualización de tu reserva - Orange Travel")
+            mensaje = _(
+                "Hola %(nombre)s, lamentamos informarte que no tenemos disponibilidad para el tour '%(tour)s' en la fecha solicitada."
+            ) % {'nombre': instance.nombre_cliente, 'tour': texto(instance.tour, 'nombre', instance.idioma)}
 
         # Liberar la fecha: cancelar el Payment asociado para que salga del calendario
         Payment.objects.filter(

@@ -8,7 +8,7 @@
 <div class="card">
   <h3>Contenido</h3>
   {{ form.non_field_errors }}
-  {% for f in form %}{% if f.name != 'publicado' %}
+  {% for f in form %}{% if f.name != 'publicado' and f.name != 'traduccion_en_aprobada' and f.name|slice:"-3:" != '_en' %}
   <div class="frow"><label for="{{ f.id_for_label }}"><b>{{ f.label }}</b></label><br>{{ f }}{{ f.errors }}
     {% if f.name == 'extracto' %}<div class="help counter" data-for="{{ f.id_for_label }}" data-max="{{ extracto_max }}"></div>{% endif %}
     {% if f.name == 'contenido' %}<div class="help counter" data-editor="{{ f.id_for_label }}" data-max="{{ cuerpo_max }}"></div>{% endif %}
@@ -20,6 +20,16 @@
     <div class="help">Desmárcala para ocultar la reseña del sitio sin borrarla.</div></div>
 </div>
 
+<div class="card" id="ingles">
+  <h3>Versión en inglés</h3>
+  <p class="help">Se muestra en orangetravel.cl/en/. Un campo vacío muestra el texto en español.
+    Mientras no marques «Traducción al inglés aprobada», el público ve esta reseña en español; los usuarios staff ven el borrador para revisarlo.</p>
+  {% for f in form %}{% if f.name|slice:"-3:" == '_en' %}
+  <div class="frow"><label for="{{ f.id_for_label }}"><b>{{ f.label }}</b></label><br>{{ f }}{{ f.errors }}</div>
+  {% endif %}{% endfor %}
+  <div class="frow"><label>{{ form.traduccion_en_aprobada }} <b>{{ form.traduccion_en_aprobada.label }}</b></label>{{ form.traduccion_en_aprobada.errors }}</div>
+</div>
+
 <div class="card">
   <h3>Imágenes entre párrafos</h3>
   <p class="help">Cada imagen aparece después del párrafo que indiques (1 = después del primero, 0 = antes de todo el texto).
@@ -27,13 +37,14 @@
   {{ imagenes_form.management_form }}
   {{ imagenes_form.non_form_errors }}
   <table>
-  <tr><th>Imagen</th><th>Después del párrafo</th><th>Pie de foto</th><th>Orden</th>{% if post %}<th>Quitar</th>{% endif %}</tr>
+  <tr><th>Imagen</th><th>Después del párrafo</th><th>Pie de foto</th><th>Pie de foto (inglés)</th><th>Orden</th>{% if post %}<th>Quitar</th>{% endif %}</tr>
   {% for f in imagenes_form %}<tr>
     <td>{% for h in f.hidden_fields %}{{ h }}{% endfor %}
       {% if f.instance.pk and f.instance.imagen %}<img src="{{ f.instance.imagen.url }}" alt="" style="width:90px;height:60px;object-fit:cover;border-radius:6px;display:block;margin-bottom:6px">{% endif %}
       {{ f.imagen }}{{ f.imagen.errors }}</td>
     <td>{{ f.despues_del_parrafo }}{{ f.despues_del_parrafo.errors }}</td>
     <td>{{ f.caption }}{{ f.caption.errors }}</td>
+    <td>{{ f.caption_en }}{{ f.caption_en.errors }}</td>
     <td>{{ f.orden }}{{ f.orden.errors }}</td>
     {% if post %}<td>{% if f.instance.pk %}{{ f.DELETE }}{% endif %}</td>{% endif %}
   </tr>{% endfor %}

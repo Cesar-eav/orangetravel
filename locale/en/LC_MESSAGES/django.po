@@ -1,0 +1,1314 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-20 20:40-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: blog/templates/blog/blog_home.html:3
+msgid "Blog | Orange Travel"
+msgstr "Blog | Orange Travel"
+
+#: blog/templates/blog/blog_home.html:8
+msgid "Descubre destinos inolvidables"
+msgstr "Discover unforgettable destinations"
+
+#: blog/templates/blog/blog_home.html:9
+msgid "Explora los mejores tours con la confianza de Orage Travel."
+msgstr "Explore the best tours with the confidence of Orange Travel."
+
+#: blog/templates/blog/post.html:73
+#, python-format
+msgid "Imagen %(n)s – %(titulo)s"
+msgstr "Image %(n)s – %(titulo)s"
+
+#: dashboard.py:10
+msgid "Enlaces rápidos"
+msgstr ""
+
+#: dashboard.py:13
+msgid "Volver al sitio"
+msgstr ""
+
+#: dashboard.py:14
+msgid "Cambiar contraseña"
+msgstr ""
+
+#: dashboard.py:15
+msgid "Cerrar sesión"
+msgstr ""
+
+#: dashboard.py:23
+msgid "Aplicaciones y Módulos"
+msgstr ""
+
+#: dashboard.py:30
+msgid "Acciones recientes"
+msgstr ""
+
+#: dashboard.py:40
+msgid "Modelos del sistema"
+msgstr ""
+
+#: home/templates/home/contacto.html:3
+msgid "Contacto | Orange Travel"
+msgstr "Contact | Orange Travel"
+
+#: home/templates/home/contacto.html:14
+msgid "Contáctanos"
+msgstr "Contact us"
+
+#: home/templates/home/contacto.html:19
+msgid "Queremos saber de tí"
+msgstr "We'd love to hear from you"
+
+#: home/templates/home/contacto.html:20
+msgid ""
+"Siente libre de contactarnos usando el formulario o uno de los links que te "
+"dejamos aquí debajo."
+msgstr "Feel free to reach out using the form or any of the links below."
+
+#: home/templates/home/contacto.html:26
+msgid "Llamanos"
+msgstr "Call us"
+
+#: home/templates/home/contacto.html:32
+msgid "Escríbenos al correo"
+msgstr "Email us"
+
+#: home/templates/home/contacto.html:45
+msgid "Vive una aventura en la belleza natural de Arica"
+msgstr "Live an adventure in Arica's natural beauty"
+
+#: home/templates/home/contacto.html:58 home/templates/home/index.html:194
+msgid "Leer más"
+msgstr "Read more"
+
+#: home/templates/home/contacto.html:77 home/templates/home/index.html:209
+msgid "¿Tienes alguna consulta, solicitud o sugerencia?"
+msgstr "Do you have a question, request or suggestion?"
+
+#: home/templates/home/contacto.html:78 home/templates/home/index.html:211
+msgid "Escríbenos, te responderemos a la brevedad."
+msgstr "Write to us and we'll get back to you shortly."
+
+#: home/templates/home/contacto.html:88 home/templates/home/index.html:220
+#: tours/views.py:48
+msgid "Nombre Completo"
+msgstr "Full Name"
+
+#: home/templates/home/contacto.html:93 home/templates/home/index.html:225
+msgid "Correo Electrónico"
+msgstr "Email"
+
+#: home/templates/home/contacto.html:101 home/templates/home/index.html:233
+msgid "Asunto"
+msgstr "Subject"
+
+#: home/templates/home/contacto.html:104 home/templates/home/index.html:236
+msgid "Consulta General"
+msgstr "General Inquiry"
+
+#: home/templates/home/contacto.html:105 home/templates/home/index.html:237
+msgid "Problemas con una Reserva"
+msgstr "Issue with a Booking"
+
+#: home/templates/home/contacto.html:106 home/templates/home/index.html:238
+msgid "Tour Personalizado / Grupal"
+msgstr "Private / Group Tour"
+
+#: home/templates/home/contacto.html:107 home/templates/home/index.html:239
+msgid "Otro"
+msgstr "Other"
+
+#: home/templates/home/contacto.html:111 home/templates/home/index.html:243
+msgid "Teléfono"
+msgstr "Phone"
+
+#: home/templates/home/contacto.html:118 home/templates/home/index.html:250
+msgid "Tu Mensaje"
+msgstr "Your Message"
+
+#: home/templates/home/contacto.html:121 home/templates/home/index.html:253
+msgid "Cuéntanos qué tienes en mente..."
+msgstr "Tell us what you have in mind..."
+
+#: home/templates/home/contacto.html:126 home/templates/home/index.html:258
+msgid "Enviar Mensaje"
+msgstr "Send Message"
+
+#: home/templates/home/contacto.html:142
+msgid "Nuestra oficina"
+msgstr "Our office"
+
+#: home/templates/home/contacto.html:148
+msgid "Fachada de la oficina Orange Travel"
+msgstr "Front of the Orange Travel office"
+
+#: home/templates/home/contacto.html:154
+msgid "Interior de la oficina Orange Travel"
+msgstr "Inside the Orange Travel office"
+
+#: home/templates/home/contacto.html:167 home/templates/home/nosotros.html:148
+msgid "¿Dónde estamos?"
+msgstr "Where are we?"
+
+#: home/templates/home/contacto.html:168 home/templates/home/nosotros.html:149
+msgid "Visítanos en el corazón de Arica"
+msgstr "Visit us in the heart of Arica"
+
+#: home/templates/home/contacto.html:179 home/templates/home/nosotros.html:160
+msgid "Ubicación Orange Travel Arica"
+msgstr "Orange Travel Arica location"
+
+#: home/templates/home/index.html:6
+msgid "Orange Travel | Tours en Arica, Chile"
+msgstr "Orange Travel | Tours in Arica, Chile"
+
+#: home/templates/home/index.html:21
+msgid "Portada Orange Travel"
+msgstr "Orange Travel cover"
+
+#: home/templates/home/index.html:25
+msgid "Tu navegador no soporta video HTML5."
+msgstr "Your browser does not support HTML5 video."
+
+#: home/templates/home/index.html:32
+msgid "Región de Arica y Parinacota"
+msgstr "Arica and Parinacota Region"
+
+#: home/templates/home/index.html:34
+msgid "Arica, de cordillera a mar"
+msgstr "Arica, from the Andes to the sea"
+
+#: home/templates/home/index.html:38
+msgid ""
+"Del altiplano y sus lagos a las playas del Pacífico, vive el norte de Chile "
+"con guías locales."
+msgstr ""
+"From the high plateau and its lakes to the Pacific beaches, experience "
+"northern Chile with local guides."
+
+#: home/templates/home/index.html:42
+msgid "Ver tours"
+msgstr "See tours"
+
+#: home/templates/home/index.html:80
+msgid "Explora con nosotros"
+msgstr "Explore with us"
+
+#: home/templates/home/index.html:81
+msgid "Nuestros Tours Destacados"
+msgstr "Our Featured Tours"
+
+#: home/templates/home/index.html:100
+msgid "VALOR"
+msgstr "PRICE"
+
+#: home/templates/home/index.html:102
+#: tours/templates/tours/tours_home.html:156
+msgid "A cotizar"
+msgstr "On request"
+
+#: home/templates/home/index.html:107
+msgid "VER TOUR"
+msgstr "SEE TOUR"
+
+#: home/templates/home/index.html:115
+msgid "Próximamente más aventuras destacadas."
+msgstr "More featured adventures coming soon."
+
+#: home/templates/home/index.html:132
+msgid "Turismo Confiable"
+msgstr "Trusted Tourism"
+
+#: home/templates/home/index.html:133
+msgid "Seguridad en cada kilómetro."
+msgstr "Safety every mile of the way."
+
+#: home/templates/home/index.html:139
+msgid "Turismo Múltiple"
+msgstr "Diverse Tourism"
+
+#: home/templates/home/index.html:140
+msgid "Variedad de rutas y experiencias."
+msgstr "A wide range of routes and experiences."
+
+#: home/templates/home/index.html:146
+msgid "Equipo Profesional"
+msgstr "Professional Team"
+
+#: home/templates/home/index.html:147
+msgid "Guías expertos de la región."
+msgstr "Expert local guides."
+
+#: home/templates/home/index.html:158
+msgid "¿Por qué elegirnos?"
+msgstr "Why choose us?"
+
+#: home/templates/home/index.html:160
+msgid ""
+"Somos un tour operador local que provee actividades turísticas en la región "
+"de Arica y Parinacota. Nuestro objetivo es potenciar el turismo en la ciudad"
+" ofreciendo alternativas, acorde a las necesidades e intereses de cada "
+"visitante. Contamos con un equipo profesional y con vocación de servicio, "
+"hacemos todos los esfuerzos para capacitar a nuestros guías, conductores y "
+"operadores para que amen su profesión y se sientan motivados a entregar una "
+"experiencia que aporte valor a nuestros pasajeros."
+msgstr ""
+"We are a local tour operator offering tourism activities in the Arica and "
+"Parinacota region. Our goal is to boost tourism in the city by offering "
+"options that fit the needs and interests of every visitor. We have a "
+"professional, service-minded team, and we make every effort to train our "
+"guides, drivers and operators so they love what they do and feel motivated "
+"to deliver an experience that adds real value for our travelers."
+
+#: home/templates/home/index.html:165
+msgid "Arica y Parinacota"
+msgstr "Arica and Parinacota"
+
+#: home/templates/home/index.html:180
+msgid "Nuestras últimas publicaciones"
+msgstr "Our latest posts"
+
+#: home/templates/home/index.html:208
+msgid "¿Dudas?"
+msgstr "Questions?"
+
+#: home/templates/home/nosotros.html:4
+msgid "Nosotros | Orange Travel"
+msgstr "About us | Orange Travel"
+
+#: home/templates/home/nosotros.html:15
+msgid "Somos<br>Orange Travel"
+msgstr "We are<br>Orange Travel"
+
+#: home/templates/home/nosotros.html:16
+msgid "Tour operador local en la región de Arica y Parinacota"
+msgstr "Local tour operator in the Arica and Parinacota region"
+
+#: home/templates/home/nosotros.html:27
+msgid "¿Quiénes somos?"
+msgstr "Who we are"
+
+#: home/templates/home/nosotros.html:29
+msgid ""
+"Somos un tour operador local que provee actividades turísticas en la región "
+"de Arica y Parinacota. Nuestro objetivo es potenciar el turismo en la ciudad"
+" ofreciendo alternativas acorde a las necesidades e intereses de cada "
+"visitante."
+msgstr ""
+"We are a local tour operator offering tourism activities in the Arica and "
+"Parinacota region. Our goal is to boost tourism in the city by offering "
+"options that fit the needs and interests of every visitor."
+
+#: home/templates/home/nosotros.html:41
+msgid "Equipo Orange Travel"
+msgstr "Orange Travel team"
+
+#: home/templates/home/nosotros.html:54
+msgid "Oficina Orange Travel"
+msgstr "Orange Travel office"
+
+#: home/templates/home/nosotros.html:61
+msgid "Nuestra Historia"
+msgstr "Our Story"
+
+#: home/templates/home/nosotros.html:63
+msgid ""
+"Somos un tour operador local que provee actividades turísticas en la región "
+"de Arica y Parinacota. Nuestro objetivo es potenciar el turismo en la ciudad"
+" ofreciendo alternativas, acorde a las necesidades e intereses de cada "
+"visitante."
+msgstr ""
+"We are a local tour operator offering tourism activities in the Arica and "
+"Parinacota region. Our goal is to boost tourism in the city by offering "
+"options that fit the needs and interests of every visitor."
+
+#: home/templates/home/nosotros.html:68
+msgid ""
+"Contamos con un equipo profesional y con vocación de servicio, hacemos todos"
+" los esfuerzos para capacitar a nuestros guías, conductores y operadores "
+"para que amen su profesión y se sientan motivados a entregar una experiencia"
+" que aporte valor a nuestros pasajeros."
+msgstr ""
+"We have a professional, service-minded team, and we make every effort to "
+"train our guides, drivers and operators so they love what they do and feel "
+"motivated to deliver an experience that adds real value for our travelers."
+
+#: home/templates/home/nosotros.html:82
+msgid "Nuestras Certificaciones"
+msgstr "Our Certifications"
+
+#: home/templates/home/nosotros.html:84
+msgid ""
+"En Orange Travel ofrecemos experiencias seguras, éticas y de alta calidad. "
+"Estamos respaldados por el Registro Nacional de Sernatur, el Sello Empresa "
+"Mujer y nuestra certificación en Turismo Sustentable, garantizando un "
+"impacto positivo en nuestro entorno. Además, mantenemos un firme compromiso "
+"con la protección de la infancia mediante una política activa de no a la "
+"explotación infantil."
+msgstr ""
+"At Orange Travel we offer safe, ethical, high-quality experiences. We are "
+"backed by Sernatur's National Registry, the Women-Led Business Seal (Sello "
+"Empresa Mujer) and our Sustainable Tourism certification, ensuring a "
+"positive impact on our surroundings. We are also firmly committed to "
+"protecting children through an active policy against child exploitation."
+
+#: home/templates/home/nosotros.html:95
+msgid "Registro Nacional Sernatur"
+msgstr "Sernatur National Registry"
+
+#: home/templates/home/nosotros.html:99 templates/includes/footer.html:54
+msgid "Sello Empresa Mujer"
+msgstr "Women-Led Business Seal"
+
+#: home/templates/home/nosotros.html:103 templates/includes/footer.html:57
+msgid "Turismo Sustentable"
+msgstr "Sustainable Tourism"
+
+#: home/templates/home/nosotros.html:107
+msgid "No a la explotación infantil"
+msgstr "No to child exploitation"
+
+#: home/templates/home/nosotros.html:117
+msgid "Visítanos"
+msgstr "Visit us"
+
+#: home/templates/home/nosotros.html:122
+msgid "Información turística"
+msgstr "Tourist information"
+
+#: home/templates/home/nosotros.html:127
+msgid "Mapa de tours"
+msgstr "Tour map"
+
+#: home/templates/home/nosotros.html:132
+msgid "Atendiendo clientes"
+msgstr "Helping customers"
+
+#: home/templates/home/otros_servicios.html:4
+msgid "Otros Servicios | Orange Travel"
+msgstr "Other Services | Orange Travel"
+
+#: home/templates/home/otros_servicios.html:10
+msgid "Servicios Orange Travel"
+msgstr "Orange Travel services"
+
+#: home/templates/home/otros_servicios.html:15
+msgid "Otros<br>Servicios"
+msgstr "Other<br>Services"
+
+#: home/templates/home/otros_servicios.html:16
+msgid ""
+"Soluciones de movilidad y experiencias a medida para grupos e instituciones"
+msgstr ""
+"Transportation and tailor-made experiences for groups and institutions"
+
+#: home/templates/home/otros_servicios.html:25
+msgid "Más allá del tour"
+msgstr "Beyond the tour"
+
+#: home/templates/home/otros_servicios.html:27
+msgid ""
+"En Orange Travel no solo organizamos tours — también ofrecemos servicios de "
+"traslado y experiencias turísticas diseñadas especialmente para grupos, "
+"empresas e instituciones públicas y privadas. Contáctanos y diseñamos la "
+"solución ideal para ti."
+msgstr ""
+"At Orange Travel we don't just run tours — we also offer transfer services "
+"and travel experiences designed especially for groups, companies, and public"
+" and private institutions. Get in touch and we'll design the right solution "
+"for you."
+
+#: home/templates/home/otros_servicios.html:43
+msgid "Servicios de Transfer"
+msgstr "Transfer Services"
+
+#: home/templates/home/otros_servicios.html:46
+msgid ""
+"Ofrecemos traslados cómodos, puntuales y seguros para que tu llegada y "
+"salida de Arica sean una experiencia sin preocupaciones. Contamos con "
+"vehículos modernos y conductores profesionales disponibles los 7 días de la "
+"semana."
+msgstr ""
+"We offer comfortable, punctual and safe transfers so your arrival in and "
+"departure from Arica are worry-free. We have modern vehicles and "
+"professional drivers available 7 days a week."
+
+#: home/templates/home/otros_servicios.html:53
+msgid "Transfer aeropuerto ↔ hotel en Arica"
+msgstr "Airport ↔ hotel transfers in Arica"
+
+#: home/templates/home/otros_servicios.html:57
+msgid "Traslados entre ciudades y puntos turísticos de la región"
+msgstr "Transfers between cities and tourist spots in the region"
+
+#: home/templates/home/otros_servicios.html:61
+msgid "Servicio para grupos y delegaciones"
+msgstr "Service for groups and delegations"
+
+#: home/templates/home/otros_servicios.html:65
+msgid "Coordinación con vuelos y horarios personalizados"
+msgstr "Flight coordination and custom schedules"
+
+#: home/templates/home/otros_servicios.html:75
+msgid "Servicios de Transfer Orange Travel"
+msgstr "Orange Travel transfer services"
+
+#: home/templates/home/otros_servicios.html:92
+msgid "Tours para Instituciones Orange Travel"
+msgstr "Orange Travel tours for institutions"
+
+#: home/templates/home/otros_servicios.html:101
+msgid "Tours para Instituciones"
+msgstr "Tours for Institutions"
+
+#: home/templates/home/otros_servicios.html:104
+msgid ""
+"Diseñamos experiencias turísticas privadas para empresas, colegios, "
+"municipios y organismos del estado. Cada programa se adapta a los objetivos,"
+" tiempos y presupuesto del grupo, garantizando una experiencia memorable y "
+"organizada."
+msgstr ""
+"We design private travel experiences for companies, schools, municipalities "
+"and government agencies. Each program is tailored to the group's goals, "
+"schedule and budget, ensuring a memorable, well-organized experience."
+
+#: home/templates/home/otros_servicios.html:111
+msgid "Tours privados para empresas e incentivos corporativos"
+msgstr "Private tours for companies and corporate incentives"
+
+#: home/templates/home/otros_servicios.html:115
+msgid "Excursiones educativas para colegios y universidades"
+msgstr "Educational trips for schools and universities"
+
+#: home/templates/home/otros_servicios.html:119
+msgid "Programas para instituciones públicas y municipios"
+msgstr "Programs for public institutions and municipalities"
+
+#: home/templates/home/otros_servicios.html:123
+msgid "Emisión de facturas y licitaciones disponibles"
+msgstr "Invoicing and public tenders available"
+
+#: home/templates/home/politica_devoluciones.html:3
+msgid "Política de Devoluciones | Orange Travel"
+msgstr "Refund Policy | Orange Travel"
+
+#: home/templates/home/politica_devoluciones.html:14
+msgid "Términos<br> y condiciones"
+msgstr "Terms<br> and conditions"
+
+#: home/templates/home/politica_devoluciones.html:26
+msgid "Cambios de fecha y nombre"
+msgstr "Date and name changes"
+
+#: home/templates/home/politica_devoluciones.html:28
+msgid ""
+"Orange Travel permite cambios de fecha de los tours sin cargo hasta 1 día "
+"antes de la salida, pagando sólo la diferencia tarifaria si aplica. Los "
+"cambios de nombre por pasajeros están permitidos."
+msgstr ""
+"Orange Travel allows tour date changes free of charge up to 1 day before "
+"departure; you only pay the fare difference, if any. Passenger name changes "
+"are allowed."
+
+#: home/templates/home/politica_devoluciones.html:34
+msgid "No Show y servicios no utilizados"
+msgstr "No-shows and unused services"
+
+#: home/templates/home/politica_devoluciones.html:36
+msgid ""
+"No se aplica reembolso por NO SHOW o servicios no utilizados previamente "
+"reservados."
+msgstr ""
+"No refunds are given for NO-SHOWS or for previously booked services that are"
+" not used."
+
+#: home/templates/home/politica_devoluciones.html:44
+msgid "Anulaciones con menos de 12 horas"
+msgstr "Cancellations less than 12 hours in advance"
+
+#: home/templates/home/politica_devoluciones.html:46
+#, python-format
+msgid ""
+"Las anulaciones con menos de 12 horas antes del servicio, no tendrán "
+"devolución, salvo que presenten certificado médico correspondiente al día "
+"del tour, sin embargo Orange Travel cargará cualquier gasto que incurra "
+"pérdida de depósitos (alojamiento, entradas a museos, almuerzos, entradas a "
+"parques, etc.) En estos casos se retendrá un 20%% + IVA."
+msgstr ""
+"Cancellations made less than 12 hours before the service are not refundable "
+"unless a medical certificate for the day of the tour is provided; even then,"
+" Orange Travel will charge any costs incurred from lost deposits (lodging, "
+"museum tickets, lunches, park entrance fees, etc.). In these cases 20%% + "
+"VAT will be withheld."
+
+#: home/templates/home/politica_devoluciones.html:54
+msgid "Suspensión o cancelación por la empresa"
+msgstr "Suspension or cancellation by the company"
+
+#: home/templates/home/politica_devoluciones.html:56
+msgid ""
+"La empresa está obligada a efectuar el tour en la fecha y horario estipulado"
+" por el pasajero. No obstante, puede suspender, retrasar o cancelar el tour "
+"por las siguientes razones:"
+msgstr ""
+"The company is obliged to run the tour on the date and at the time agreed "
+"with the passenger. However, it may suspend, delay or cancel the tour for "
+"the following reasons:"
+
+#: home/templates/home/politica_devoluciones.html:61
+msgid "Que no se complete el cupo mínimo para realizar el tour."
+msgstr "The minimum number of participants for the tour is not reached."
+
+#: home/templates/home/politica_devoluciones.html:65
+msgid ""
+"Razones de seguridad o de fuerza mayor producidas por fenómenos "
+"meteorológicos, conflictos armados, disturbios civiles o restricciones "
+"gubernamentales."
+msgstr ""
+"Safety reasons or force majeure caused by weather events, armed conflict, "
+"civil unrest or government restrictions."
+
+#: home/templates/home/politica_devoluciones.html:73
+msgid ""
+"***En estos casos, cualquiera de las partes podrá dejar sin efecto el "
+"contrato, soportando cada uno sus propias pérdidas."
+msgstr ""
+"***In these cases, either party may terminate the agreement, with each "
+"bearing its own losses."
+
+#: payments/emails.py:147
+#, python-format
+msgid "%(n)s Adultos"
+msgstr "%(n)s Adults"
+
+#: payments/emails.py:149
+#, python-format
+msgid " / %(n)s Niños"
+msgstr " / %(n)s Children"
+
+#: payments/emails.py:183
+#, python-format
+msgid "✅ Reserva Confirmada: %(tour)s"
+msgstr "✅ Booking Confirmed: %(tour)s"
+
+#: payments/emails.py:184
+msgid "Tu pago ha sido confirmado."
+msgstr "Your payment has been confirmed."
+
+#: payments/templates/payments/confirmacion_reserva.html:4
+msgid "Confirmación de Reserva | Orange Travel"
+msgstr "Booking Confirmation | Orange Travel"
+
+#: payments/templates/payments/confirmacion_reserva.html:16
+msgid "¡Reserva Confirmada!"
+msgstr "Booking Confirmed!"
+
+#: payments/templates/payments/confirmacion_reserva.html:17
+msgid "Gracias por confiar en Orange Travel Arica"
+msgstr "Thank you for choosing Orange Travel Arica"
+
+#: payments/templates/payments/confirmacion_reserva.html:24
+msgid "📍 Punto de encuentro: Arica, Chile"
+msgstr "📍 Meeting point: Arica, Chile"
+
+#: payments/templates/payments/confirmacion_reserva.html:27
+msgid "Código de reserva"
+msgstr "Booking code"
+
+#: payments/templates/payments/confirmacion_reserva.html:34
+msgid "Fecha del Viaje"
+msgstr "Trip Date"
+
+#: payments/templates/payments/confirmacion_reserva.html:38
+#: payments/templates/payments/fail.html:35
+msgid "Pasajeros"
+msgstr "Passengers"
+
+#: payments/templates/payments/confirmacion_reserva.html:39
+#: payments/templates/payments/fail.html:36
+#, python-format
+msgid "%(n)s Persona(s)"
+msgstr "%(n)s Person(s)"
+
+#: payments/templates/payments/confirmacion_reserva.html:42
+msgid "Cliente"
+msgstr "Customer"
+
+#: payments/templates/payments/confirmacion_reserva.html:46
+msgid "Total Pagado"
+msgstr "Total Paid"
+
+#: payments/templates/payments/confirmacion_reserva.html:60
+#, python-format
+msgid ""
+"Te hemos enviado un comprobante a <strong>%(email)s</strong>. Revisa tu "
+"carpeta de spam si no lo ves."
+msgstr ""
+"We've sent a receipt to <strong>%(email)s</strong>. Check your spam folder "
+"if you don't see it."
+
+#: payments/templates/payments/confirmacion_reserva.html:68
+#: payments/templates/payments/fail.html:87
+msgid "Volver al Inicio"
+msgstr "Back to Home"
+
+#: payments/templates/payments/confirmacion_reserva.html:71
+msgid "🖨️ Imprimir"
+msgstr "🖨️ Print"
+
+#: payments/templates/payments/fail.html:4
+msgid "Pago No Realizado | Orange Travel"
+msgstr "Payment Not Completed | Orange Travel"
+
+#: payments/templates/payments/fail.html:14
+msgid "Pago no procesado"
+msgstr "Payment not processed"
+
+#: payments/templates/payments/fail.html:20
+msgid "viajero"
+msgstr "traveler"
+
+#: payments/templates/payments/fail.html:20
+#, python-format
+msgid "¿Qué pudo haber pasado, %(nombre)s?"
+msgstr "What could have happened, %(nombre)s?"
+
+#: payments/templates/payments/fail.html:22
+msgid ""
+"La transacción no pudo ser completada. Esto suele suceder por problemas de "
+"conexión con el banco, fondos insuficientes o cancelación manual del "
+"proceso."
+msgstr ""
+"The transaction could not be completed. This usually happens because of "
+"connection issues with the bank, insufficient funds or the process being "
+"canceled manually."
+
+#: payments/templates/payments/fail.html:29
+msgid "Tour Seleccionado"
+msgstr "Selected Tour"
+
+#: payments/templates/payments/fail.html:39
+msgid "Monto Intentado"
+msgstr "Attempted Amount"
+
+#: payments/templates/payments/fail.html:45
+msgid "Estado del Cargo"
+msgstr "Charge Status"
+
+#: payments/templates/payments/fail.html:48
+msgid "SIN CARGO REALIZADO"
+msgstr "NO CHARGE MADE"
+
+#: payments/templates/payments/fail.html:58
+msgid "Verifica tu tarjeta"
+msgstr "Check your card"
+
+#: payments/templates/payments/fail.html:59
+msgid "Revisa el cupo disponible o si tu tarjeta requiere una clave dinámica."
+msgstr ""
+"Check your available credit or whether your card requires a one-time "
+"passcode."
+
+#: payments/templates/payments/fail.html:65
+msgid "Asistencia en línea"
+msgstr "Online assistance"
+
+#: payments/templates/payments/fail.html:66
+msgid "Podemos coordinar tu reserva manualmente por WhatsApp."
+msgstr "We can arrange your booking manually over WhatsApp."
+
+#: payments/templates/payments/fail.html:73
+msgid "Reintentar Reserva"
+msgstr "Try Booking Again"
+
+#: payments/templates/payments/fail.html:78
+msgid "Hablar con Soporte"
+msgstr "Contact Support"
+
+#: payments/templates/payments/fail.html:84
+msgid "ID de Transacción:"
+msgstr "Transaction ID:"
+
+#: payments/views.py:83
+msgid "Este tour se reserva por cotización."
+msgstr "This tour is booked by quote."
+
+#: payments/views.py:89
+msgid "Se requiere un email para la reserva."
+msgstr "An email address is required for the booking."
+
+#: payments/views.py:95 tours/views.py:152 tours/views.py:260
+msgid "Fecha inválida."
+msgstr "Invalid date."
+
+#: payments/views.py:97 tours/views.py:154
+msgid "Las reservas deben hacerse a partir del día siguiente."
+msgstr "Bookings must be made for tomorrow or later."
+
+#: payments/views.py:130
+msgid "Error de configuración en el servidor."
+msgstr "Server configuration error."
+
+#: payments/views.py:159
+msgid "Error al contactar con el proveedor de pagos."
+msgstr "Error contacting the payment provider."
+
+#: payments/views.py:183
+msgid "No pudimos encontrar el registro de tu pago."
+msgstr "We couldn't find a record of your payment."
+
+#: payments/views.py:208
+#, python-format
+msgid "¡Gracias! Tu reserva para el tour '%(tour)s' ha sido confirmada."
+msgstr "Thank you! Your booking for the '%(tour)s' tour has been confirmed."
+
+#: payments/views.py:213
+msgid "El pago fue rechazado o cancelado. Por favor, intenta nuevamente."
+msgstr "The payment was declined or canceled. Please try again."
+
+#: payments/views.py:216
+msgid "Tu pago está siendo procesado por la institución financiera."
+msgstr "Your payment is being processed by the financial institution."
+
+#: payments/views.py:220
+msgid "Estamos confirmando tu pago. Te avisaremos por email en unos minutos."
+msgstr "We're confirming your payment. We'll email you in a few minutes."
+
+#: payments/views.py:326
+msgid "Lo sentimos, no encontramos una confirmación válida para este pago."
+msgstr "Sorry, we couldn't find a valid confirmation for this payment."
+
+#: templates/base.html:11
+#| msgid ""
+#| "Del altiplano y sus lagos a las playas del Pacífico, vive el norte de Chile "
+#| "con guías locales."
+msgid ""
+"Tours en Arica y Parinacota, Chile: del altiplano y el Parque Nacional Lauca"
+" a las playas del Pacífico, con guías locales."
+msgstr ""
+"Tours in Arica and Parinacota, Chile: from the high plateau and Lauca "
+"National Park to the Pacific beaches, with local guides."
+
+#: templates/base.html:76
+msgid "Hola, quiero información sobre San Pedro de Atacama"
+msgstr "Hi, I'd like information about San Pedro de Atacama"
+
+#: templates/base.html:81 templates/base.html:93 templates/base.html:105
+#: templates/base.html:117
+msgid "Contactar por WhatsApp"
+msgstr "Contact us on WhatsApp"
+
+#: templates/base.html:88
+msgid "Hola, quiero información sobre Trekking Lagunas Cotacotani"
+msgstr "Hi, I'd like information about the Cotacotani Lagoons Trek"
+
+#: templates/base.html:100
+msgid "Hola, quiero información sobre Salar de Surire"
+msgstr "Hi, I'd like information about the Surire Salt Flat"
+
+#: templates/base.html:112
+msgid "Hola, quiero información sobre tours"
+msgstr "Hi, I'd like information about tours"
+
+#: templates/emails/cotizacion_cliente.html:7
+#: templates/emails/pago_cliente.html:7
+#: templates/emails/reserva_cliente.html:7
+#, python-format
+msgid "¡Hola %(nombre)s!"
+msgstr "Hi %(nombre)s!"
+
+#: templates/emails/cotizacion_cliente.html:8
+msgid ""
+"Recibimos tu solicitud de cotización. Nuestro equipo la revisará y te "
+"enviará una propuesta a la brevedad."
+msgstr ""
+"We received your quote request. Our team will review it and send you a "
+"proposal shortly."
+
+#: templates/emails/cotizacion_cliente.html:11
+#: templates/emails/pago_cliente.html:11
+#: templates/emails/reserva_cliente.html:12
+msgid "Tour:"
+msgstr "Tour:"
+
+#: templates/emails/cotizacion_cliente.html:12
+msgid "Fecha tentativa:"
+msgstr "Tentative date:"
+
+#: templates/emails/cotizacion_cliente.html:12
+msgid "Por definir"
+msgstr "To be confirmed"
+
+#: templates/emails/cotizacion_cliente.html:13
+#: templates/emails/pago_cliente.html:13
+#: templates/emails/reserva_cliente.html:14
+msgid "Pasajeros:"
+msgstr "Passengers:"
+
+#: templates/emails/cotizacion_cliente.html:13
+#: templates/emails/reserva_cliente.html:14
+#, python-format
+msgid "%(adultos)s Adultos / %(ninos)s Niños"
+msgstr "%(adultos)s Adults / %(ninos)s Children"
+
+#: templates/emails/cotizacion_cliente.html:14
+msgid "Mensaje:"
+msgstr "Message:"
+
+#: templates/emails/cotizacion_cliente.html:18
+#: templates/emails/reserva_cliente.html:21
+msgid "Arica, Chile - ¡La ciudad de la eterna primavera!"
+msgstr "Arica, Chile - The city of eternal spring!"
+
+#: templates/emails/pago_cliente.html:8
+msgid ""
+"¡Tu aventura en Arica está confirmada! Hemos recibido tu pago exitosamente."
+msgstr "Your adventure in Arica is confirmed! We have received your payment."
+
+#: templates/emails/pago_cliente.html:10
+#: templates/emails/reserva_cliente.html:11
+msgid "Código de reserva:"
+msgstr "Booking code:"
+
+#: templates/emails/pago_cliente.html:12
+msgid "Fecha del tour:"
+msgstr "Tour date:"
+
+#: templates/emails/pago_cliente.html:14
+#, python-format
+msgid "Total Pagado: $%(monto)s CLP"
+msgstr "Total Paid: $%(monto)s CLP"
+
+#: templates/emails/pago_cliente.html:16
+#, python-format
+msgid "Te contactaremos pronto al WhatsApp %(telefono)s."
+msgstr "We'll contact you soon on WhatsApp at %(telefono)s."
+
+#: templates/emails/reserva_cliente.html:8
+msgid ""
+"Hemos recibido tu solicitud de reserva. Nuestro equipo la revisará y te "
+"contactará a la brevedad para confirmar la disponibilidad."
+msgstr ""
+"We have received your booking request. Our team will review it and contact "
+"you shortly to confirm availability."
+
+#: templates/emails/reserva_cliente.html:13
+msgid "Fecha:"
+msgstr "Date:"
+
+#: templates/emails/reserva_cliente.html:15
+msgid "Total estimado:"
+msgstr "Estimated total:"
+
+#: templates/emails/reserva_cliente.html:18
+msgid "* Estado actual:"
+msgstr "* Current status:"
+
+#: templates/emails/reserva_cliente.html:18
+msgid "Pendiente de Confirmación"
+msgstr "Pending Confirmation"
+
+#: templates/includes/_navbar.html:16 templates/includes/_navbar.html:62
+msgid "Inicio"
+msgstr "Home"
+
+#: templates/includes/_navbar.html:21
+msgid "Tours"
+msgstr "Tours"
+
+#: templates/includes/_navbar.html:27 templates/includes/_navbar.html:74
+msgid "Vacaciones Tercera Edad"
+msgstr "Senior Vacations"
+
+#: templates/includes/_navbar.html:32 templates/includes/_navbar.html:79
+msgid "Otros Servicios"
+msgstr "Other Services"
+
+#: templates/includes/_navbar.html:37 templates/includes/_navbar.html:83
+msgid "Nosotros"
+msgstr "About us"
+
+#: templates/includes/_navbar.html:41 templates/includes/_navbar.html:90
+msgid "Términos y condiciones"
+msgstr "Terms and conditions"
+
+#: templates/includes/_navbar.html:46 templates/includes/_navbar.html:97
+#: templates/includes/footer.html:25 templates/maintenance.html:137
+msgid "Contacto"
+msgstr "Contact"
+
+#: templates/includes/_navbar.html:68
+msgid "Nuestros Tours"
+msgstr "Our Tours"
+
+#: templates/includes/footer.html:10
+msgid "Más de 20 años de experiencia en la región de Arica"
+msgstr "Over 20 years of experience in the Arica region"
+
+#: templates/includes/footer.html:40
+msgid "TÉRMINOS Y CONDICIONES"
+msgstr "TERMS AND CONDITIONS"
+
+#: templates/includes/footer.html:47
+msgid "Certificaciones"
+msgstr "Certifications"
+
+#: templates/includes/footer.html:51
+msgid "Registro Nacional de Prestadores de Servicios Turísticos"
+msgstr "National Registry of Tourism Service Providers"
+
+#: templates/includes/footer.html:60
+msgid "Sello No Explotación"
+msgstr "No Exploitation Seal"
+
+#: templates/includes/footer.html:63
+msgid "Miembro de Adventure Travel Trade Association"
+msgstr "Member of the Adventure Travel Trade Association"
+
+#: templates/includes/footer.html:66
+msgid "Asociación Nacional de Guías de Montaña de Chile"
+msgstr "National Association of Mountain Guides of Chile"
+
+#: templates/includes/footer.html:73
+msgid "Partnership"
+msgstr "Partners"
+
+#: templates/includes/footer.html:100
+msgid "&copy; 2026 Orange Travel - Diseñado con ❤️ para viajeros audaces"
+msgstr "&copy; 2026 Orange Travel - Designed with ❤️ for bold travelers"
+
+#: templates/maintenance.html:7
+msgid "Sitio en mantención · Orange Travel"
+msgstr "Under maintenance · Orange Travel"
+
+#: templates/maintenance.html:133
+msgid "Sitio en mantención"
+msgstr "Site under maintenance"
+
+#: tours/signals.py:26
+msgid "✅ ¡Reserva Confirmada! - Orange Travel"
+msgstr "✅ Booking Confirmed! - Orange Travel"
+
+#: tours/signals.py:28
+#, python-format
+msgid ""
+"¡Hola %(nombre)s!\n"
+"\n"
+"Tu reserva para el tour '%(tour)s' el día %(fecha)s ha sido CONFIRMADA.\n"
+"Prepárate para una gran experiencia en Arica.\n"
+"\n"
+"Detalles:\n"
+"- Pasajeros: %(adultos)s Adl / %(ninos)s Chd\n"
+"- Total: $%(total)s"
+msgstr ""
+"Hi %(nombre)s!\n"
+"\n"
+"Your booking for the '%(tour)s' tour on %(fecha)s has been CONFIRMED.\n"
+"Get ready for a great experience in Arica.\n"
+"\n"
+"Details:\n"
+"- Passengers: %(adultos)s Adults / %(ninos)s Children\n"
+"- Total: $%(total)s"
+
+#: tours/signals.py:42
+msgid "⚠️ Actualización de tu reserva - Orange Travel"
+msgstr "⚠️ Update on your booking - Orange Travel"
+
+#: tours/signals.py:44
+#, python-format
+msgid ""
+"Hola %(nombre)s, lamentamos informarte que no tenemos disponibilidad para el"
+" tour '%(tour)s' en la fecha solicitada."
+msgstr ""
+"Hi %(nombre)s, we're sorry to let you know that the '%(tour)s' tour is not "
+"available on the requested date."
+
+#: tours/templates/tours/tercera_edad.html:5
+msgid "Tercera Edad | Orange Travel"
+msgstr "Senior Vacations | Orange Travel"
+
+#: tours/templates/tours/tercera_edad.html:16
+msgid "Vacaciones<br>Tercera Edad"
+msgstr "Senior<br>Vacations"
+
+#: tours/templates/tours/tour.html:46
+msgid "El tour incluye"
+msgstr "The tour includes"
+
+#: tours/templates/tours/tour.html:54
+msgid "Video del Tour"
+msgstr "Tour Video"
+
+#: tours/templates/tours/tour.html:66
+msgid "Estamos preparando un video increíble de este tour para ti."
+msgstr "We're preparing an amazing video of this tour for you."
+
+#: tours/templates/tours/tour.html:71
+msgid "Mapa del Tour"
+msgstr "Tour Map"
+
+#: tours/templates/tours/tour.html:76
+#, python-format
+msgid "Mapa del tour %(nombre)s"
+msgstr "Map of the %(nombre)s tour"
+
+#: tours/templates/tours/tour.html:78
+msgid "Ampliar"
+msgstr "Enlarge"
+
+#: tours/templates/tours/tour.html:86
+msgid "Galería de Fotos"
+msgstr "Photo Gallery"
+
+#: tours/templates/tours/tour.html:91
+msgid "Anterior"
+msgstr "Previous"
+
+#: tours/templates/tours/tour.html:113
+msgid "Siguiente"
+msgstr "Next"
+
+#: tours/templates/tours/tours_home.html:6
+msgid "Tours | Orange Travel"
+msgstr "Tours | Orange Travel"
+
+#: tours/templates/tours/tours_home.html:18
+msgid "Nuestros<br>Tours"
+msgstr "Our<br>Tours"
+
+#: tours/templates/tours/tours_home.html:29
+msgid "Descubre el norte a tu propio ritmo"
+msgstr "Discover the north at your own pace"
+
+#: tours/templates/tours/tours_home.html:33
+msgid ""
+"Desde las costas del Pacífico y las misteriosas momias Chinchorro, hasta la "
+"inmensidad del altiplano y el Parque Nacional Lauca. Hemos diseñado cada "
+"experiencia para que conectes con la historia, los paisajes y la esencia "
+"única de Arica y Parinacota."
+msgstr ""
+"From the Pacific coast and the mysterious Chinchorro mummies to the vast "
+"high plateau and Lauca National Park. We've designed every experience so you"
+" can connect with the history, landscapes and unique spirit of Arica and "
+"Parinacota."
+
+#: tours/templates/tours/tours_home.html:38
+msgid "Explorar catálogo"
+msgstr "Browse tours"
+
+#: tours/templates/tours/tours_home.html:59
+msgid "Elige tu destino"
+msgstr "Choose your destination"
+
+#: tours/templates/tours/tours_home.html:60
+msgid "Explora por zona"
+msgstr "Explore by area"
+
+#: tours/templates/tours/tours_home.html:64
+msgid "Filtrar tours por zona"
+msgstr "Filter tours by area"
+
+#: tours/templates/tours/tours_home.html:70
+msgid "Todas"
+msgstr "All"
+
+#: tours/templates/tours/tours_home.html:100
+msgid "Zona"
+msgstr "Area"
+
+#: tours/templates/tours/tours_home.html:150
+msgid "Desde"
+msgstr "From"
+
+#: tours/templates/tours/tours_home.html:155
+msgid "Precio"
+msgstr "Price"
+
+#: tours/templates/tours/tours_home.html:160
+msgid "Ver tour"
+msgstr "See tour"
+
+#: tours/templates/tours/tours_home.html:171
+msgid "Próximamente más tours destacados."
+msgstr "More featured tours coming soon."
+
+#: tours/templates/tours/tours_home.html:178
+msgid "Aún no hay tours en esta zona. ¡Escríbenos y armamos uno a tu medida!"
+msgstr ""
+"There are no tours in this area yet. Write to us and we'll create one just "
+"for you!"
+
+#: tours/views.py:45
+msgid "RESERVAR AHORA"
+msgstr "BOOK NOW"
+
+#: tours/views.py:46
+msgid "Reserva tu Cupo"
+msgstr "Book your Spot"
+
+#: tours/views.py:47
+msgid ""
+"Todo tour está sujeto a un número mínimo de participantes. En caso de no "
+"completarse, nos comunicaremos con usted para ofrecerle el cambio de fecha o"
+" el reembolso total de su pago."
+msgstr ""
+"Every tour requires a minimum number of participants. If it is not reached, "
+"we will contact you to offer a date change or a full refund of your payment."
+
+#: tours/views.py:49
+msgid "Ej: César Espinoza"
+msgstr "E.g. Jane Smith"
+
+#: tours/views.py:50
+msgid "Fecha del Tour"
+msgstr "Tour Date"
+
+#: tours/views.py:51
+msgid "Selecciona una fecha"
+msgstr "Select a date"
+
+#: tours/views.py:52
+msgid "Público General"
+msgstr "General Admission"
+
+#: tours/views.py:53
+msgid "Adultos"
+msgstr "Adults"
+
+#: tours/views.py:54
+msgid "Niños"
+msgstr "Children"
+
+#: tours/views.py:55
+msgid "Total a pagar:"
+msgstr "Total to pay:"
+
+#: tours/views.py:56
+msgid "Enviando..."
+msgstr "Sending..."
+
+#: tours/views.py:57
+msgid "SOLICITAR RESERVA"
+msgstr "REQUEST BOOKING"
+
+#: tours/views.py:58
+msgid "Error al generar el link de pago."
+msgstr "Error generating the payment link."
+
+#: tours/views.py:59
+msgid "No se pudo contactar con el servidor de pagos."
+msgstr "Could not reach the payment server."
+
+#: tours/views.py:60
+msgid "COTIZAR AHORA"
+msgstr "GET A QUOTE"
+
+#: tours/views.py:61
+msgid "¡Solicitud enviada!"
+msgstr "Request sent!"
+
+#: tours/views.py:62
+msgid "CERRAR"
+msgstr "CLOSE"
+
+#: tours/views.py:63
+msgid "Solicita tu Cotización"
+msgstr "Request a Quote"
+
+#: tours/views.py:64
+msgid ""
+"Cuéntanos cuándo y con cuántas personas quieres viajar y te enviaremos una "
+"propuesta a tu medida."
+msgstr ""
+"Tell us when and with how many people you'd like to travel, and we'll send "
+"you a tailor-made proposal."
+
+#: tours/views.py:65
+msgid "Fecha tentativa (opcional)"
+msgstr "Tentative date (optional)"
+
+#: tours/views.py:66
+msgid "Mensaje (opcional)"
+msgstr "Message (optional)"
+
+#: tours/views.py:67
+msgid "Preferencias, dudas, alojamiento, etc."
+msgstr "Preferences, questions, lodging, etc."
+
+#: tours/views.py:68
+msgid "SOLICITAR COTIZACIÓN"
+msgstr "REQUEST A QUOTE"
+
+#: tours/views.py:69
+msgid "No se pudo enviar la solicitud. Intenta nuevamente."
+msgstr "The request could not be sent. Please try again."
+
+#: tours/views.py:146 tours/views.py:241
+msgid "El tour no existe."
+msgstr "This tour does not exist."
+
+#: tours/views.py:179
+msgid "¡Solicitud recibida! Revisa tu correo."
+msgstr "Request received! Check your email."
+
+#: tours/views.py:192
+#, python-format
+msgid "🍊 Solicitud Recibida: %(tour)s"
+msgstr "🍊 Request Received: %(tour)s"
+
+#: tours/views.py:194
+msgid "Solicitud recibida."
+msgstr "Request received."
+
+#: tours/views.py:234
+msgid "Datos inválidos."
+msgstr "Invalid data."
+
+#: tours/views.py:243
+msgid "Este tour se reserva con pago en línea, no por cotización."
+msgstr "This tour is booked with online payment, not by quote."
+
+#: tours/views.py:249
+msgid "Completa tu nombre y teléfono."
+msgstr "Please enter your name and phone number."
+
+#: tours/views.py:253
+msgid "Email inválido."
+msgstr "Invalid email address."
+
+#: tours/views.py:262
+msgid "La fecha tentativa debe ser futura."
+msgstr "The tentative date must be in the future."
+
+#: tours/views.py:268
+msgid "Cantidad de pasajeros inválida."
+msgstr "Invalid number of passengers."
+
+#: tours/views.py:286
+msgid "¡Solicitud recibida! Te enviaremos tu cotización a la brevedad."
+msgstr "Request received! We'll send you your quote shortly."
+
+#: tours/views.py:293
+#, python-format
+msgid "🍊 Solicitud de cotización: %(tour)s"
+msgstr "🍊 Quote request: %(tour)s"
+
+#: tours/views.py:295
+msgid "Solicitud de cotización recibida."
+msgstr "Quote request received."

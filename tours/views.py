@@ -6,7 +6,7 @@ from django.db.models import Count
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.admin.views.decorators import staff_member_required
-from .models import Tour, Reserva, BloqueoTour, TerceraEdad, Cotizacion, Zona
+from .models import IDIOMAS, Tour, Reserva, BloqueoTour, TerceraEdad, Cotizacion, Zona
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from payments.models import Payment
@@ -16,10 +16,13 @@ from django.conf import settings
 from django.core.mail import EmailMultiAlternatives # Importante para enviar HTML
 from django.template.loader import render_to_string # Si prefieres usar archivos .html
 from django.utils.html import strip_tags, escape # Par
+from django.utils import translation
+from django.utils.translation import gettext as _
+from .traduccion import mostrar_aprobado, texto
 from datetime import date
 import os
 
-# Email del admin según el tour (keyword en el slug → destinatario)
+# Email del admin según el tour (keyword en el nombre en español → destinatario)
 EMAIL_POR_TOUR = {
     'atacama':   'BastianDiaz10@gmail.com',
     'cotacotani': 'BastianDiaz10@gmail.com',
@@ -30,8 +33,46 @@ EMAIL_POR_TOUR = {
 EMAIL_ADMIN_DEFAULT = 'info@orangetravel.cl'
 CC_RESERVAS = ['reservas@orangetravel.cl', 'cesar.eav@gmail.com']
 
+def idioma_cliente(data):
+    """Idioma que envía Vue (el de la página); cualquier otro valor cae en español."""
+    idioma = str(data.get('idioma') or '')[:2]
+    return idioma if idioma in dict(IDIOMAS) else 'es'
+
+
+def textos_reserva():
+    """Textos de BookingApp.vue / CotizacionApp.vue, traducidos al idioma activo."""
+    return {
+        'reservarAhora': _("RESERVAR AHORA"),
+        'reservaTuCupo': _("Reserva tu Cupo"),
+        'avisoMinimo': _("Todo tour está sujeto a un número mínimo de participantes. En caso de no completarse, nos comunicaremos con usted para ofrecerle el cambio de fecha o el reembolso total de su pago."),
+        'nombreCompleto': _("Nombre Completo"),
+        'ejemploNombre': _("Ej: César Espinoza"),
+        'fechaTour': _("Fecha del Tour"),
+        'seleccionaFecha': _("Selecciona una fecha"),
+        'publicoGeneral': _("Público General"),
+        'adultos': _("Adultos"),
+        'ninos': _("Niños"),
+        'totalAPagar': _("Total a pagar:"),
+        'enviando': _("Enviando..."),
+        'solicitarReserva': _("SOLICITAR RESERVA"),
+        'errorLinkPago': _("Error al generar el link de pago."),
+        'errorServidorPagos': _("No se pudo contactar con el servidor de pagos."),
+        'cotizarAhora': _("COTIZAR AHORA"),
+        'solicitudEnviada': _("¡Solicitud enviada!"),
+        'cerrar': _("CERRAR"),
+        'solicitaCotizacion': _("Solicita tu Cotización"),
+        'introCotizacion': _("Cuéntanos cuándo y con cuántas personas quieres viajar y te enviaremos una propuesta a tu medida."),
+        'fechaTentativa': _("Fecha tentativa (opcional)"),
+        'mensajeOpcional': _("Mensaje (opcional)"),
+        'placeholderMensaje': _("Preferencias, dudas, alojamiento, etc."),
+        'solicitarCotizacion': _("SOLICITAR COTIZACIÓN"),
+        'errorEnvio': _("No se pudo enviar la solicitud. Intenta nuevamente."),
+    }
+
+
 def get_email_admin(reserva):
-    nombre = reserva.tour.nombre.lower()
+    # nombre_es y no nombre: con el inglés activo, nombre devuelve la traducción.
+    nombre = reserva.tour.nombre_es.lower()
     for keyword, email in EMAIL_POR_TOUR.items():
         if keyword in nombre:
             return email
@@ -50,6 +91,7 @@ def tours_home(request):
         Zona.objects.filter(tours__activo=True, tours__es_prueba=False)
         .annotate(num_tours=Count('tours'))
     )
+    tours = mostrar_aprobado(list(tours), request)
     return render(request, 'tours/tours_home.html', {'tours': tours, 'zonas': zonas})
 
 def tercera_edad(request):
@@ -61,6 +103,7 @@ def tour(request, slug):
 
     try:
         tour = Tour.objects.get(slug=slug)
+        mostrar_aprobado([tour], request)
         
         # 2. Traemos datos de tablas relacionadas (Reverse Relationships)
         # Aunque no los veas en el modelo Tour, existen por la ForeignKey en las otras tablas
@@ -75,9 +118,11 @@ def tour(request, slug):
                 'tour': tour,
                 'fotos': galeria_fotos,
                 'precios': precios,
-                'dias': tour.dias.all(),
+                'dias': mostrar_aprobado(list(tour.dias.all()), request, aprobado=tour.traduccion_en_aprobada),
                 'categoria': tipo_de_tour,
                 'con_precio': tour.con_precio,
+                'textos_reserva': textos_reserva(),
+                'sin_version_en': not tour.traduccion_en_aprobada,  # sin hreflang en (base.html)
                 # Enviamos una bandera para saber que estamos en modo aprendizaje
                 'debug_mode': True 
             }
@@ -91,20 +136,22 @@ def tour(request, slug):
 def crear_reserva(request):
     try:
         data = json.loads(request.body)
+        idioma = idioma_cliente(data)
+        translation.activate(idioma)  # mensajes de respuesta en el idioma de la página
         
         # 1. Validación del Tour
         try:
             tour = Tour.objects.get(id=data.get('tour_id'))
         except Tour.DoesNotExist:
-            return JsonResponse({'status': 'error', 'mensaje': 'El tour no existe.'}, status=404)
+            return JsonResponse({'status': 'error', 'mensaje': _('El tour no existe.')}, status=404)
 
         # 2. Validación de anticipación mínima: solo desde mañana (no se reserva para el mismo día)
         try:
             fecha_reserva = date.fromisoformat(data.get('fecha'))
         except (TypeError, ValueError):
-            return JsonResponse({'status': 'error', 'mensaje': 'Fecha inválida.'}, status=400)
+            return JsonResponse({'status': 'error', 'mensaje': _('Fecha inválida.')}, status=400)
         if fecha_reserva <= date.today():
-            return JsonResponse({'status': 'error', 'mensaje': 'Las reservas deben hacerse a partir del día siguiente.'}, status=400)
+            return JsonResponse({'status': 'error', 'mensaje': _('Las reservas deben hacerse a partir del día siguiente.')}, status=400)
 
         # 3. Creación de la Reserva
         reserva = Reserva.objects.create(
@@ -115,7 +162,8 @@ def crear_reserva(request):
             fecha=data.get('fecha'),
             adultos=int(data.get('adultos', 1)),
             ninos=int(data.get('ninos', 0)),
-            notas_internas=f"Solicitud web: {data.get('adultos')} ADL, {data.get('ninos')} CHD."
+            notas_internas=f"Solicitud web: {data.get('adultos')} ADL, {data.get('ninos')} CHD.",
+            idioma=idioma,
         )
 
         # --- CAMBIO CLAVE AQUÍ ---
@@ -128,7 +176,7 @@ def crear_reserva(request):
         
         return JsonResponse({
             'status': 'success',
-            'mensaje': '¡Solicitud recibida! Revisa tu correo.',
+            'mensaje': _('¡Solicitud recibida! Revisa tu correo.'),
             'reserva_id': reserva.id
         }, status=201)
         
@@ -138,35 +186,14 @@ def crear_reserva(request):
 def enviar_notificaciones_reserva(reserva):
     print(f"DEBUG: Iniciando envío de correos para la reserva {reserva.id}...") # Checkpoint 1
 
-    # --- 1. CONFIGURACIÓN PARA EL CLIENTE ---
-    asunto_cliente = f"🍊 Solicitud Recibida: {reserva.tour.nombre}"
-    
-    html_cliente = f"""
-    <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
-        <div style="background-color: #FF8C00; padding: 20px; text-align: center;">
-            <h1 style="color: white; margin: 0;">Orange Travel</h1>
-        </div>
-        <div style="padding: 20px; color: #333;">
-            <h2>¡Hola {reserva.nombre_cliente}!</h2>
-            <p>Hemos recibido tu solicitud de reserva. Nuestro equipo la revisará y te contactará a la brevedad para confirmar la disponibilidad.</p>
-            
-            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                <p><strong>Código de reserva:</strong> {reserva.codigo}</p>
-                <p><strong>Tour:</strong> {reserva.tour.nombre}</p>
-                <p><strong>Fecha:</strong> {reserva.fecha}</p>
-                <p><strong>Pasajeros:</strong> {reserva.adultos} Adultos / {reserva.ninos} Niños</p>
-                <p style="font-size: 18px; color: #FF8C00;"><strong>Total estimado: ${reserva.precio_total}</strong></p>
-            </div>
-            
-            <p style="font-style: italic; color: #666;">* Estado actual: <strong>Pendiente de Confirmación</strong>.</p>
-        </div>
-        <div style="background-color: #333; color: white; padding: 10px; text-align: center; font-size: 12px;">
-            Arica, Chile - ¡La ciudad de la eterna primavera!
-        </div>
-    </div>
-    """
+    # --- 1. CONFIGURACIÓN PARA EL CLIENTE (en su idioma) ---
+    with translation.override(reserva.idioma):
+        tour_nombre = texto(reserva.tour, 'nombre', reserva.idioma)
+        asunto_cliente = _("🍊 Solicitud Recibida: %(tour)s") % {'tour': tour_nombre}
+        html_cliente = render_to_string('emails/reserva_cliente.html', {'reserva': reserva, 'tour_nombre': tour_nombre})
+        texto_cliente = _("Solicitud recibida.")
 
-    # --- 2. CONFIGURACIÓN PARA EL ADMIN (TÚ) ---
+    # --- 2. CONFIGURACIÓN PARA EL ADMIN (TÚ), siempre en español ---
     asunto_admin = f"🚨 NUEVA RESERVA - {reserva.nombre_cliente}"
     
     # Limpiamos el teléfono para el link de WhatsApp
@@ -174,35 +201,15 @@ def enviar_notificaciones_reserva(reserva):
     
     dominio = settings.SITE_URL
 
-    html_admin = f"""
-    <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 2px solid #FF8C00; border-radius: 10px; padding: 20px;">
-        <h2 style="color: #FF8C00;">NUEVA SOLICITUD WEB</h2>
-        <table style="width: 100%; border-collapse: collapse;">
-            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Código:</strong></td><td>{reserva.codigo}</td></tr>
-            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Cliente:</strong></td><td>{reserva.nombre_cliente}</td></tr>
-            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Tour:</strong></td><td>{reserva.tour.nombre}</td></tr>
-            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Fecha:</strong></td><td>{reserva.fecha}</td></tr>
-            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Pasajeros:</strong></td><td>{reserva.adultos} Adultos / {reserva.ninos} Niños</td></tr>
-            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>WhatsApp:</strong></td>
-                <td><a href="https://wa.me/{tel_limpio}" style="color: #25D366; font-weight: bold; text-decoration: none;">📱 {reserva.telefono_cliente}</a></td>
-            </tr>
-            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Email:</strong></td><td>{reserva.email_cliente}</td></tr>
-        </table>
-        
-        <div style="margin-top: 25px; text-align: center;">
-            <p style="color: #666; font-size: 12px;">Link generado desde: {dominio}</p>
-            <a href="{dominio}/admin/tours/reserva/{reserva.id}/change/" 
-            style="background-color: #333; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
-            Ver en Panel Admin
-            </a>
-        </div>
-    </div>
-    """
+    with translation.override('es'):
+        html_admin = render_to_string('emails/reserva_admin.html', {
+            'reserva': reserva, 'tel_limpio': tel_limpio, 'dominio': dominio,
+        })
 
     try:
         print(f"DEBUG: Intentando conectar con SMTP: {settings.EMAIL_HOST}") # Checkpoint 2
         # Enviar al Cliente
-        msg_cli = EmailMultiAlternatives(asunto_cliente, "Solicitud recibida.", settings.DEFAULT_FROM_EMAIL, [reserva.email_cliente])
+        msg_cli = EmailMultiAlternatives(asunto_cliente, texto_cliente, settings.DEFAULT_FROM_EMAIL, [reserva.email_cliente])
         msg_cli.attach_alternative(html_cliente, "text/html")
         msg_cli.send()
         print("DEBUG: Correo cliente enviado con éxito.") # Checkpoint 3
@@ -210,7 +217,7 @@ def enviar_notificaciones_reserva(reserva):
         # Enviar al Admin (destinatario según el tour)
         email_admin = get_email_admin(reserva)
         cc_admin = [email for email in CC_RESERVAS if email != email_admin]
-        print(f"DEBUG: 📧 Notificación admin → {email_admin} cc={cc_admin} (tour: {reserva.tour.nombre})")
+        print(f"DEBUG: 📧 Notificación admin → {email_admin} cc={cc_admin} (tour: {reserva.tour.nombre_es})")
         msg_adm = EmailMultiAlternatives(asunto_admin, "Nueva reserva recibida.", settings.DEFAULT_FROM_EMAIL, [email_admin], cc=cc_admin)
         msg_adm.attach_alternative(html_admin, "text/html")
         msg_adm.send()
@@ -224,39 +231,41 @@ def crear_cotizacion(request):
     try:
         data = json.loads(request.body)
     except (TypeError, ValueError):
-        return JsonResponse({'status': 'error', 'mensaje': 'Datos inválidos.'}, status=400)
+        return JsonResponse({'status': 'error', 'mensaje': _('Datos inválidos.')}, status=400)
+    idioma = idioma_cliente(data)
+    translation.activate(idioma)  # mensajes de respuesta en el idioma de la página
 
     try:
         tour = Tour.objects.get(id=data.get('tour_id'))
     except (Tour.DoesNotExist, TypeError, ValueError):
-        return JsonResponse({'status': 'error', 'mensaje': 'El tour no existe.'}, status=404)
+        return JsonResponse({'status': 'error', 'mensaje': _('El tour no existe.')}, status=404)
     if tour.con_precio:
-        return JsonResponse({'status': 'error', 'mensaje': 'Este tour se reserva con pago en línea, no por cotización.'}, status=400)
+        return JsonResponse({'status': 'error', 'mensaje': _('Este tour se reserva con pago en línea, no por cotización.')}, status=400)
 
     nombre = (data.get('nombre') or '').strip()
     email = (data.get('email') or '').strip()
     telefono = (data.get('telefono') or '').strip()
     if len(nombre) < 3 or len(telefono) < 8:
-        return JsonResponse({'status': 'error', 'mensaje': 'Completa tu nombre y teléfono.'}, status=400)
+        return JsonResponse({'status': 'error', 'mensaje': _('Completa tu nombre y teléfono.')}, status=400)
     try:
         validate_email(email)
     except ValidationError:
-        return JsonResponse({'status': 'error', 'mensaje': 'Email inválido.'}, status=400)
+        return JsonResponse({'status': 'error', 'mensaje': _('Email inválido.')}, status=400)
 
     fecha_tentativa = None
     if data.get('fecha'):
         try:
             fecha_tentativa = date.fromisoformat(data.get('fecha'))
         except (TypeError, ValueError):
-            return JsonResponse({'status': 'error', 'mensaje': 'Fecha inválida.'}, status=400)
+            return JsonResponse({'status': 'error', 'mensaje': _('Fecha inválida.')}, status=400)
         if fecha_tentativa <= date.today():
-            return JsonResponse({'status': 'error', 'mensaje': 'La fecha tentativa debe ser futura.'}, status=400)
+            return JsonResponse({'status': 'error', 'mensaje': _('La fecha tentativa debe ser futura.')}, status=400)
 
     try:
         adultos = max(int(data.get('adultos', 1)), 1)
         ninos = max(int(data.get('ninos', 0)), 0)
     except (TypeError, ValueError):
-        return JsonResponse({'status': 'error', 'mensaje': 'Cantidad de pasajeros inválida.'}, status=400)
+        return JsonResponse({'status': 'error', 'mensaje': _('Cantidad de pasajeros inválida.')}, status=400)
 
     cotizacion = Cotizacion.objects.create(
         tour=tour,
@@ -267,79 +276,41 @@ def crear_cotizacion(request):
         adultos=adultos,
         ninos=ninos,
         mensaje=(data.get('mensaje') or '').strip()[:2000],
+        idioma=idioma,
     )
 
     threading.Thread(target=enviar_notificaciones_cotizacion, args=(cotizacion,)).start()
 
     return JsonResponse({
         'status': 'success',
-        'mensaje': '¡Solicitud recibida! Te enviaremos tu cotización a la brevedad.',
+        'mensaje': _('¡Solicitud recibida! Te enviaremos tu cotización a la brevedad.'),
         'cotizacion_id': cotizacion.id
     }, status=201)
 
 def enviar_notificaciones_cotizacion(cotizacion):
-    fecha = cotizacion.fecha_tentativa.strftime('%d-%m-%Y') if cotizacion.fecha_tentativa else 'Por definir'
-    mensaje = escape(cotizacion.mensaje).replace('\n', '<br>') or '—'
+    with translation.override(cotizacion.idioma):
+        tour_nombre = texto(cotizacion.tour, 'nombre', cotizacion.idioma)
+        asunto_cliente = _("🍊 Solicitud de cotización: %(tour)s") % {'tour': tour_nombre}
+        html_cliente = render_to_string('emails/cotizacion_cliente.html', {'cotizacion': cotizacion, 'tour_nombre': tour_nombre})
+        texto_cliente = _("Solicitud de cotización recibida.")
 
-    asunto_cliente = f"🍊 Solicitud de cotización: {cotizacion.tour.nombre}"
-    html_cliente = f"""
-    <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
-        <div style="background-color: #FF8C00; padding: 20px; text-align: center;">
-            <h1 style="color: white; margin: 0;">Orange Travel</h1>
-        </div>
-        <div style="padding: 20px; color: #333;">
-            <h2>¡Hola {escape(cotizacion.nombre)}!</h2>
-            <p>Recibimos tu solicitud de cotización. Nuestro equipo la revisará y te enviará una propuesta a la brevedad.</p>
-
-            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                <p><strong>Tour:</strong> {cotizacion.tour.nombre}</p>
-                <p><strong>Fecha tentativa:</strong> {fecha}</p>
-                <p><strong>Pasajeros:</strong> {cotizacion.adultos} Adultos / {cotizacion.ninos} Niños</p>
-                <p><strong>Mensaje:</strong> {mensaje}</p>
-            </div>
-        </div>
-        <div style="background-color: #333; color: white; padding: 10px; text-align: center; font-size: 12px;">
-            Arica, Chile - ¡La ciudad de la eterna primavera!
-        </div>
-    </div>
-    """
-
-    asunto_admin = f"🧾 COTIZACIÓN: {cotizacion.tour.nombre} - {cotizacion.nombre}"
+    asunto_admin = f"🧾 COTIZACIÓN: {cotizacion.tour.nombre_es} - {cotizacion.nombre}"
     tel_limpio = cotizacion.telefono.replace('+', '').replace(' ', '')
     dominio = settings.SITE_URL
 
-    html_admin = f"""
-    <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 2px solid #FF8C00; border-radius: 10px; padding: 20px;">
-        <h2 style="color: #FF8C00;">NUEVA SOLICITUD DE COTIZACIÓN</h2>
-        <table style="width: 100%; border-collapse: collapse;">
-            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Cliente:</strong></td><td>{escape(cotizacion.nombre)}</td></tr>
-            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Tour:</strong></td><td>{cotizacion.tour.nombre}</td></tr>
-            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Fecha tentativa:</strong></td><td>{fecha}</td></tr>
-            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Pasajeros:</strong></td><td>{cotizacion.adultos} Adultos / {cotizacion.ninos} Niños</td></tr>
-            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>WhatsApp:</strong></td>
-                <td><a href="https://wa.me/{escape(tel_limpio)}" style="color: #25D366; font-weight: bold; text-decoration: none;">📱 {escape(cotizacion.telefono)}</a></td>
-            </tr>
-            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Email:</strong></td><td>{escape(cotizacion.email)}</td></tr>
-            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Mensaje:</strong></td><td>{mensaje}</td></tr>
-        </table>
-
-        <div style="margin-top: 25px; text-align: center;">
-            <a href="{dominio}/panel/cotizaciones/{cotizacion.id}/"
-            style="background-color: #333; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
-            Ver en el Panel
-            </a>
-        </div>
-    </div>
-    """
+    with translation.override('es'):
+        html_admin = render_to_string('emails/cotizacion_admin.html', {
+            'cotizacion': cotizacion, 'tel_limpio': tel_limpio, 'dominio': dominio,
+        })
 
     try:
-        msg_cli = EmailMultiAlternatives(asunto_cliente, "Solicitud de cotización recibida.", settings.DEFAULT_FROM_EMAIL, [cotizacion.email])
+        msg_cli = EmailMultiAlternatives(asunto_cliente, texto_cliente, settings.DEFAULT_FROM_EMAIL, [cotizacion.email])
         msg_cli.attach_alternative(html_cliente, "text/html")
         msg_cli.send()
 
         email_admin = get_email_admin(cotizacion)
         cc_admin = [email for email in CC_RESERVAS if email != email_admin]
-        print(f"DEBUG: 📧 Cotización {cotizacion.id} → {email_admin} cc={cc_admin} (tour: {cotizacion.tour.nombre})")
+        print(f"DEBUG: 📧 Cotización {cotizacion.id} → {email_admin} cc={cc_admin} (tour: {cotizacion.tour.nombre_es})")
         msg_adm = EmailMultiAlternatives(asunto_admin, "Nueva solicitud de cotización.", settings.DEFAULT_FROM_EMAIL, [email_admin], cc=cc_admin, reply_to=[cotizacion.email])
         msg_adm.attach_alternative(html_admin, "text/html")
         msg_adm.send()

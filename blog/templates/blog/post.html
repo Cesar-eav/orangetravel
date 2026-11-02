@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% block title %}{{ post.titulo }} | Orange Travel{% endblock %}
+{% block meta_description %}<meta name="description" content="{{ post.extracto|truncatechars:155 }}">{% endblock %}
 {% block content %}
     {% load static %}
 
@@ -68,7 +70,7 @@
                     <a href="{{ img.imagen.url }}" class="glightbox" data-gallery="post-carousel">
                         <img src="{{ img.imagen.url }}"
                              class="w-full h-56 md:h-72 object-cover"
-                             alt="Imagen {{ forloop.counter }} – {{ post.titulo }}">
+                             alt="{% blocktrans with n=forloop.counter titulo=post.titulo %}Imagen {{ n }} – {{ titulo }}{% endblocktrans %}">
                     </a>
                 </div>
                 {% endfor %}

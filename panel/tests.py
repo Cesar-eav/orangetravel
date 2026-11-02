@@ -456,7 +456,7 @@ class VentaTests(PanelBase):
 
     def test_tour_sin_servicio_usa_nombre_del_tour(self):
         self.client.post(reverse('panel:venta_nueva'), self._datos(tour=self.tour.pk, servicio='', tipo_servicio='tour'))
-        self.assertEqual(Venta.objects.get().servicio, self.tour.nombre)
+        self.assertEqual(Venta.objects.get().servicio, self.tour.nombre_es)
 
     def test_sin_tour_ni_servicio_da_error(self):
         r = self.client.post(reverse('panel:venta_nueva'), self._datos(servicio=''))

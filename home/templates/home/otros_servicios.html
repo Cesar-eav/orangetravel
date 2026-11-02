@@ -1,18 +1,19 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% load static %}
-{% block title %}Otros Servicios | Orange Travel{% endblock %}
+{% block title %}{% trans "Otros Servicios | Orange Travel" %}{% endblock %}
 {% block content %}
 
 <!-- HERO -->
 <section class="relative h-80 md:h-120 overflow-hidden">
     <img src="{% static 'img/fondos/morro.jpg' %}"
-         class="w-full h-full object-cover object-center" alt="Servicios Orange Travel" />
+         class="w-full h-full object-cover object-center" alt="{% trans "Servicios Orange Travel" %}" />
     <div class="absolute inset-0 bg-linear-to-r from-black/80 via-black/50 to-transparent"></div>
     <div class="absolute inset-0 flex items-center">
         <div class="px-8 md:px-24 text-white max-w-2xl">
             <p class="text-orange-400 font-bold tracking-widest uppercase text-sm mb-3">Arica · Chile</p>
-            <h1 class="text-4xl md:text-6xl font-black mb-4 leading-tight">Otros<br>Servicios</h1>
-            <p class="text-lg text-white/80 leading-relaxed">Soluciones de movilidad y experiencias a medida para grupos e instituciones</p>
+            <h1 class="text-4xl md:text-6xl font-black mb-4 leading-tight">{% trans "Otros<br>Servicios" %}</h1>
+            <p class="text-lg text-white/80 leading-relaxed">{% trans "Soluciones de movilidad y experiencias a medida para grupos e instituciones" %}</p>
         </div>
     </div>
 </section>
@@ -21,11 +22,11 @@
 <section class="bg-white py-16 px-6 md:px-20">
     <div class="max-w-5xl mx-auto text-center">
         <span class="inline-block w-12 h-1 bg-orange-500 rounded mb-6"></span>
-        <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-5">Más allá del tour</h2>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-5">{% trans "Más allá del tour" %}</h2>
         <p class="text-gray-600 text-lg leading-relaxed max-w-3xl mx-auto">
-            En Orange Travel no solo organizamos tours — también ofrecemos servicios de traslado y experiencias
+            {% blocktrans trimmed %}En Orange Travel no solo organizamos tours — también ofrecemos servicios de traslado y experiencias
             turísticas diseñadas especialmente para grupos, empresas e instituciones públicas y privadas.
-            Contáctanos y diseñamos la solución ideal para ti.
+            Contáctanos y diseñamos la solución ideal para ti.{% endblocktrans %}
         </p>
     </div>
 </section>
@@ -39,29 +40,29 @@
                 <div class="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center shrink-0">
                     <i class="fa-solid fa-van-shuttle text-white text-xl"></i>
                 </div>
-                <h2 class="text-3xl font-black text-gray-900">Servicios de Transfer</h2>
+                <h2 class="text-3xl font-black text-gray-900">{% trans "Servicios de Transfer" %}</h2>
             </div>
             <p class="text-gray-600 text-base leading-relaxed mb-4">
-                Ofrecemos traslados cómodos, puntuales y seguros para que tu llegada y salida de Arica
+                {% blocktrans trimmed %}Ofrecemos traslados cómodos, puntuales y seguros para que tu llegada y salida de Arica
                 sean una experiencia sin preocupaciones. Contamos con vehículos modernos y conductores
-                profesionales disponibles los 7 días de la semana.
+                profesionales disponibles los 7 días de la semana.{% endblocktrans %}
             </p>
             <ul class="space-y-3 text-gray-600">
                 <li class="flex items-start gap-3">
                     <i class="fa-solid fa-circle-check text-orange-500 mt-1 shrink-0"></i>
-                    <span>Transfer aeropuerto ↔ hotel en Arica</span>
+                    <span>{% trans "Transfer aeropuerto ↔ hotel en Arica" %}</span>
                 </li>
                 <li class="flex items-start gap-3">
                     <i class="fa-solid fa-circle-check text-orange-500 mt-1 shrink-0"></i>
-                    <span>Traslados entre ciudades y puntos turísticos de la región</span>
+                    <span>{% trans "Traslados entre ciudades y puntos turísticos de la región" %}</span>
                 </li>
                 <li class="flex items-start gap-3">
                     <i class="fa-solid fa-circle-check text-orange-500 mt-1 shrink-0"></i>
-                    <span>Servicio para grupos y delegaciones</span>
+                    <span>{% trans "Servicio para grupos y delegaciones" %}</span>
                 </li>
                 <li class="flex items-start gap-3">
                     <i class="fa-solid fa-circle-check text-orange-500 mt-1 shrink-0"></i>
-                    <span>Coordinación con vuelos y horarios personalizados</span>
+                    <span>{% trans "Coordinación con vuelos y horarios personalizados" %}</span>
                 </li>
             </ul>
         </div>
@@ -71,7 +72,7 @@
             <div class="absolute -bottom-2 -left-2 w-full h-full border-2 border-orange-400 rounded-2xl"></div>
             <div class="relative w-full h-72 rounded-2xl shadow-2xl overflow-hidden">
                 <img src="{% static 'img/otros_servicios/bus.jpeg' %}"
-                     class="w-full h-full object-cover object-center" alt="Servicios de Transfer Orange Travel" />
+                     class="w-full h-full object-cover object-center" alt="{% trans "Servicios de Transfer Orange Travel" %}" />
             </div>
         </div>
 
@@ -88,7 +89,7 @@
             <div class="absolute -bottom-2 -right-2 w-full h-full border-2 border-orange-400 rounded-2xl"></div>
             <div class="relative w-full h-72 rounded-2xl shadow-2xl overflow-hidden">
                 <img src="{% static 'img/otros_servicios/institucion.jpeg' %}"
-                     class="w-full h-full object-cover object-center" alt="Tours para Instituciones Orange Travel" />
+                     class="w-full h-full object-cover object-center" alt="{% trans "Tours para Instituciones Orange Travel" %}" />
             </div>
         </div>
 
@@ -97,29 +98,29 @@
                 <div class="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center shrink-0">
                     <i class="fa-solid fa-building text-white text-xl"></i>
                 </div>
-                <h2 class="text-3xl font-black text-gray-900">Tours para Instituciones</h2>
+                <h2 class="text-3xl font-black text-gray-900">{% trans "Tours para Instituciones" %}</h2>
             </div>
             <p class="text-gray-600 text-base leading-relaxed mb-4">
-                Diseñamos experiencias turísticas privadas para empresas, colegios, municipios y organismos
+                {% blocktrans trimmed %}Diseñamos experiencias turísticas privadas para empresas, colegios, municipios y organismos
                 del estado. Cada programa se adapta a los objetivos, tiempos y presupuesto del grupo,
-                garantizando una experiencia memorable y organizada.
+                garantizando una experiencia memorable y organizada.{% endblocktrans %}
             </p>
             <ul class="space-y-3 text-gray-600">
                 <li class="flex items-start gap-3">
                     <i class="fa-solid fa-circle-check text-orange-500 mt-1 shrink-0"></i>
-                    <span>Tours privados para empresas e incentivos corporativos</span>
+                    <span>{% trans "Tours privados para empresas e incentivos corporativos" %}</span>
                 </li>
                 <li class="flex items-start gap-3">
                     <i class="fa-solid fa-circle-check text-orange-500 mt-1 shrink-0"></i>
-                    <span>Excursiones educativas para colegios y universidades</span>
+                    <span>{% trans "Excursiones educativas para colegios y universidades" %}</span>
                 </li>
                 <li class="flex items-start gap-3">
                     <i class="fa-solid fa-circle-check text-orange-500 mt-1 shrink-0"></i>
-                    <span>Programas para instituciones públicas y municipios</span>
+                    <span>{% trans "Programas para instituciones públicas y municipios" %}</span>
                 </li>
                 <li class="flex items-start gap-3">
                     <i class="fa-solid fa-circle-check text-orange-500 mt-1 shrink-0"></i>
-                    <span>Emisión de facturas y licitaciones disponibles</span>
+                    <span>{% trans "Emisión de facturas y licitaciones disponibles" %}</span>
                 </li>
             </ul>
         </div>

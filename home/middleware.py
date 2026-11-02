@@ -1,7 +1,10 @@
 from django.conf import settings
-from django.shortcuts import render
+from django.http import Http404
+from django.shortcuts import redirect, render
+from django.urls import translate_url
+from django.utils import translation
 
-from .models import MaintenanceMode
+from .models import MaintenanceMode, SitioIngles
 
 
 class MaintenanceModeMiddleware:
@@ -23,5 +26,35 @@ class MaintenanceModeMiddleware:
             response = render(request, 'maintenance.html', {'mensaje': config.mensaje}, status=503)
             response['Retry-After'] = '3600'
             return response
+
+        return self.get_response(request)
+
+
+class SitioInglesMiddleware:
+    """Controla /en/ con los interruptores de home.SitioIngles.
+
+    «publico» apagado: /en/ responde 404 salvo al staff, que la usa para revisar traducciones.
+    «mostrar_banderas» encendido: además, quien eligió inglés en el selector (cookie de
+    idioma) vuelve a /en/ al entrar por una URL en español. Nunca se decide por
+    Accept-Language, para que Google indexe las dos versiones.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        cfg = SitioIngles.get_solo()
+        request.ingles_anunciado = anunciado = cfg.mostrar_banderas
+        idioma_ruta = translation.get_language_from_path(request.path_info)
+
+        if idioma_ruta == 'en' and not (cfg.publico or anunciado) and not request.user.is_staff:
+            raise Http404
+
+        if (anunciado and idioma_ruta is None and request.method == 'GET'
+                and request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME) == 'en'):
+            actual = request.get_full_path()
+            destino = translate_url(actual, 'en')
+            if destino != actual:  # solo páginas públicas traducibles (no admin, panel ni pagos)
+                return redirect(destino)
 
         return self.get_response(request)

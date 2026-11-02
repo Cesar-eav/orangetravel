@@ -1,0 +1,23 @@
+{% load i18n %}
+    <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
+        <div style="background-color: #FF8C00; padding: 20px; text-align: center;">
+            <h1 style="color: white; margin: 0;">Orange Travel</h1>
+        </div>
+        <div style="padding: 20px; color: #333;">
+            <h2>{% blocktrans with nombre=reserva.nombre_cliente %}¡Hola {{ nombre }}!{% endblocktrans %}</h2>
+            <p>{% trans "Hemos recibido tu solicitud de reserva. Nuestro equipo la revisará y te contactará a la brevedad para confirmar la disponibilidad." %}</p>
+
+            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <p><strong>{% trans "Código de reserva:" %}</strong> {{ reserva.codigo }}</p>
+                <p><strong>{% trans "Tour:" %}</strong> {{ tour_nombre }}</p>
+                <p><strong>{% trans "Fecha:" %}</strong> {{ reserva.fecha|date:"Y-m-d" }}</p>
+                <p><strong>{% trans "Pasajeros:" %}</strong> {% blocktrans with adultos=reserva.adultos ninos=reserva.ninos %}{{ adultos }} Adultos / {{ ninos }} Niños{% endblocktrans %}</p>
+                <p style="font-size: 18px; color: #FF8C00;"><strong>{% trans "Total estimado:" %} ${{ reserva.precio_total }}</strong></p>
+            </div>
+
+            <p style="font-style: italic; color: #666;">{% trans "* Estado actual:" %} <strong>{% trans "Pendiente de Confirmación" %}</strong>.</p>
+        </div>
+        <div style="background-color: #333; color: white; padding: 10px; text-align: center; font-size: 12px;">
+            {% trans "Arica, Chile - ¡La ciudad de la eterna primavera!" %}
+        </div>
+    </div>
