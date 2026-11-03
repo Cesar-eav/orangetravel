@@ -13,6 +13,7 @@
 <dt>Total</dt><dd>${{ reserva.precio_total }}</dd>
 <dt>Creada</dt><dd>{{ reserva.creada_el|date:"d/m/Y H:i" }}</dd>
 </dl></div>
+{% include 'panel/_google_calendar.html' %}
 <form class="card" method="post">{% csrf_token %}
 <h3>Gestionar</h3>
 {{ form.non_field_errors }}

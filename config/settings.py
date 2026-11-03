@@ -302,6 +302,9 @@ if DEBUG:
 else:
     SITE_URL = 'https://orangetravel.cl'
 
+# Gmail sugerido en el botón «Agregar a Google Calendar» del panel (tours/calendario.py)
+GOOGLE_CALENDAR_EMAIL = os.getenv('GOOGLE_CALENDAR_EMAIL', '')
+
 
 
 # 12 Configuraciones de Flow

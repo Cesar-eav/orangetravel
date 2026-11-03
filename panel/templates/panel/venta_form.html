@@ -4,6 +4,7 @@
 {% block content %}
 <p><a href="{% url 'panel:ventas' %}">← Volver a ventas</a></p>
 <h2>{% if venta %}Editar venta{% else %}Nueva venta{% endif %}</h2>
+{% include 'panel/_google_calendar.html' with tipo_calendario="venta" %}
 <form class="card" method="post" id="venta-form">{% csrf_token %}
 {{ form.non_field_errors }}
 <h3>Cliente</h3>

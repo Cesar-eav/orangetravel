@@ -1,0 +1,29 @@
+{% if url_calendario %}
+{% if not solo_popup %}
+<div class="card"><h3>Google Calendar</h3>
+<p><a class="btn" href="{{ url_calendario }}" target="_blank" rel="noopener">📅 Agregar a Google Calendar</a></p>
+<div class="help">Abre Google Calendar en otra pestaña con el evento ya llenado; revisa la cuenta y el calendario arriba del formulario y pulsa Guardar.{% if email_calendario %} Debe quedar en <b>{{ email_calendario }}</b>.{% endif %} Si cambias la fecha después, corrige el evento en Google Calendar a mano.</div>
+</div>
+{% endif %}
+{% if mostrar_popup_calendario %}
+<dialog id="popup-calendario" style="border:1px solid var(--bd);border-radius:12px;padding:20px;max-width:420px">
+<p><b>¿Quieres agregar esta {{ tipo_calendario|default:"reserva" }} confirmada a Google Calendar?</b></p>
+{% if email_calendario %}<p class="help">Se guardará en: <b>{{ email_calendario }}</b>. Si Google abre otra cuenta, cámbiala antes de guardar.</p>{% endif %}
+<p><a class="btn" href="{{ url_calendario }}" target="_blank" rel="noopener" id="popup-calendario-si">Sí, agregar</a>
+<button type="button" class="btn sec" id="popup-calendario-no">No</button></p>
+</dialog>
+<script>
+(function () {
+  const d = document.getElementById('popup-calendario');
+  const cerrar = function () { d.close(); };
+  document.getElementById('popup-calendario-si').addEventListener('click', cerrar);
+  document.getElementById('popup-calendario-no').addEventListener('click', cerrar);
+  d.showModal();
+  // Sin el parámetro en la URL, recargar no vuelve a abrir el pop up.
+  const url = new URL(location.href);
+  url.searchParams.delete('agregar_calendario');
+  history.replaceState(null, '', url);
+})();
+</script>
+{% endif %}
+{% endif %}

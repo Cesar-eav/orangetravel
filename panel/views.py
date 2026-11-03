@@ -4,6 +4,7 @@ from datetime import timedelta
 from django.contrib import messages
 from django.contrib.auth.views import LoginView, redirect_to_login
 from django.db.models import Count, F, Q, Sum
+from django.http import QueryDict
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
@@ -21,6 +22,7 @@ from home.models import MaintenanceMode, Nosotros, SitioIngles
 from payments.models import Payment
 from django.db import transaction
 from django.db.models import ProtectedError
+from tours.calendario import contexto_calendario
 from tours.models import TIPO_CON_PRECIO_ID, BloqueoTour, Cotizacion, GaleriaTour, PrecioTour, Reserva, TerceraEdad, TipoTour, Tour, Venta, Zona
 
 from .forms import (
@@ -131,6 +133,10 @@ class ReservaListView(PanelView, ListView):
             if g.get('tour', '').isdigit():
                 ventas = ventas.filter(tour_id=g['tour'])
             ctx['ventas_proximas'] = ventas
+        # Reserva recién confirmada desde la tabla: ofrecer agregarla a Google Calendar
+        if (pk := g.get('agregar_calendario', '')).isdigit():
+            if reserva := Reserva.objects.select_related('tour').filter(pk=pk).first():
+                ctx.update(contexto_calendario(reserva, self.request))
         return ctx
 
 
@@ -141,20 +147,61 @@ class ReservaDetailView(PanelView, UpdateView):
     context_object_name = 'reserva'
 
     def get_success_url(self):
-        return reverse('panel:reserva_detalle', args=[self.object.pk])
+        url = reverse('panel:reserva_detalle', args=[self.object.pk])
+        if self.recien_confirmada:
+            url += '?agregar_calendario=1'  # abre el pop up de Google Calendar
+        return url
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx.update(contexto_calendario(self.object, self.request))
+        return ctx
 
     def form_valid(self, form):
+        self.recien_confirmada = (
+            'estado' in form.changed_data and form.cleaned_data['estado'] == Reserva.Estado.CONFIRMADA
+        )
         # save() normal: el signal de tours/signals.py envía el correo si cambia el estado
         response = super().form_valid(form)
-        if getattr(self.object, 'email_estado_fallido', False):
-            messages.error(
-                self.request,
-                f'Reserva guardada como {self.object.get_estado_display()}, pero no se pudo enviar el email '
-                f'al cliente ({self.object.email_cliente}). Avísale por otro medio.',
-            )
-        else:
+        if not _avisar_email_fallido(self.request, self.object):
             messages.success(self.request, 'Reserva actualizada.')
         return response
+
+
+def _avisar_email_fallido(request, reserva):
+    """Avisa al staff si el signal no pudo enviar el email de cambio de estado."""
+    if not getattr(reserva, 'email_estado_fallido', False):
+        return False
+    messages.error(
+        request,
+        f'Reserva guardada como {reserva.get_estado_display()}, pero no se pudo enviar el email '
+        f'al cliente ({reserva.email_cliente}). Avísale por otro medio.',
+    )
+    return True
+
+
+@_staff_only
+@require_POST
+def reserva_cambiar_estado(request, pk):
+    """Cambio de estado desde la tabla de /panel/reservas/ (mismo signal y emails que el detalle)."""
+    reserva = get_object_or_404(Reserva, pk=pk)
+    estado = request.POST.get('estado')
+    # Vuelve a la lista con sus filtros; si quedó confirmada, con el pop up de Google Calendar
+    destino = request.POST.get('next', '')
+    if not url_has_allowed_host_and_scheme(destino, allowed_hosts={request.get_host()}):
+        destino = reverse('panel:reservas')
+    ruta, _, query = destino.partition('?')
+    params = QueryDict(query, mutable=True)
+    params.pop('agregar_calendario', None)
+
+    if estado in Reserva.Estado.values and estado != reserva.estado:
+        reserva.estado = estado
+        reserva.save()
+        if not _avisar_email_fallido(request, reserva):
+            messages.success(request, f'Reserva {reserva.codigo}: {reserva.get_estado_display()}.')
+        if estado == Reserva.Estado.CONFIRMADA:
+            params['agregar_calendario'] = reserva.pk
+    return redirect(f'{ruta}?{params.urlencode()}' if params else ruta)
 
 
 @_staff_only
@@ -312,16 +359,24 @@ class VentaFormView(PanelView, TemplateView):
         ctx = super().get_context_data(**kwargs)
         ctx.setdefault('form', VentaForm(instance=self.venta))
         ctx['venta'] = self.venta
+        ctx.update(contexto_calendario(self.venta, self.request))
         return ctx
 
     def post(self, request, *args, **kwargs):
         form = VentaForm(request.POST, instance=self.venta)
         if form.is_valid():
             venta = form.save(commit=False)
+            recien_confirmada = (
+                venta.estado_reserva == Venta.EstadoReserva.CONFIRMADA
+                and (not venta.pk or 'estado_reserva' in form.changed_data)
+            )
             if venta.creada_por_id is None and not venta.pk:
                 venta.creada_por = request.user
             venta.save()
             messages.success(request, f'Venta de {venta.nombre_cliente} guardada.')
+            if recien_confirmada:
+                # Se queda en la venta para ofrecer el pop up de Google Calendar
+                return redirect(reverse('panel:venta_editar', args=[venta.pk]) + '?agregar_calendario=1')
             return redirect('panel:ventas')
         return self.render_to_response(self.get_context_data(form=form))
 

@@ -27,7 +27,7 @@ Leer completo antes de modificar nada. Este archivo **no debe contener valores s
 
 ## Variables de entorno (nombres)
 
-`DEBUG`, `DJANGO_SECRET_KEY`, `DATABASE_URL`, `FLOW_API_KEY`, `FLOW_SECRET_KEY`, `FLOW_API_BASE`, `MAILGUN_API_KEY`, `MAILGUN_SENDER_DOMAIN`, `DEFAULT_FROM_EMAIL`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `DEEPL_API_KEY` (traducción ES/EN; cuenta a nombre de Orange Travel).
+`DEBUG`, `DJANGO_SECRET_KEY`, `DATABASE_URL`, `FLOW_API_KEY`, `FLOW_SECRET_KEY`, `FLOW_API_BASE`, `MAILGUN_API_KEY`, `MAILGUN_SENDER_DOMAIN`, `DEFAULT_FROM_EMAIL`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `DEEPL_API_KEY` (traducción ES/EN; cuenta a nombre de Orange Travel), `GOOGLE_CALENDAR_EMAIL` (Gmail sugerido en el botón de Google Calendar; no es secreto, opcional).
 
 - Local: se leen del `.env` (ignorado por git).
 - Producción: cPanel Python App (ver regla 1). Detalle y valores no secretos en `docs/PRODUCCION_VARS_EMAIL.md`.
@@ -56,6 +56,11 @@ Leer completo antes de modificar nada. Este archivo **no debe contener valores s
 - Flujo 3, cotización: solo los tours de la categoría `TIPO_CON_PRECIO_ID = 1` (Excursiones de un Día, `tours/models.py`, propiedad `Tour.con_precio`) muestran precio y pagan con Flow. El resto muestra «A cotizar» y monta `CotizacionApp.vue` en vez de `BookingApp.vue` → `tours/views.py::crear_cotizacion` guarda una `Cotizacion` y llama a `enviar_notificaciones_cotizacion` (cliente + admin). Se gestionan en `/panel/cotizaciones/`. `TourCheckoutView` rechaza los tours sin precio.
 - Enrutamiento del admin: `EMAIL_POR_TOUR` en `tours/views.py`, matching por palabra clave en **`tour.nombre`** (no slug). Sin match → `EMAIL_ADMIN_DEFAULT` (`info@orangetravel.cl`). CC en `CC_RESERVAS`. `payments/emails.py` importa ese mismo diccionario.
 - FROM: `noreply@mg.orangetravel.cl` (dominio verificado en Mailgun). Ver `docs/email-deliverability.md`.
+
+## Google Calendar
+
+- Reservas (`estado=CONFIRMADA`) y ventas manuales (`estado_reserva=confirmada`) muestran en el panel el botón «Agregar a Google Calendar»; al pasar a confirmada se redirige con `?agregar_calendario=1` y sale un pop up que lo ofrece (`panel/templates/panel/_google_calendar.html`). En `/panel/reservas/` el estado se cambia desde un select en la tabla (`panel:reserva_cambiar_estado`, mismo signal y emails que el detalle, con `confirm()` antes); al confirmar vuelve a la lista con `?agregar_calendario=<pk>` y el pop up.
+- Sin API de Google: `tours/calendario.py::url_google_calendar` arma el link de plantilla (`calendar.google.com/calendar/render?action=TEMPLATE`, evento de día completo) y la persona pulsa Guardar en Google. `authuser=GOOGLE_CALENDAR_EMAIL` solo **sugiere** la cuenta: si ese Gmail no tiene sesión en el navegador, Google usa la cuenta activa. No se sincroniza: cambios de fecha o cancelaciones se corrigen a mano en el calendario.
 
 ## Zonas de tours
 

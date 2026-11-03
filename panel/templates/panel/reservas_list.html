@@ -3,7 +3,7 @@
 {% block title %}Reservas{% endblock %}
 {% block content %}
 <h2>Reservas</h2>
-<details class="ayuda"><summary>¿Cómo funciona esta pantalla?</summary><p>Busca por código, nombre o email. Entra a una reserva para cambiar su estado o escribir notas internas. Al pasar a Confirmada, Rechazada o Cancelada se envía un email al cliente automáticamente. Con el filtro de confirmadas próximas también se listan las ventas manuales confirmadas; esas se editan en Ventas y no envían emails.</p></details>
+<details class="ayuda"><summary>¿Cómo funciona esta pantalla?</summary><p>Busca por código, nombre o email. Cambia el estado directo en la tabla, o entra a una reserva para escribir notas internas. Al pasar a Confirmada, Rechazada o Cancelada se envía un email al cliente automáticamente (se pide confirmación antes), y al confirmar se ofrece agregarla a Google Calendar. Con el filtro de confirmadas próximas también se listan las ventas manuales confirmadas; esas se editan en Ventas y no envían emails.</p></details>
 <form class="filters" method="get">
   <div><label>Buscar</label><input name="q" value="{{ request.GET.q }}" placeholder="Código, nombre o email"></div>
   <div><label>Estado</label><select name="estado"><option value="">Todos</option>
@@ -18,7 +18,10 @@
 {% for r in reservas %}<tr>
 <td><a href="{% url 'panel:reserva_detalle' r.pk %}">{{ r.codigo }}</a></td><td>{{ r.nombre_cliente }}<br><small>{{ r.email_cliente }}</small></td>
 <td>{{ r.tour.nombre }}</td><td>{{ r.fecha|date:"d/m/Y" }}</td><td>{{ r.adultos }} adl / {{ r.ninos }} niñ</td><td>${{ r.precio_total }}</td>
-<td><span class="badge b-{{ r.estado }}">{{ r.get_estado_display }}</span></td></tr>
+<td><form method="post" action="{% url 'panel:reserva_cambiar_estado' r.pk %}" style="margin:0">{% csrf_token %}
+<input type="hidden" name="next" value="{{ request.get_full_path }}">
+<select name="estado" class="estado-reserva b-{{ r.estado }}" data-actual="{{ r.estado }}" data-codigo="{{ r.codigo }}">{% for v, l in estados %}<option value="{{ v }}"{% if v == r.estado %} selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+<noscript><button class="btn">Guardar</button></noscript></form></td></tr>
 {% empty %}<tr><td colspan="7">No hay reservas con esos filtros.</td></tr>{% endfor %}</table>
 {% include 'panel/_pager.html' %}</div>
 {% if ventas_proximas is not None %}
@@ -32,4 +35,27 @@
 <td><span class="badge b-{{ v.estado_pago }}">{{ v.get_estado_pago_display }}</span></td></tr>
 {% empty %}<tr><td colspan="6">No hay ventas manuales confirmadas próximas.</td></tr>{% endfor %}</table></div>
 {% endif %}
+{% include 'panel/_google_calendar.html' with solo_popup=True %}
+<style>
+/* Mismo color que los badges de estado (b-CONFIRMADA verde, etc.); las opciones en blanco */
+select.estado-reserva{padding:4px 10px;border:0;border-radius:99px;font-size:13px;font-weight:600;cursor:pointer}
+select.estado-reserva option{background:#fff;color:#111}
+</style>
+<script>
+(function () {
+  // Confirmada, Rechazada y Cancelada envían email al cliente: pedir confirmación antes de guardar.
+  const conEmail = ['CONFIRMADA', 'RECHAZADA', 'CANCELADA'];
+  document.querySelectorAll('select.estado-reserva').forEach(function (sel) {
+    sel.addEventListener('change', function () {
+      const texto = sel.options[sel.selectedIndex].text;
+      const aviso = conEmail.includes(sel.value) ? ' Se enviará un email al cliente.' : '';
+      if (confirm('¿Cambiar la reserva ' + sel.dataset.codigo + ' a «' + texto + '»?' + aviso)) {
+        sel.form.submit();
+      } else {
+        sel.value = sel.dataset.actual;
+      }
+    });
+  });
+})();
+</script>
 {% endblock %}

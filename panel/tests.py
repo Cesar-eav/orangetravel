@@ -1,11 +1,13 @@
 from datetime import date, timedelta
+from urllib.parse import parse_qs, urlparse
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from payments.models import Payment
+from tours.calendario import url_google_calendar
 from tours.models import Reserva, TipoTour, Tour, Venta
 
 User = get_user_model()
@@ -423,22 +425,26 @@ class AyudaYNavegacionTests(PanelBase):
             self.assertIn(r.status_code, (404, 405), name)
 
 
+def datos_venta(**extra):
+    datos = {
+        'nombre_cliente': 'Luis', 'telefono': '+56911111111', 'email': '',
+        'fecha_venta': date.today().isoformat(),
+        'fecha_servicio': (date.today() + timedelta(days=3)).isoformat(),
+        'canal': 'whatsapp', 'tipo_servicio': 'traslado', 'tour': '',
+        'servicio': 'Traslado aeropuerto', 'destino': 'Aeropuerto - Centro', 'pasajeros': 2,
+        'precio_total': 30000, 'monto_pagado': 10000, 'medio_pago': 'Transferencia',
+        'estado_reserva': 'confirmada', 'observaciones': '',
+    }
+    datos.update(extra)
+    return datos
+
+
 class VentaTests(PanelBase):
     def setUp(self):
         self.client.force_login(self.staff)
 
     def _datos(self, **extra):
-        datos = {
-            'nombre_cliente': 'Luis', 'telefono': '+56911111111', 'email': '',
-            'fecha_venta': date.today().isoformat(),
-            'fecha_servicio': (date.today() + timedelta(days=3)).isoformat(),
-            'canal': 'whatsapp', 'tipo_servicio': 'traslado', 'tour': '',
-            'servicio': 'Traslado aeropuerto', 'destino': 'Aeropuerto - Centro', 'pasajeros': 2,
-            'precio_total': 30000, 'monto_pagado': 10000, 'medio_pago': 'Transferencia',
-            'estado_reserva': 'confirmada', 'observaciones': '',
-        }
-        datos.update(extra)
-        return datos
+        return datos_venta(**extra)
 
     def test_anonimo_redirige(self):
         self.client.logout()
@@ -446,7 +452,7 @@ class VentaTests(PanelBase):
             self.assertEqual(self.client.get(reverse(f'panel:{name}')).status_code, 302)
 
     def test_crear_servicio_escrito(self):
-        r = self.client.post(reverse('panel:venta_nueva'), self._datos())
+        r = self.client.post(reverse('panel:venta_nueva'), self._datos(estado_reserva='pendiente'))
         self.assertRedirects(r, reverse('panel:ventas'))
         v = Venta.objects.get()
         self.assertEqual(v.servicio, 'Traslado aeropuerto')
@@ -523,3 +529,134 @@ class VentaTests(PanelBase):
             self.assertNotContains(r, nombre)
         r = self.client.get(reverse('panel:reservas'))
         self.assertNotContains(r, 'Ana Futura')
+
+
+@override_settings(GOOGLE_CALENDAR_EMAIL='reservas@gmail.com', SITE_URL='https://orangetravel.cl')
+class GoogleCalendarTests(PanelBase):
+    def setUp(self):
+        self.client.force_login(self.staff)
+
+    def _venta(self, **extra):
+        datos = dict(
+            nombre_cliente='Luis', fecha_servicio=date(2026, 12, 31), canal='whatsapp', tipo_servicio='traslado',
+            servicio='Traslado aeropuerto', pasajeros=2, precio_total=30000, monto_pagado=10000,
+            estado_reserva='confirmada',
+        )
+        datos.update(extra)
+        return Venta.objects.create(**datos)
+
+    def test_url_reserva_dia_completo_con_cuenta(self):
+        self.reserva.fecha = date(2026, 12, 31)
+        url = url_google_calendar(self.reserva)
+        params = parse_qs(urlparse(url).query)
+        self.assertEqual(params['action'], ['TEMPLATE'])
+        self.assertEqual(params['dates'], ['20261231/20270101'])
+        self.assertEqual(params['text'], ['Tour A – Ana'])
+        self.assertEqual(params['authuser'], ['reservas@gmail.com'])
+        self.assertIn(self.reserva.codigo, params['details'][0])
+        self.assertIn('Pasajeros: 1 adulto\n', params['details'][0])
+        self.assertIn(f'https://orangetravel.cl/panel/reservas/{self.reserva.pk}/', params['details'][0])
+
+    @override_settings(GOOGLE_CALENDAR_EMAIL='')
+    def test_url_sin_cuenta_configurada(self):
+        params = parse_qs(urlparse(url_google_calendar(self._venta())).query)
+        self.assertNotIn('authuser', params)
+        self.assertEqual(params['text'], ['Traslado aeropuerto – Luis'])
+        self.assertIn('Total: $30.000 (Abono, saldo $20.000)', params['details'][0])
+        self.assertIn('Pasajeros: 2 personas', params['details'][0])
+
+    @patch('tours.signals.send_mail')
+    def test_confirmar_reserva_abre_popup(self, send_mail):
+        url = reverse('panel:reserva_detalle', args=[self.reserva.pk])
+        r = self.client.get(url)
+        self.assertNotContains(r, 'Agregar a Google Calendar')
+        r = self.client.post(url, {'estado': 'CONFIRMADA', 'notas_internas': ''})
+        self.assertRedirects(r, url + '?agregar_calendario=1')
+        r = self.client.get(url + '?agregar_calendario=1')
+        self.assertContains(r, '¿Quieres agregar esta reserva confirmada a Google Calendar?')
+        self.assertContains(r, 'reservas@gmail.com')
+        # Ya confirmada: guardar otra vez no repite el pop up, pero el botón sigue
+        r = self.client.post(url, {'estado': 'CONFIRMADA', 'notas_internas': 'van 2'})
+        self.assertRedirects(r, url)
+        r = self.client.get(url)
+        self.assertContains(r, 'Agregar a Google Calendar')
+        self.assertNotContains(r, 'popup-calendario')
+
+    def test_venta_nueva_confirmada_abre_popup(self):
+        datos = datos_venta()
+        r = self.client.post(reverse('panel:venta_nueva'), datos)
+        v = Venta.objects.get()
+        self.assertRedirects(r, reverse('panel:venta_editar', args=[v.pk]) + '?agregar_calendario=1')
+        r = self.client.get(reverse('panel:venta_editar', args=[v.pk]) + '?agregar_calendario=1')
+        self.assertContains(r, '¿Quieres agregar esta venta confirmada a Google Calendar?')
+
+    def test_venta_pasa_a_confirmada_abre_popup(self):
+        v = self._venta(estado_reserva='pendiente')
+        url = reverse('panel:venta_editar', args=[v.pk])
+        self.assertNotContains(self.client.get(url), 'Agregar a Google Calendar')
+        datos = datos_venta(fecha_servicio=v.fecha_servicio.isoformat())
+        r = self.client.post(url, datos)
+        self.assertRedirects(r, url + '?agregar_calendario=1')
+        # Sin cambiar el estado vuelve a la lista
+        r = self.client.post(url, datos)
+        self.assertRedirects(r, reverse('panel:ventas'))
+
+
+class ReservaEstadoDesdeListaTests(PanelBase):
+    def setUp(self):
+        self.client.force_login(self.staff)
+        self.url = reverse('panel:reserva_cambiar_estado', args=[self.reserva.pk])
+        self.lista = reverse('panel:reservas') + '?estado=PENDIENTE&page=1'
+
+    def test_solo_post_y_staff(self):
+        self.assertEqual(self.client.get(self.url).status_code, 405)
+        self.client.force_login(self.normal)
+        self.client.post(self.url, {'estado': 'CONFIRMADA'})
+        self.reserva.refresh_from_db()
+        self.assertEqual(self.reserva.estado, 'PENDIENTE')
+
+    @patch('tours.signals.send_mail')
+    def test_confirmar_envia_email_y_vuelve_con_popup(self, send_mail):
+        r = self.client.post(self.url, {'estado': 'CONFIRMADA', 'next': self.lista + '&agregar_calendario=999'})
+        self.reserva.refresh_from_db()
+        self.assertEqual(self.reserva.estado, 'CONFIRMADA')
+        self.assertEqual(send_mail.call_count, 1)
+        self.assertRedirects(
+            r, reverse('panel:reservas') + f'?estado=PENDIENTE&page=1&agregar_calendario={self.reserva.pk}',
+            fetch_redirect_response=False,
+        )
+        r = self.client.get(reverse('panel:reservas') + f'?agregar_calendario={self.reserva.pk}')
+        self.assertContains(r, '¿Quieres agregar esta reserva confirmada a Google Calendar?')
+        self.assertContains(r, f'Reserva {self.reserva.codigo}: Confirmada.')
+
+    @patch('tours.signals.send_mail')
+    def test_cancelar_vuelve_sin_popup(self, send_mail):
+        r = self.client.post(self.url, {'estado': 'CANCELADA', 'next': self.lista + '&agregar_calendario=999'})
+        self.reserva.refresh_from_db()
+        self.assertEqual(self.reserva.estado, 'CANCELADA')
+        self.assertRedirects(r, self.lista, fetch_redirect_response=False)
+        self.assertNotContains(self.client.get(self.lista), 'popup-calendario')
+
+    @patch('tours.signals.send_mail')
+    def test_estado_invalido_o_igual_no_hace_nada(self, send_mail):
+        for estado in ('NO-EXISTE', 'PENDIENTE'):
+            r = self.client.post(self.url, {'estado': estado, 'next': self.lista})
+            self.assertRedirects(r, self.lista, fetch_redirect_response=False)
+        self.reserva.refresh_from_db()
+        self.assertEqual(self.reserva.estado, 'PENDIENTE')
+        send_mail.assert_not_called()
+
+    @patch('tours.signals.send_mail', side_effect=Exception('Mailgun 403'))
+    def test_falla_del_email_avisa(self, send_mail):
+        with self.assertLogs('tours.signals', 'ERROR'):
+            r = self.client.post(self.url, {'estado': 'CONFIRMADA', 'next': self.lista}, follow=True)
+        self.assertContains(r, 'no se pudo enviar el email')
+
+    def test_next_externo_vuelve_a_la_lista(self):
+        r = self.client.post(self.url, {'estado': 'PENDIENTE', 'next': 'https://malo.com/'})
+        self.assertRedirects(r, reverse('panel:reservas'), fetch_redirect_response=False)
+
+    def test_tabla_muestra_select_de_estado(self):
+        r = self.client.get(reverse('panel:reservas'))
+        self.assertContains(r, f'action="{self.url}"')
+        self.assertContains(r, 'class="estado-reserva b-PENDIENTE"')

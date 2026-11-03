@@ -14,6 +14,7 @@ urlpatterns = [
     path('reservas/', views.ReservaListView.as_view(), name='reservas'),
     path('reservas/<int:pk>/', views.ReservaDetailView.as_view(), name='reserva_detalle'),
     path('reservas/<int:pk>/eliminar/', views.reserva_eliminar, name='reserva_eliminar'),
+    path('reservas/<int:pk>/estado/', views.reserva_cambiar_estado, name='reserva_cambiar_estado'),
     path('cotizaciones/', views.CotizacionListView.as_view(), name='cotizaciones'),
     path('cotizaciones/<int:pk>/', views.CotizacionDetailView.as_view(), name='cotizacion_detalle'),
     path('ventas/', views.VentaListView.as_view(), name='ventas'),
