@@ -5,7 +5,7 @@
 <h2>Reservas</h2>
 <details class="ayuda"><summary>¿Cómo funciona esta pantalla?</summary><p>Busca por código, nombre o email. Cambia el estado directo en la tabla, o entra a una reserva para escribir notas internas. Al pasar a Confirmada, Rechazada o Cancelada se envía un email al cliente automáticamente (se pide confirmación antes), y al confirmar se ofrece agregarla a Google Calendar. Con el filtro de confirmadas próximas también se listan las ventas manuales confirmadas; esas se editan en Ventas y no envían emails.</p>
 <p>La columna «Pago» muestra qué respondió Flow sobre el pago de esa reserva (pincha para ver el pago). Cuando Flow confirma el pago, la reserva no se confirma sola: sigue en «Pendiente de Confirmación» hasta que la cambies. Para ver las que ya pagaron y esperan tu confirmación, filtra Estado «Pendiente de Confirmación» y Pago «Pagado». Una reserva pendiente con pago «Pendiente» casi siempre es un cliente que cerró Flow sin pagar. «Sin pago Flow» son reservas que no pasaron por Flow.</p>
-<p>El botón «Eliminar» quita la reserva de la lista (pensado para reservas de prueba): no envía email al cliente ni toca el pago en Flow.</p></details>
+<p>Para eliminar reservas (por ejemplo, las de prueba), marca sus casillas y pulsa «Eliminar seleccionadas» abajo de la tabla. Se quitan de la lista, pero no se envía email al cliente ni se toca el pago en Flow.</p></details>
 <form class="filters" method="get">
   <div><label>Buscar</label><input name="q" value="{{ request.GET.q }}" placeholder="Código, nombre o email"></div>
   <div><label>Estado</label><select name="estado"><option value="">Todos</option>
@@ -18,19 +18,20 @@
   <button class="btn">Filtrar</button> <a class="btn sec" href="{% url 'panel:reservas' %}">Limpiar</a>
 </form>
 <div class="card" style="overflow-x:auto"><table class="tabla-reservas">
-<tr><th>Código</th><th>Cliente</th><th>Tour</th><th>Fecha</th><th>Pax</th><th>Total</th><th>Pago</th><th>Estado</th></tr>
+<tr><th class="col-marca"><input type="checkbox" id="marcar-todas" aria-label="Marcar todas"></th><th>Código</th><th>Cliente</th><th>Tour</th><th>Fecha</th><th>Pax</th><th>Total</th><th>Pago</th><th>Estado</th></tr>
 {% for r in reservas %}<tr>
-<td class="nw"><a href="{% url 'panel:reserva_detalle' r.pk %}">{{ r.codigo }}</a>
-<form method="post" action="{% url 'panel:reserva_eliminar' r.pk %}" style="margin:6px 0 0" onsubmit="return confirm('¿Eliminar la reserva {{ r.codigo|escapejs }}? No se envía email al cliente.')">{% csrf_token %}
-<input type="hidden" name="next" value="{{ request.get_full_path }}">
-<button class="btn red" style="padding:2px 8px;font-size:12px">Eliminar</button></form></td><td>{{ r.nombre_cliente }}<br><small>{{ r.email_cliente }}</small></td>
+<td class="col-marca"><input type="checkbox" name="ids" value="{{ r.pk }}" form="eliminar-varias" class="marca-eliminar" data-codigo="{{ r.codigo|default:r.pk }}" aria-label="Seleccionar {{ r.codigo|default:r.pk }}"></td>
+<td class="nw"><a href="{% url 'panel:reserva_detalle' r.pk %}">{{ r.codigo }}</a></td><td>{{ r.nombre_cliente }}<br><small>{{ r.email_cliente }}</small></td>
 <td>{{ r.tour.nombre }}</td><td>{{ r.fecha|date:"d/m/Y" }}</td><td class="nw">{{ r.adultos }} adl<br>{{ r.ninos }} niñ</td><td>${{ r.precio_total }}</td>
 <td>{% if r.pago_id %}<a href="{% url 'panel:pago_detalle' r.pago_id %}" class="badge b-{{ r.pago_estado }}">{{ r.pago_texto }}</a>{% else %}<small>Sin pago Flow</small>{% endif %}</td>
 <td><form method="post" action="{% url 'panel:reserva_cambiar_estado' r.pk %}" style="margin:0">{% csrf_token %}
 <input type="hidden" name="next" value="{{ request.get_full_path }}">
 <select name="estado" class="estado-reserva b-{{ r.estado }}" data-actual="{{ r.estado }}" data-codigo="{{ r.codigo }}">{% for v, l in estados %}<option value="{{ v }}"{% if v == r.estado %} selected{% endif %}>{{ l }}</option>{% endfor %}</select>
 <noscript><button class="btn">Guardar</button></noscript></form></td></tr>
-{% empty %}<tr><td colspan="8">No hay reservas con esos filtros.</td></tr>{% endfor %}</table>
+{% empty %}<tr><td colspan="9">No hay reservas con esos filtros.</td></tr>{% endfor %}</table>
+{% if reservas %}<form id="eliminar-varias" method="post" action="{% url 'panel:reservas_eliminar' %}" class="eliminar-varias">{% csrf_token %}
+<input type="hidden" name="next" value="{{ request.get_full_path }}">
+<button class="btn red" id="btn-eliminar-varias" disabled>Eliminar seleccionadas</button></form>{% endif %}
 {% include 'panel/_pager.html' %}</div>
 {% if ventas_proximas is not None %}
 <div class="card" style="overflow-x:auto"><h3>Ventas manuales confirmadas próximas</h3><table>
@@ -49,6 +50,11 @@
 select.estado-reserva{padding:4px 10px;border:0;border-radius:99px;font-size:13px;font-weight:600;cursor:pointer}
 select.estado-reserva option{background:#fff;color:#111}
 .tabla-reservas td.nw{white-space:nowrap}
+.tabla-reservas th,.tabla-reservas td{padding-left:6px;padding-right:6px}
+.tabla-reservas .col-marca{width:1%;padding-right:2px}
+.eliminar-varias{margin:16px 0 0;text-align:right}
+#btn-eliminar-varias{padding:6px 14px;font-size:14px}
+#btn-eliminar-varias:disabled{opacity:.35;cursor:not-allowed}
 </style>
 <script>
 (function () {
@@ -65,6 +71,34 @@ select.estado-reserva option{background:#fff;color:#111}
       }
     });
   });
+
+  // Eliminar varias: casillas por fila + botón aparte, con confirmación que lista los códigos.
+  const form = document.getElementById('eliminar-varias');
+  if (!form) return;
+  const boton = document.getElementById('btn-eliminar-varias');
+  const todas = document.getElementById('marcar-todas');
+  const marcas = Array.from(document.querySelectorAll('input.marca-eliminar'));
+  const marcadas = () => marcas.filter((m) => m.checked);
+  function actualizar() {
+    const n = marcadas().length;
+    boton.disabled = n === 0;
+    boton.textContent = n ? 'Eliminar seleccionadas (' + n + ')' : 'Eliminar seleccionadas';
+    todas.checked = n > 0 && n === marcas.length;
+    todas.indeterminate = n > 0 && n < marcas.length;
+  }
+  marcas.forEach((m) => m.addEventListener('change', actualizar));
+  todas.addEventListener('change', function () {
+    marcas.forEach((m) => { m.checked = todas.checked; });
+    actualizar();
+  });
+  form.addEventListener('submit', function (e) {
+    const codigos = marcadas().map((m) => m.dataset.codigo);
+    const msg = codigos.length === 1
+      ? '¿Eliminar la reserva ' + codigos[0] + '?'
+      : '¿Eliminar estas ' + codigos.length + ' reservas?\n\n' + codigos.join(', ');
+    if (!codigos.length || !confirm(msg + '\n\nNo se envía email al cliente.')) e.preventDefault();
+  });
+  actualizar();
 })();
 </script>
 {% endblock %}

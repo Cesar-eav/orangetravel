@@ -257,10 +257,26 @@ def _destino_lista_reservas(request):
 @_staff_only
 @require_POST
 def reserva_eliminar(request, pk):
-    """Borrado lógico, desde el detalle o desde la tabla de /panel/reservas/ (vuelve a `next`)."""
+    """Borrado lógico desde el detalle de la reserva."""
     reserva = get_object_or_404(Reserva, pk=pk)
     reserva.delete()  # borrado lógico
     messages.success(request, f'Reserva {reserva.codigo} eliminada.')
+    ruta, params = _destino_lista_reservas(request)
+    return redirect(f'{ruta}?{params.urlencode()}' if params else ruta)
+
+
+@_staff_only
+@require_POST
+def reservas_eliminar(request):
+    """Borrado lógico de las reservas marcadas en la tabla de /panel/reservas/ (vuelve a `next`)."""
+    ids = [i for i in request.POST.getlist('ids') if i.isdigit()]
+    reservas = list(Reserva.objects.filter(pk__in=ids))
+    for reserva in reservas:
+        reserva.delete()  # borrado lógico; uno por uno para pasar por save()
+    if reservas:
+        codigos = ', '.join(r.codigo or str(r.pk) for r in reservas)
+        texto = 'Reserva eliminada' if len(reservas) == 1 else f'{len(reservas)} reservas eliminadas'
+        messages.success(request, f'{texto}: {codigos}.')
     ruta, params = _destino_lista_reservas(request)
     return redirect(f'{ruta}?{params.urlencode()}' if params else ruta)
 

@@ -133,9 +133,35 @@ class ReservaTests(PanelBase):
                              {'next': 'https://evil.com/'})
         self.assertRedirects(r, reverse('panel:reservas'), fetch_redirect_response=False)
 
-    def test_lista_muestra_boton_eliminar(self):
+    def test_lista_muestra_eliminar_seleccionadas(self):
         r = self.client.get(reverse('panel:reservas'))
-        self.assertContains(r, reverse('panel:reserva_eliminar', args=[self.reserva.pk]))
+        self.assertContains(r, reverse('panel:reservas_eliminar'))
+        self.assertContains(r, f'name="ids" value="{self.reserva.pk}"')
+
+    def test_eliminar_seleccionadas_solo_borra_las_marcadas(self):
+        otra = Reserva.objects.create(
+            tour=self.tour, nombre_cliente='Beto', email_cliente='b@x.cl',
+            telefono_cliente='2', fecha=date.today() + timedelta(days=6),
+        )
+        tercera = Reserva.objects.create(
+            tour=self.tour, nombre_cliente='Caro', email_cliente='c@x.cl',
+            telefono_cliente='3', fecha=date.today() + timedelta(days=7),
+        )
+        next_url = '/panel/reservas/?estado=PENDIENTE'
+        r = self.client.post(reverse('panel:reservas_eliminar'),
+                             {'ids': [self.reserva.pk, otra.pk, 'x'], 'next': next_url})
+        self.assertRedirects(r, next_url, fetch_redirect_response=False)
+        self.assertFalse(Reserva.objects.filter(pk__in=[self.reserva.pk, otra.pk]).exists())
+        self.assertEqual(Reserva.all_objects.filter(pk__in=[self.reserva.pk, otra.pk]).count(), 2)
+        self.assertTrue(Reserva.objects.filter(pk=tercera.pk).exists())
+
+    def test_eliminar_seleccionadas_por_get_no_permitido(self):
+        self.assertEqual(self.client.get(reverse('panel:reservas_eliminar')).status_code, 405)
+
+    def test_eliminar_seleccionadas_anonimo_no_borra(self):
+        self.client.logout()
+        self.client.post(reverse('panel:reservas_eliminar'), {'ids': [self.reserva.pk]})
+        self.assertTrue(Reserva.objects.filter(pk=self.reserva.pk).exists())
 
 
 class CatalogoTests(PanelBase):
