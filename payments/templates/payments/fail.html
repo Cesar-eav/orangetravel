@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n %}
+{% load i18n precios %}
 
 {% block title %}{% trans "Pago No Realizado | Orange Travel" %}{% endblock %}
 
@@ -37,7 +37,7 @@
                         </div>
                         <div class="text-right">
                             <span class="block text-[10px] font-bold text-slate-400 uppercase">{% trans "Monto Intentado" %}</span>
-                            <p class="text-sm font-bold text-slate-700">${{ payment.amount|floatformat:"0" }}</p>
+                            <p class="text-sm font-bold text-slate-700">{{ payment.amount|precio }}</p>
                         </div>
                     </div>
 

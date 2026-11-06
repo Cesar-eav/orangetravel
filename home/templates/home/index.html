@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n %}
+{% load i18n precios %}
 {% comment %} {% load humanize %} {% endcomment %}
 
 {% block title %}{% trans "Orange Travel | Tours en Arica, Chile" %}{% endblock %}
@@ -99,7 +99,7 @@
                         <div class="flex-shrink-0">
                             <span class="text-orange-500 text-xs uppercase font-black tracking-widest block mb-1">{% trans "VALOR" %}</span>
                             <span class="text-3xl font-black text-white leading-none">
-                                {% if tour.con_precio %}${{ tour.precio.valor_adulto}}{% else %}{% trans "A cotizar" %}{% endif %}
+                                {% if tour.con_precio %}{{ tour.precio.valor_adulto|precio }}{% else %}{% trans "A cotizar" %}{% endif %}
                             </span>
                         </div>
                 <a href="{% url 'tour' tour.slug %}"

@@ -148,7 +148,7 @@
                             {% if tour.con_precio and tour.precio %}
                             <div>
                                 <span class="block text-xs uppercase tracking-wider text-white/70">{% trans "Desde" %}</span>
-                                <span class="text-2xl font-black">${{ tour.precio.valor_adulto|clp }}</span>
+                                <span class="text-2xl font-black">{{ tour.precio.valor_adulto|precio }}</span>
                             </div>
                             {% else %}
                             <div>

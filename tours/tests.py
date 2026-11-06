@@ -1,10 +1,12 @@
 import json
 from datetime import date, timedelta
+from decimal import Decimal
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import translation
 
 from .models import TIPO_CON_PRECIO_ID, Cotizacion, PrecioTour, TipoTour, Tour
 
@@ -68,7 +70,24 @@ class CotizacionTests(TestCase):
     def test_listado_muestra_a_cotizar(self):
         r = self.client.get(reverse('tours_home'))
         self.assertContains(r, 'A cotizar')
-        self.assertContains(r, '$20.000')  # filtro |clp: punto de miles
+        self.assertContains(r, '$20.000')  # filtro |precio: punto de miles
+        self.assertNotContains(r, 'CLP')
+
+    def test_listado_en_ingles_lleva_clp(self):
+        # La petición va dentro del override: al salir se restaura el idioma y los
+        # tests siguientes no heredan «en» (reverse() daría /en/...).
+        with translation.override('en'):
+            url = reverse('tours_home')
+            r = self.client.get(url)
+        self.assertTrue(url.startswith('/en/'))
+        self.assertContains(r, '$20,000 CLP')
+
+    def test_filtro_precio(self):
+        from .templatetags.precios import precio
+        self.assertEqual(precio(Decimal('1234567')), '$1.234.567')
+        with translation.override('en'):
+            self.assertEqual(precio(Decimal('1234567')), '$1,234,567 CLP')
+        self.assertEqual(precio(None), None)
 
     def test_panel_lista_y_marca_atendida(self):
         c = Cotizacion.objects.create(tour=self.tour_cotizar, nombre='Ana', email='ana@x.cl', telefono='12345678')

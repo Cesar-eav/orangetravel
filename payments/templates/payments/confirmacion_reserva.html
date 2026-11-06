@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n %}
+{% load i18n precios %}
 
 {% block title %}{% trans "Confirmación de Reserva | Orange Travel" %}{% endblock %}
 
@@ -44,7 +44,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-400 uppercase">{% trans "Total Pagado" %}</label>
-                    <p class="font-black text-orange-600 text-xl">${{ payment.amount|floatformat:"0" }}</p>
+                    <p class="font-black text-orange-600 text-xl">{{ payment.amount|precio }}</p>
                 </div>
             </div>
 

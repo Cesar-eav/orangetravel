@@ -74,7 +74,7 @@
 
           <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-3">
             <div class="flex justify-between items-center">
-              <span class="text-sm font-bold text-slate-700">{{ t.publicoGeneral }} ({{ this.precioAdulto }})</span>
+              <span class="text-sm font-bold text-slate-700">{{ t.publicoGeneral }} ({{ precio(precioAdulto) }})</span>
               <div class="flex items-center gap-3">
                 <button @click="decrement('adultos')"
                   class="w-8 h-8 rounded-full bg-white border border-slate-300 shadow-sm">-</button>
@@ -84,7 +84,7 @@
               </div>
             </div>
             <div v-if="this.precioNino" class="flex justify-between items-center">
-              <span class="text-sm font-bold text-slate-700">{{ t.ninos }} ({{ this.precioNino }})</span>
+              <span class="text-sm font-bold text-slate-700">{{ t.ninos }} ({{ precio(precioNino) }})</span>
               <div class="flex items-center gap-3">
                 <button @click="decrement('ninos')"
                   class="w-8 h-8 rounded-full bg-white border border-slate-300 shadow-sm">-</button>
@@ -98,7 +98,7 @@
           <div class="pt-4">
             <div class="flex justify-between items-end mb-4">
               <span class="text-slate-500 text-sm font-medium">{{ t.totalAPagar }}</span>
-              <span class="text-3xl font-black text-orange-600">${{ formatoCLP(totalReserva) }}</span>
+              <span class="text-3xl font-black text-orange-600">{{ precio(totalReserva) }}</span>
             </div>
 
             <button @click="enviarReserva" :disabled="!formularioValido"
@@ -252,8 +252,10 @@ enviarReserva() {
       if (tipo === 'adultos' && this.form.adultos > 1) this.form.adultos--;
       if (tipo === 'ninos' && this.form.ninos > 0) this.form.ninos--;
     },
-    formatoCLP(valor) {
-      return new Intl.NumberFormat('es-CL').format(valor);
+    // Igual que el filtro |precio de Django: «$18.000» en español, «$18,000 CLP» en inglés.
+    precio(valor) {
+      if (this.idioma === 'en') return `$${new Intl.NumberFormat('en-US').format(valor)} CLP`;
+      return `$${new Intl.NumberFormat('es-CL').format(valor)}`;
     },
     resetFormulario() {
       this.form = { nombre: '', email: '', telefono: '', fecha: '', adultos: 1, ninos: 0 };
