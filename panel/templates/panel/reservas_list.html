@@ -17,20 +17,20 @@
   <div><label><input type="checkbox" name="proximas" value="1" {% if request.GET.proximas %}checked{% endif %}> Solo próximas</label></div>
   <button class="btn">Filtrar</button> <a class="btn sec" href="{% url 'panel:reservas' %}">Limpiar</a>
 </form>
-<div class="card"><table>
-<tr><th>Código</th><th>Cliente</th><th>Tour</th><th>Fecha</th><th>Pax</th><th>Total</th><th>Pago</th><th>Estado</th><th></th></tr>
+<div class="card" style="overflow-x:auto"><table class="tabla-reservas">
+<tr><th>Código</th><th>Cliente</th><th>Tour</th><th>Fecha</th><th>Pax</th><th>Total</th><th>Pago</th><th>Estado</th></tr>
 {% for r in reservas %}<tr>
-<td><a href="{% url 'panel:reserva_detalle' r.pk %}">{{ r.codigo }}</a></td><td>{{ r.nombre_cliente }}<br><small>{{ r.email_cliente }}</small></td>
-<td>{{ r.tour.nombre }}</td><td>{{ r.fecha|date:"d/m/Y" }}</td><td>{{ r.adultos }} adl / {{ r.ninos }} niñ</td><td>${{ r.precio_total }}</td>
+<td class="nw"><a href="{% url 'panel:reserva_detalle' r.pk %}">{{ r.codigo }}</a>
+<form method="post" action="{% url 'panel:reserva_eliminar' r.pk %}" style="margin:6px 0 0" onsubmit="return confirm('¿Eliminar la reserva {{ r.codigo|escapejs }}? No se envía email al cliente.')">{% csrf_token %}
+<input type="hidden" name="next" value="{{ request.get_full_path }}">
+<button class="btn red" style="padding:2px 8px;font-size:12px">Eliminar</button></form></td><td>{{ r.nombre_cliente }}<br><small>{{ r.email_cliente }}</small></td>
+<td>{{ r.tour.nombre }}</td><td>{{ r.fecha|date:"d/m/Y" }}</td><td class="nw">{{ r.adultos }} adl<br>{{ r.ninos }} niñ</td><td>${{ r.precio_total }}</td>
 <td>{% if r.pago_id %}<a href="{% url 'panel:pago_detalle' r.pago_id %}" class="badge b-{{ r.pago_estado }}">{{ r.pago_texto }}</a>{% else %}<small>Sin pago Flow</small>{% endif %}</td>
 <td><form method="post" action="{% url 'panel:reserva_cambiar_estado' r.pk %}" style="margin:0">{% csrf_token %}
 <input type="hidden" name="next" value="{{ request.get_full_path }}">
 <select name="estado" class="estado-reserva b-{{ r.estado }}" data-actual="{{ r.estado }}" data-codigo="{{ r.codigo }}">{% for v, l in estados %}<option value="{{ v }}"{% if v == r.estado %} selected{% endif %}>{{ l }}</option>{% endfor %}</select>
-<noscript><button class="btn">Guardar</button></noscript></form></td>
-<td><form method="post" action="{% url 'panel:reserva_eliminar' r.pk %}" style="margin:0" onsubmit="return confirm('¿Eliminar la reserva {{ r.codigo|escapejs }}? No se envía email al cliente.')">{% csrf_token %}
-<input type="hidden" name="next" value="{{ request.get_full_path }}">
-<button class="btn red" style="padding:4px 10px;font-size:13px">Eliminar</button></form></td></tr>
-{% empty %}<tr><td colspan="9">No hay reservas con esos filtros.</td></tr>{% endfor %}</table>
+<noscript><button class="btn">Guardar</button></noscript></form></td></tr>
+{% empty %}<tr><td colspan="8">No hay reservas con esos filtros.</td></tr>{% endfor %}</table>
 {% include 'panel/_pager.html' %}</div>
 {% if ventas_proximas is not None %}
 <div class="card" style="overflow-x:auto"><h3>Ventas manuales confirmadas próximas</h3><table>
@@ -48,6 +48,7 @@
 /* Mismo color que los badges de estado (b-CONFIRMADA verde, etc.); las opciones en blanco */
 select.estado-reserva{padding:4px 10px;border:0;border-radius:99px;font-size:13px;font-weight:600;cursor:pointer}
 select.estado-reserva option{background:#fff;color:#111}
+.tabla-reservas td.nw{white-space:nowrap}
 </style>
 <script>
 (function () {
