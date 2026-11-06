@@ -24,18 +24,43 @@ Con las banderas apagadas:
 
 Al desplegar no hay que configurar nada: el registro se crea solo con los valores por defecto (`/en/` activa, sin banderas).
 
-## Estado (5 nov 2026)
+## Estado (6 nov 2026)
 
 - **Etapas 1 a 6 en producción.** La rama `traduccion` (último commit `ef4618f`) se integró en `fix-orange` el 2 nov (merge `cbcadac`, con el conflicto de `tour.html` y el ajuste de ventas resueltos) y se desplegó en int15. Verificado el 5 nov: `https://orangetravel.cl/en/` responde 200, con `<html lang="en">` y `noindex` («Mostrar banderas» apagado, como se decidió el 20 oct).
-- **El contenido de la BD de producción sigue sin inglés.** En `/en/tours/` las categorías y zonas salen en español (p. ej. «Excursiones de un Día»): no se ha corrido `traducir_contenido` en el server. La `DEEPL_API_KEY` está en el `.env` local; falta confirmar si ya está en cPanel.
-- En local (BD `orage_db_i18n`) se tradujeron 54 textos el 23 oct, todos **sin aprobar**. Ojo: «Zona Sur» y «Zona Austral» salieron las dos como «Southern Region» (por eso la migración `tours 0018_nombre_en_sin_unique` quitó el `unique` de `Zona.nombre_en` y `TipoTour.nombre_en`). Va a pasar lo mismo en producción y hay que corregirlo a mano.
+- **Contenido de producción traducido, revisado y casi todo aprobado** (pasos 3 a 5 de la sección siguiente, 5 y 6 nov). Server en `85a65de`.
 - Después del merge, `fix-orange` sumó cambios del panel (Google Calendar, estado de pago Flow, eliminar reservas, `/admin/` solo para usuarios). `TabbedTranslationAdmin` ya no existe: los campos en inglés de «Nosotros» y «Tercera edad» se editan en `/panel/nosotros/` y `/panel/tercera-edad/`.
-- Tests: pasan los 7 de traducción (`tours/tests_traduccion.py`) según el registro del 20 oct. Sigue fallando `test_listado_muestra_a_cotizar` (espera `$20000`), que ya fallaba antes de este trabajo.
+- Tests: pasan los 18 de `tours`, `payments`, `home` y `blog` (6 nov). `test_listado_muestra_a_cotizar` ya pasa: espera `$20.000`.
 - Las secciones «Merge con los cambios de `fix-orange` del 23 oct» y «Merge con ventas manuales, 26 oct» quedan como registro: ya se aplicaron en `cbcadac`.
 
 ## Para cerrar la entrega 1 (6 nov)
 
 Todo se hace en producción, sin deploy de código (salvo el paso 0 si el server quedó atrás). Cada paso dice cómo saber que está listo.
+
+**Avance al 6 nov (tarde):**
+- [x] 0. Server en int15, en `079067e` (= `origin/fix-orange` con código; nada que desplegar).
+- [x] 1. `DEEPL_API_KEY` en cPanel + Restart; `os.getenv` → `True`, sitio arriba. Ojo: la primera vez se pegó el comando de comprobación como valor y rompió el `python_wrapper` (`syntax error`). El valor va solo, sin comillas.
+- [x] 2. Respaldo de la BD (phpMyAdmin → Exportar).
+- [x] 3. `traducir_contenido`: 151 textos, 76.784 caracteres (~15 % de la cuota gratuita de DeepL); un segundo `--simular` da 0. Las categorías ya salen en inglés en `/en/tours/` («Day Trips»). `Zona.descripcion` no se tradujo porque las zonas no tienen descripción en español.
+- [x] 4 y 5. Revisión y aprobación (6 nov), en vez de ir tour por tour en el panel:
+  - Se exportaron los borradores (ES/EN lado a lado) con un script de solo lectura por `manage.py shell`, se revisaron y se aplicaron 34 correcciones a campos `_en` con un script que simula primero y exige que cada texto aparezca una sola vez (si no, no corrige ni aprueba ese tour). Respaldo de la BD antes de aplicar (`orangetravel_2026-11-06_antes_correcciones_en.sql`, 593 KB).
+  - Zonas: Far North, Central Chile, Southern Chile, Patagonia (Expeditions and Mountaineering sin cambio). Categoría 2: «Trekking & Expeditions».
+  - Tercera edad: título «Program Information» en una línea, «montepiados» = *survivor pension recipients*, nombre «Vacaciones Tercera Edad (Senior Vacation Program)».
+  - Nombres unificados: Suriplaza Rainbow Mountain, Cotacotani Lagoons, Cerro Guane Guane, Cuesta Chinchorro, Presencias Tutelares.
+  - **Aprobados:** tours 3, 4, 8, 9, 10, 11, 12, 13, 14, 15, 17, 19, 20, 22, 23 (el 6 y el 18 ya lo estaban) y reseñas 2, 4, 5, 6, 7. Verificado en incógnito.
+  - **Sin aprobar a propósito:** reseña 1 (el contenido en español habla del vino pintatani, no de la ATWS 2025) y reseña 3 (título termina en «Bolivia 2»): siguen en español en `/en/` hasta que el cliente las corrija. Tours inactivos (1, 2, 5, 7) y de prueba (16, 21): no hace falta.
+  - Precios en inglés como «$48,000 CLP» (commit `85a65de`, filtro `|precio` en `tours/templatetags/precios.py` y `BookingApp.vue`); en español pasan a llevar punto de miles también los destacados del inicio, las páginas de pago y el email de reserva. Desplegado y verificado el 6 nov.
+- [ ] 6. **Siguiente (6 nov, noche):** pruebas en producción. Tours de prueba: `/en/tours/tour/prueba-surire/` (16) y `/en/tours/tour/prueba-2/` (21); revisar antes su precio en el panel (el pago Flow es real) y avisar al equipo, porque el email del admin llega a `info@orangetravel.cl`. Empezar por la reserva sin pago.
+- [ ] 7. Cierre. Para la ronda 1 de ajustes, mandar al cliente los errores del **español** detectados en la revisión (no se tocaron porque cambian `/`):
+  - Tour 8: día 1 titulado «Iitinerario»; `**` antes de «Momias del Viento».
+  - Tour 14: lugar de salida duplicado («…centro de AricaDesde su hotel en Arica»).
+  - Tour 17: «Presencia Tutelares» → «Presencias Tutelares».
+  - Tour 19: días 2 y 3 dicen «Alojamiento en Arica», pero esas noches son en Putre (Hotel Chakana está en Putre).
+  - Tour 20: «No Incuye».
+  - Tercera edad: «excursiones excluidas» dentro de la lista TODO INCLUIDO (el inglés dice *excluding excursions and recreational activities*): confirmar qué incluye.
+  - Nosotros: «¿Quiénes somos?» y «Nuestra Historia» tienen el mismo párrafo.
+  - Reseñas 1 y 3 (ver arriba).
+- Limpieza pendiente: en int15, `rm ~/borradores_en.py ~/borradores_en.txt ~/correcciones_en.py ~/correcciones_sim.txt`; en local, `borradores_en.txt` y `correcciones_sim.txt` de la raíz (no versionar). En el server hay un `home/templates/home/index_2.html` sin versionar (no lo usa ninguna vista).
+- Pendiente aparte: el 5 nov el error del paso 1 mostró en la terminal todas las vars de cPanel con sus valores. Rotar después de la entrega: Flow, Mailgun, contraseña de la BD (`DATABASE_URL`), Cloudinary y `DJANGO_SECRET_KEY` (además es débil).
 
 **0. Server al día.** SSH: `hostname` debe decir int15. `cd ~/orangetravel && git log -1 --oneline` debe coincidir con `origin/fix-orange`. Si quedó atrás, deploy según la tabla de `CLAUDE.md` (desde el merge solo hay Python y templates del panel, sin migraciones ni estáticos nuevos: `git pull` + Restart desde cPanel). **Nunca un `git pull` suelto** si el server estuviera antes del merge `cbcadac`: el 26 oct eso botó el sitio.
 
