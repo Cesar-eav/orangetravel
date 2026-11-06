@@ -24,19 +24,49 @@ Con las banderas apagadas:
 
 Al desplegar no hay que configurar nada: el registro se crea solo con los valores por defecto (`/en/` activa, sin banderas).
 
-## Estado (23 oct 2026)
+## Estado (5 nov 2026)
 
-- Etapas 1 a 6 implementadas y commiteadas en la rama `traduccion` (worktree `../orangetravel-i18n`), **sin desplegar**. Último commit: `ef4618f`.
-- Contenido traducido en local (BD `orage_db_i18n`): 54 textos con `traducir_contenido` (tours, itinerarios, tipos, zonas, tercera edad, posts, nosotros), todo **sin aprobar**. Falta revisarlo y aprobarlo en el panel; en particular «Zona Sur» y «Zona Austral» quedaron ambas como «Southern Region».
-- Migración nueva `tours 0018_nombre_en_sin_unique`: `Zona.nombre_en` y `TipoTour.nombre_en` ya no son únicos (modeltranslation copiaba `unique=True` y DeepL tradujo dos zonas igual). Se suma a las migraciones del deploy.
-- La `DEEPL_API_KEY` está en el `.env` local de ambas carpetas. En producción falta cargarla en cPanel.
-- Tests: pasan los 7 de traducción (`tours/tests_traduccion.py`) según el registro del 20 oct; el 23 oct no se pudieron correr (el usuario de BD local no puede crear la BD de test). Sigue fallando `test_listado_muestra_a_cotizar` (espera `$20000`), que ya fallaba antes de este trabajo.
-- Pendiente para la entrega 1 (30 oct):
-  1. Hacer merge de `traduccion` en `fix-orange` (los docs ya están en `fix-orange`). **Hay un conflicto en `tours/templates/tours/tour.html`** (ver «Merge con los cambios de `fix-orange` del 23 oct») y **hay que ajustar ventas** (ver «Merge con ventas manuales, 26 oct»), más abajo.
-  2. Deploy en int15 (anexo §7): modo mantención, respaldo de la BD, `git pull`, `pip install -r requirements.txt`, `export DATABASE_URL`, `migrate` (incluye `tours 0017_traduccion_idioma`, `0018` y la migración de merge), `npm run build`, `collectstatic`, Restart desde cPanel. Probar que `/` quedó igual, que `/en/` abre sin sesión, que `/panel/ventas/` sigue funcionando y hacer un pago real desde `/en/`.
-     - **Nada de `git pull` suelto en el server** una vez que `fix-orange` tenga el merge: el 26 oct un pull sin `pip install` botó el sitio (Django no arranca sin `modeltranslation`) y hubo que volver con `git reset --hard 685711a` + Restart. El pull va dentro del deploy completo.
-  3. Cargar `DEEPL_API_KEY` en cPanel (+ Restart desde cPanel), correr `python manage.py traducir_contenido` en producción y aprobar en el panel.
-- El avance día a día vive en el seguimiento (artifact «Avance Orange Travel ES/EN»).
+- **Etapas 1 a 6 en producción.** La rama `traduccion` (último commit `ef4618f`) se integró en `fix-orange` el 2 nov (merge `cbcadac`, con el conflicto de `tour.html` y el ajuste de ventas resueltos) y se desplegó en int15. Verificado el 5 nov: `https://orangetravel.cl/en/` responde 200, con `<html lang="en">` y `noindex` («Mostrar banderas» apagado, como se decidió el 20 oct).
+- **El contenido de la BD de producción sigue sin inglés.** En `/en/tours/` las categorías y zonas salen en español (p. ej. «Excursiones de un Día»): no se ha corrido `traducir_contenido` en el server. La `DEEPL_API_KEY` está en el `.env` local; falta confirmar si ya está en cPanel.
+- En local (BD `orage_db_i18n`) se tradujeron 54 textos el 23 oct, todos **sin aprobar**. Ojo: «Zona Sur» y «Zona Austral» salieron las dos como «Southern Region» (por eso la migración `tours 0018_nombre_en_sin_unique` quitó el `unique` de `Zona.nombre_en` y `TipoTour.nombre_en`). Va a pasar lo mismo en producción y hay que corregirlo a mano.
+- Después del merge, `fix-orange` sumó cambios del panel (Google Calendar, estado de pago Flow, eliminar reservas, `/admin/` solo para usuarios). `TabbedTranslationAdmin` ya no existe: los campos en inglés de «Nosotros» y «Tercera edad» se editan en `/panel/nosotros/` y `/panel/tercera-edad/`.
+- Tests: pasan los 7 de traducción (`tours/tests_traduccion.py`) según el registro del 20 oct. Sigue fallando `test_listado_muestra_a_cotizar` (espera `$20000`), que ya fallaba antes de este trabajo.
+- Las secciones «Merge con los cambios de `fix-orange` del 23 oct» y «Merge con ventas manuales, 26 oct» quedan como registro: ya se aplicaron en `cbcadac`.
+
+## Para cerrar la entrega 1 (6 nov)
+
+Todo se hace en producción, sin deploy de código (salvo el paso 0 si el server quedó atrás). Cada paso dice cómo saber que está listo.
+
+**0. Server al día.** SSH: `hostname` debe decir int15. `cd ~/orangetravel && git log -1 --oneline` debe coincidir con `origin/fix-orange`. Si quedó atrás, deploy según la tabla de `CLAUDE.md` (desde el merge solo hay Python y templates del panel, sin migraciones ni estáticos nuevos: `git pull` + Restart desde cPanel). **Nunca un `git pull` suelto** si el server estuviera antes del merge `cbcadac`: el 26 oct eso botó el sitio.
+
+**1. DeepL en cPanel.** Setup Python App → orangetravel.cl → Environment Variables → `DEEPL_API_KEY` (valor del `.env` local) → **Restart desde cPanel**.
+- Listo cuando: `$PY -c "import os; print(bool(os.getenv('DEEPL_API_KEY')))"` imprime `True` (en int15 el python del virtualenv trae las vars de cPanel, ver regla 3 de `CLAUDE.md`). `$PY` = `~/virtualenv/orangetravel/3.11/bin/python`.
+
+**2. Respaldo de la BD.** `traducir_contenido` escribe en la BD real: exportar antes `cor116358_orangetravel` (cPanel → phpMyAdmin → Exportar).
+
+**3. Traducir el contenido.**
+- `$PY manage.py traducir_contenido --simular`: muestra cuántos textos y caracteres hay por modelo, sin llamar a DeepL. Revisar que el total quepa en la cuota de la cuenta DeepL del cliente.
+- `$PY manage.py traducir_contenido`: llena los `_en` vacíos de tours, itinerarios, categorías, zonas, tercera edad, nosotros, posts y captions. Todo queda **sin aprobar**.
+- Esto incluye los posts, así que adelanta la tarea «Traducción en lote de los posts publicados» de la etapa 7.
+- Listo cuando: un segundo `--simular` dice `Por traducir: 0 textos`.
+
+**4. Revisar y corregir lo que se ve sin aprobación.** Zonas, categorías, «Nosotros» y «Tercera edad» no tienen casilla de aprobación: su inglés sale al público apenas existe.
+- `/panel/zonas/`: corregir «Zona Sur» y «Zona Austral» (las dos quedan «Southern Region») y revisar el resto de nombres y descripciones.
+- `/panel/categorias/`: nombres y descripciones de las categorías.
+- `/panel/nosotros/` y `/panel/tercera-edad/`: el contenido en inglés.
+
+**5. Aprobar tours y reseñas.** En la edición de cada tour (`/panel/tours/`) y de cada reseña (`/panel/blog/`): revisar nombre, itinerario, «incluye» y los días del itinerario, y marcar «Traducción al inglés aprobada». Con sesión de staff se ven los borradores en `/en/`, así que se puede revisar en el sitio mismo.
+- Decidir quién aprueba: Orange Travel (pendiente desde la etapa 0) o nosotros, dejando la revisión fina para la ronda 1 de ajustes.
+- Listo cuando: en una ventana de incógnito (sin sesión), los tours aprobados salen en inglés en `/en/tours/<slug>/`.
+
+**6. Pruebas en producción** (ventana de incógnito, desde `/en/`). Es la parte del checklist de verificación (abajo) que aplica sin banderas:
+- Reserva y cotización: el cliente recibe el email en inglés; el admin, en español y en el buzón de `EMAIL_POR_TOUR`.
+- **Pago Flow real** en un tour con precio: `flow-return` en inglés, email de pago en inglés y `Payment.idioma='en'` en `/panel/pagos/`.
+- Lo mismo desde `/`: todo en español, igual que antes.
+- `$PY manage.py detectar_incongruencias_pago` sin novedades.
+- Los ítems de cookie, `hreflang` y `canonical` solo aplican con «Mostrar banderas»: se prueban cuando el cliente decida lanzar.
+
+**7. Cierre.** Marcar las casillas de la etapa 6 y del checklist, mandar al cliente el link `https://orangetravel.cl/en/` para la ronda 1 de ajustes y recordarle que lanzar el inglés es encender «Mostrar banderas» en `/panel/sitio-ingles/` (sin deploy).
 
 ### Merge con los cambios de `fix-orange` del 23 oct
 
@@ -122,7 +152,7 @@ Al hacer el merge de `traduccion` en `fix-orange`, además del conflicto de `tou
 
 **Lista cuando:** el sitio se ve igual, una reserva de prueba envía el email al buzón correcto de `EMAIL_POR_TOUR` y los campos `_es` están llenos.
 
-**Deploy (crítico):** `pip install -r requirements.txt` → `export DATABASE_URL` → `migrate` → restart. Las migraciones `tours 0017`, `blog 0004` y `home 0003` copian el texto actual a los campos `_es`, así que no hace falta correr `update_translation_fields` (correrlo igual es inofensivo). Hacer respaldo de la BD antes y usar modo mantención.
+**Deploy (crítico):** `pip install -r requirements.txt` → `migrate` → restart (en int15 no hace falta `export DATABASE_URL`: ver regla 3 de `CLAUDE.md`). Las migraciones `tours 0017`, `blog 0004` y `home 0003` copian el texto actual a los campos `_es`, así que no hace falta correr `update_translation_fields` (correrlo igual es inofensivo). Hacer respaldo de la BD antes y usar modo mantención.
 
 **Implementado distinto al plan:**
 - `LANGUAGE_CODE` pasó de `'es-cl'` a `'es'`. Django no trae locale `es_CL` (usaba igual el de `'es'`), y con `'es-cl'` activar `'es'` agregaba `/es/` a las URLs.
@@ -158,7 +188,7 @@ Al hacer el merge de `traduccion` en `fix-orange`, además del conflicto de `tou
 - [x] Traducir `django.po` (interfaz + Vue) con DeepL y revisar a mano; `compilemessages` y commitear el `.mo`.
 - [x] Cliente DeepL (`requests`, `DEEPL_API_KEY`) con protección de los términos del glosario.
 - [x] Management command que traduce en lote los campos `_en` del contenido existente (tours, itinerarios, zonas, tipos, singletons). Deja `traduccion_en_aprobada = False`.
-- [x] `/panel/`: campos `_en` y el checkbox «Traducción aprobada» en `TourForm`, `ItinerarioDiaForm`, `ZonaForm` y `TipoTourForm`; `TabbedTranslationAdmin` para `Nosotros` y `TerceraEdad`.
+- [x] `/panel/`: campos `_en` y el checkbox «Traducción aprobada» en `TourForm`, `ItinerarioDiaForm`, `ZonaForm` y `TipoTourForm`; `TabbedTranslationAdmin` para `Nosotros` y `TerceraEdad` (desde el 4 nov, con `/admin/` solo para usuarios, se editan en `/panel/nosotros/` y `/panel/tercera-edad/`).
 - [x] Lógica de fallback: en `/en/`, si `traduccion_en_aprobada` es falso, el contenido del tour/post se muestra en español (helper o template tag; un solo lugar, no repetido en cada template).
 
 **Lista cuando:** con `LANGUAGES` con `'en'` en local, `/en/` se ve completo y los tours no aprobados salen en español.
@@ -175,8 +205,10 @@ Al hacer el merge de `traduccion` en `fix-orange`, además del conflicto de `tou
 - [x] Memoria del idioma (con «Mostrar banderas»): redirige `/…` → `/en/…` solo con la cookie `django_language=en`.
 - [x] SEO (con «Mostrar banderas»): `hreflang` (`es-CL`, `en`, `x-default`), `description` por idioma y, en contenido sin aprobar, `canonical` a la versión en español. Sin banderas, `/en/` lleva `noindex`.
 - [x] `/i18n/` dentro de `i18n_patterns`: así, cambiar a español desde `/en/…` vuelve a la página equivalente.
-- [ ] Cargar `DEEPL_API_KEY` en cPanel + Restart desde cPanel (cuando el cliente la entregue).
-- [ ] Publicación completa (anexo §7) con un pago Flow real desde `/en/`.
+- [x] Merge en `fix-orange` (`cbcadac`, 2 nov) y deploy en int15. `/en/` en línea con `noindex` (verificado el 5 nov).
+- [ ] Cargar `DEEPL_API_KEY` en cPanel + Restart desde cPanel.
+- [ ] `traducir_contenido` en producción, corregir zonas y categorías, y aprobar tours y reseñas en el panel.
+- [ ] Pruebas en producción con un pago Flow real desde `/en/` (ver «Para cerrar la entrega 1»).
 
 **Lista cuando:** se cumple el checklist de verificación (abajo) en producción. Arranca la ronda 1 de ajustes del cliente (2 a 3 días). Encender «Mostrar banderas» es decisión del cliente y no requiere deploy.
 
@@ -186,7 +218,7 @@ Al hacer el merge de `traduccion` en `fix-orange`, además del conflicto de `tou
 
 - [x] Traducir los textos de los emails en `django.po` (el cliente en inglés si `idioma='en'`). Adelantado en la etapa 5.
 - [x] Blog: campos `_en` y aprobación en `PostForm` (adelantado en la etapa 5).
-- [ ] Traducción en lote de los posts publicados (`traducir_contenido --solo Post`, requiere `DEEPL_API_KEY`).
+- [ ] Traducción en lote de los posts publicados (`traducir_contenido --solo Post`, requiere `DEEPL_API_KEY`). Queda hecha con el `traducir_contenido` completo de la entrega 1; falta aprobarlos.
 - [ ] Botón «Traducir con DeepL» en las vistas de edición de `/panel/` (tour, post, zona): llena los `_en` y deja la aprobación en falso.
 - [ ] Glosario editable (archivo o modelo simple) usado por el botón y por el comando.
 - [ ] Incorporar los ajustes de la ronda 1.
@@ -198,11 +230,11 @@ Al hacer el merge de `traduccion` en `fix-orange`, además del conflicto de `tou
 
 ## Checklist de verificación (etapas 6 y 7)
 
-- [ ] `/` sin cookie → español; elegir EN → `/en/…`; volver a `/` → redirige a `/en/`.
+- [ ] `/` sin cookie → español; elegir EN → `/en/…`; volver a `/` → redirige a `/en/`. *(Solo con «Mostrar banderas».)*
 - [ ] `/en/`, `/en/tours/`, `/en/tours/?zona=<slug>`, un tour con precio, un tour «a cotizar», `/en/blog/`.
 - [ ] Tour no aprobado en `/en/` → contenido en español, sin `hreflang="en"`.
 - [ ] Reserva y cotización desde `/en/` → cliente recibe el email en inglés, admin en español, al buzón de `EMAIL_POR_TOUR`.
 - [ ] Pago Flow desde `/en/` → `flow-return` en inglés, email de pago en inglés, `Payment.idioma='en'`.
 - [ ] Lo mismo desde `/` → todo en español, sin cambios respecto de antes.
-- [ ] Source de `/` y `/en/`: `<html lang>`, `hreflang`, `title` y `description` correctos.
+- [ ] Source de `/` y `/en/`: `<html lang>`, `hreflang`, `title` y `description` correctos. *(`hreflang` solo con «Mostrar banderas»; sin banderas, `/en/` debe llevar `noindex`.)*
 - [ ] `python manage.py detectar_incongruencias_pago` sin novedades.

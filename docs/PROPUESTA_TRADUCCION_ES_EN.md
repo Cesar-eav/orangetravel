@@ -124,7 +124,7 @@ En el server (`hostname` = int15, `cd ~/orangetravel`):
 2. Respaldo de la BD.
 3. `git pull`.
 4. `~/virtualenv/orangetravel/3.11/bin/pip install -r requirements.txt` (dependencia nueva: django-modeltranslation).
-5. `export DATABASE_URL=...` copiado desde cPanel (las vars de cPanel no llegan a SSH, regla 3).
+5. ~~`export DATABASE_URL=...`~~: en int15 no hace falta. El python del virtualenv ya trae las vars de cPanel y cualquier management command toca la BD real (regla 3 de `CLAUDE.md`).
 6. `~/virtualenv/orangetravel/3.11/bin/python manage.py migrate`.
 7. Ya no hace falta `update_translation_fields`: las migraciones `tours 0017`, `blog 0004` y `home 0003` copian el texto actual a los campos `_es` (correrlo igual es inofensivo).
 8. `export PATH=/opt/alt/alt-nodejs22/root/usr/bin:$PATH && npm run build`, y después `collectstatic --noinput`.

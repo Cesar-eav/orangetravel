@@ -9,8 +9,9 @@ Leer completo antes de modificar nada. Este archivo **no debe contener valores s
    - Tras cambiar una variable en cPanel: **Restart desde el panel**. `touch tmp/restart.txt` reinicia el proceso pero no re-inyecta variables nuevas de cPanel.
 2. **No existe `.env` en producción y no debe existir.** `passenger_wsgi.py` hace `load_dotenv('.env', override=True)`: si aparece un `.env` en el server, pisa las credenciales reales de cPanel (el `.env` local tiene credenciales **sandbox** de Flow). Nunca subir ni crear el `.env` local en el servidor.
    - Existe un `.env_` (con guion bajo) en la raíz de producción: es inerte, no renombrarlo.
-3. **Las vars de cPanel no llegan a una shell SSH** (ni activando el virtualenv). Para correr un management command contra la BD real hay que exportar `DATABASE_URL` (y lo que haga falta) a mano en esa sesión, copiando el valor desde cPanel. Sin `DATABASE_URL`, `config/settings.py` cae a un Postgres local (`orage_db`) que no existe en el server → falla sin tocar datos.
-   - `python -c "import os; print(os.getenv(...))"` por SSH **no refleja** lo que ve Passenger. Para verificar lo que ve la app: `print` temporal en una vista y revisar `~/logs/passenger.log`.
+3. **En int15, el python del virtualenv trae las vars de cPanel también por SSH.** `~/virtualenv/orangetravel/3.11/bin/python` es un symlink al `python_wrapper` de CloudLinux, que inyecta las variables de cPanel → Setup Python App y **pisa** las de la shell (comprobado el 2 nov 2026). Por eso **todo management command por SSH toca la BD real de producción**, aunque no se exporte nada, y un `export DATABASE_URL=...` no sirve para apuntar a otra BD. Respaldo antes de cualquier comando que escriba.
+   - En srv28 era al revés (había que exportar `DATABASE_URL` a mano); los docs anteriores a noviembre 2026 todavía lo piden.
+   - Para comprobar una variable: `~/virtualenv/orangetravel/3.11/bin/python -c "import os; print(bool(os.getenv('NOMBRE')))"` (nunca imprimir el valor de un secreto).
 4. **El shim `import pymysql; pymysql.install_as_MySQLdb()` es obligatorio** en `manage.py` y `passenger_wsgi.py` (mysqlclient no funciona en el hosting). No quitarlo ni comentarlo.
 5. **Passenger arranca desde `passenger_wsgi.py`**, no desde `config/wsgi.py` (código muerto en este deploy).
 6. Nunca commitear `.env`, API keys, secrets ni contraseñas. Si se documenta una variable, solo su nombre.
@@ -76,14 +77,14 @@ Leer completo antes de modificar nada. Este archivo **no debe contener valores s
 
 ## Sitio bilingüe ES/EN
 
-Implementado en la rama `traduccion` (worktree `../orangetravel-i18n`); mientras no se haga merge a `fix-orange`, nada de esto está en producción. Plan y estado: `docs/PLAN_TRADUCCION_ETAPAS.md`.
+En producción desde el 2 nov 2026 (merge `cbcadac` de la rama `traduccion` en `fix-orange`; esa rama y el worktree `../orangetravel-i18n` no tienen trabajo pendiente). `/en/` está accesible por link, sin banderas y con `noindex`. Falta traducir y aprobar el contenido de la BD de producción. Plan, estado y pasos para cerrar la entrega 1: `docs/PLAN_TRADUCCION_ETAPAS.md`.
 
 - Campos traducidos con django-modeltranslation (`<campo>_es` / `<campo>_en`, ver `*/translation.py`). `tour.nombre` devuelve el idioma activo: para decidir algo por el texto (ruteo `EMAIL_POR_TOUR`, `tour_nombre_al_pagar`, subject de Flow) usar **`nombre_es`**.
 - `/en/` depende de panel → Sitio en inglés (`home.SitioIngles`): `publico` (accesible por link, por defecto sí) y `mostrar_banderas` (selector para todos + `hreflang`; por defecto no, y entonces `/en/` lleva `noindex`).
-- Tours y reseñas con `traduccion_en_aprobada=False` se muestran en español al público en `/en/` (`tours/traduccion.py::mostrar_aprobado`).
+- Tours y reseñas con `traduccion_en_aprobada=False` se muestran en español al público en `/en/` (`tours/traduccion.py::mostrar_aprobado`); el staff ve los borradores. Zonas, categorías, «Nosotros» y «Tercera edad» no tienen aprobación: su `_en` sale al público apenas existe.
 - `idioma` en `Reserva`, `Cotizacion` y `Payment` decide el idioma de los emails al cliente; los del admin van siempre en español.
 - Textos de templates públicos con `{% trans %}`; los de Vue salen de `tours/views.py::textos_reserva`. Catálogo `locale/en/LC_MESSAGES/django.po` y `.mo` versionados: `makemessages -l en --ignore='node_modules/*' --ignore='static/*' --ignore='staticfiles/*'` y `compilemessages` en local, nunca en el server.
-- Traducción automática del contenido: `python manage.py traducir_contenido --simular` y luego sin `--simular` (requiere `DEEPL_API_KEY`). Lo traducido queda sin aprobar.
+- Traducción automática del contenido: `python manage.py traducir_contenido --simular` y luego sin `--simular` (requiere `DEEPL_API_KEY`). Solo llena los `_en` vacíos (`--sobrescribir` para retraducir) y lo traducido queda sin aprobar. Términos protegidos: `tours/glosario.py`.
 
 ## Producción y deploy
 
