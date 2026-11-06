@@ -121,6 +121,22 @@ class ReservaTests(PanelBase):
     def test_eliminar_por_get_no_permitido(self):
         self.assertEqual(self.client.get(reverse('panel:reserva_eliminar', args=[self.reserva.pk])).status_code, 405)
 
+    def test_eliminar_desde_lista_vuelve_con_filtros(self):
+        next_url = '/panel/reservas/?estado=PENDIENTE&page=2'
+        r = self.client.post(reverse('panel:reserva_eliminar', args=[self.reserva.pk]), {'next': next_url})
+        self.assertRedirects(r, next_url, fetch_redirect_response=False)
+        # La página 2 ya no existe: la lista muestra la última en vez de un 404
+        self.assertEqual(self.client.get(next_url).status_code, 200)
+
+    def test_eliminar_con_next_externo_vuelve_a_reservas(self):
+        r = self.client.post(reverse('panel:reserva_eliminar', args=[self.reserva.pk]),
+                             {'next': 'https://evil.com/'})
+        self.assertRedirects(r, reverse('panel:reservas'), fetch_redirect_response=False)
+
+    def test_lista_muestra_boton_eliminar(self):
+        r = self.client.get(reverse('panel:reservas'))
+        self.assertContains(r, reverse('panel:reserva_eliminar', args=[self.reserva.pk]))
+
 
 class CatalogoTests(PanelBase):
     def setUp(self):

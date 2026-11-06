@@ -4,7 +4,7 @@ from datetime import timedelta
 from django.contrib import messages
 from django.contrib.auth.views import LoginView, redirect_to_login
 from django.db.models import Count, F, OuterRef, Q, Subquery, Sum
-from django.http import QueryDict
+from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
@@ -142,6 +142,15 @@ class ReservaListView(PanelView, ListView):
             qs = qs.filter(fecha__gte=timezone.localdate())
         return qs
 
+    def paginate_queryset(self, queryset, page_size):
+        # Al eliminar la última reserva de la última página se vuelve con un ?page= que ya no
+        # existe: mostrar la última página en vez de un 404.
+        try:
+            return super().paginate_queryset(queryset, page_size)
+        except Http404:
+            self.kwargs['page'] = 'last'
+            return super().paginate_queryset(queryset, page_size)
+
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         params = self.request.GET.copy()
@@ -222,12 +231,7 @@ def reserva_cambiar_estado(request, pk):
     reserva = get_object_or_404(Reserva, pk=pk)
     estado = request.POST.get('estado')
     # Vuelve a la lista con sus filtros; si quedó confirmada, con el pop up de Google Calendar
-    destino = request.POST.get('next', '')
-    if not url_has_allowed_host_and_scheme(destino, allowed_hosts={request.get_host()}):
-        destino = reverse('panel:reservas')
-    ruta, _, query = destino.partition('?')
-    params = QueryDict(query, mutable=True)
-    params.pop('agregar_calendario', None)
+    ruta, params = _destino_lista_reservas(request)
 
     if estado in Reserva.Estado.values and estado != reserva.estado:
         reserva.estado = estado
@@ -239,13 +243,26 @@ def reserva_cambiar_estado(request, pk):
     return redirect(f'{ruta}?{params.urlencode()}' if params else ruta)
 
 
+def _destino_lista_reservas(request):
+    """Ruta y querystring de `next` (la lista con sus filtros), o /panel/reservas/ si no es segura."""
+    destino = request.POST.get('next', '')
+    if not url_has_allowed_host_and_scheme(destino, allowed_hosts={request.get_host()}):
+        destino = reverse('panel:reservas')
+    ruta, _, query = destino.partition('?')
+    params = QueryDict(query, mutable=True)
+    params.pop('agregar_calendario', None)
+    return ruta, params
+
+
 @_staff_only
 @require_POST
 def reserva_eliminar(request, pk):
+    """Borrado lógico, desde el detalle o desde la tabla de /panel/reservas/ (vuelve a `next`)."""
     reserva = get_object_or_404(Reserva, pk=pk)
     reserva.delete()  # borrado lógico
     messages.success(request, f'Reserva {reserva.codigo} eliminada.')
-    return redirect('panel:reservas')
+    ruta, params = _destino_lista_reservas(request)
+    return redirect(f'{ruta}?{params.urlencode()}' if params else ruta)
 
 
 class CotizacionListView(PanelView, ListView):

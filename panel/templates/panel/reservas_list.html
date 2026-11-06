@@ -4,7 +4,8 @@
 {% block content %}
 <h2>Reservas</h2>
 <details class="ayuda"><summary>¿Cómo funciona esta pantalla?</summary><p>Busca por código, nombre o email. Cambia el estado directo en la tabla, o entra a una reserva para escribir notas internas. Al pasar a Confirmada, Rechazada o Cancelada se envía un email al cliente automáticamente (se pide confirmación antes), y al confirmar se ofrece agregarla a Google Calendar. Con el filtro de confirmadas próximas también se listan las ventas manuales confirmadas; esas se editan en Ventas y no envían emails.</p>
-<p>La columna «Pago» muestra qué respondió Flow sobre el pago de esa reserva (pincha para ver el pago). Cuando Flow confirma el pago, la reserva no se confirma sola: sigue en «Pendiente de Confirmación» hasta que la cambies. Para ver las que ya pagaron y esperan tu confirmación, filtra Estado «Pendiente de Confirmación» y Pago «Pagado». Una reserva pendiente con pago «Pendiente» casi siempre es un cliente que cerró Flow sin pagar. «Sin pago Flow» son reservas que no pasaron por Flow.</p></details>
+<p>La columna «Pago» muestra qué respondió Flow sobre el pago de esa reserva (pincha para ver el pago). Cuando Flow confirma el pago, la reserva no se confirma sola: sigue en «Pendiente de Confirmación» hasta que la cambies. Para ver las que ya pagaron y esperan tu confirmación, filtra Estado «Pendiente de Confirmación» y Pago «Pagado». Una reserva pendiente con pago «Pendiente» casi siempre es un cliente que cerró Flow sin pagar. «Sin pago Flow» son reservas que no pasaron por Flow.</p>
+<p>El botón «Eliminar» quita la reserva de la lista (pensado para reservas de prueba): no envía email al cliente ni toca el pago en Flow.</p></details>
 <form class="filters" method="get">
   <div><label>Buscar</label><input name="q" value="{{ request.GET.q }}" placeholder="Código, nombre o email"></div>
   <div><label>Estado</label><select name="estado"><option value="">Todos</option>
@@ -17,7 +18,7 @@
   <button class="btn">Filtrar</button> <a class="btn sec" href="{% url 'panel:reservas' %}">Limpiar</a>
 </form>
 <div class="card"><table>
-<tr><th>Código</th><th>Cliente</th><th>Tour</th><th>Fecha</th><th>Pax</th><th>Total</th><th>Pago</th><th>Estado</th></tr>
+<tr><th>Código</th><th>Cliente</th><th>Tour</th><th>Fecha</th><th>Pax</th><th>Total</th><th>Pago</th><th>Estado</th><th></th></tr>
 {% for r in reservas %}<tr>
 <td><a href="{% url 'panel:reserva_detalle' r.pk %}">{{ r.codigo }}</a></td><td>{{ r.nombre_cliente }}<br><small>{{ r.email_cliente }}</small></td>
 <td>{{ r.tour.nombre }}</td><td>{{ r.fecha|date:"d/m/Y" }}</td><td>{{ r.adultos }} adl / {{ r.ninos }} niñ</td><td>${{ r.precio_total }}</td>
@@ -25,8 +26,11 @@
 <td><form method="post" action="{% url 'panel:reserva_cambiar_estado' r.pk %}" style="margin:0">{% csrf_token %}
 <input type="hidden" name="next" value="{{ request.get_full_path }}">
 <select name="estado" class="estado-reserva b-{{ r.estado }}" data-actual="{{ r.estado }}" data-codigo="{{ r.codigo }}">{% for v, l in estados %}<option value="{{ v }}"{% if v == r.estado %} selected{% endif %}>{{ l }}</option>{% endfor %}</select>
-<noscript><button class="btn">Guardar</button></noscript></form></td></tr>
-{% empty %}<tr><td colspan="8">No hay reservas con esos filtros.</td></tr>{% endfor %}</table>
+<noscript><button class="btn">Guardar</button></noscript></form></td>
+<td><form method="post" action="{% url 'panel:reserva_eliminar' r.pk %}" style="margin:0" onsubmit="return confirm('¿Eliminar la reserva {{ r.codigo|escapejs }}? No se envía email al cliente.')">{% csrf_token %}
+<input type="hidden" name="next" value="{{ request.get_full_path }}">
+<button class="btn red" style="padding:4px 10px;font-size:13px">Eliminar</button></form></td></tr>
+{% empty %}<tr><td colspan="9">No hay reservas con esos filtros.</td></tr>{% endfor %}</table>
 {% include 'panel/_pager.html' %}</div>
 {% if ventas_proximas is not None %}
 <div class="card" style="overflow-x:auto"><h3>Ventas manuales confirmadas próximas</h3><table>
