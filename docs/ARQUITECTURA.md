@@ -20,7 +20,7 @@ Es una aplicación **monolítica Django** que renderiza HTML en el servidor. Sol
 | Base de datos | MySQL en producción (driver PyMySQL, vía `DATABASE_URL`); PostgreSQL en local |
 | Frontend | Templates Django + Tailwind CSS 4 + Vue 3 (solo el widget de reserva), compilados con Vite 6 |
 | Calendario / HTTP en el widget | `v-calendar` (selector de fecha) y `axios` |
-| Admin | Django Admin con tema **Unfold** (`/admin/`) |
+| Admin | Django Admin con tema **Unfold** (`/admin/`), solo Usuarios y Grupos |
 | Panel propio | App `panel` (`/panel/`), server-rendered, pensada para personas no técnicas |
 | Singletons (páginas de una sola instancia) | `django-solo` |
 | Editor de texto enriquecido | `django-ckeditor` (+ `ckeditor_uploader`) |
@@ -44,7 +44,7 @@ home/              Portada, Nosotros, Contacto, Términos, Otros servicios, modo
 tours/             Catálogo, reservas, bloqueos de fechas, Tercera Edad, signals de email
 payments/          Integración Flow, modelo Payment, emails de pago, comando de auditoría
 blog/              Reseñas (posts) con imágenes intercaladas y carrusel
-panel/             Panel de gestión para usuarios staff (alternativa al admin)
+panel/             Panel de gestión para usuarios staff (único sistema de gestión)
 
 templates/         Layout global: base.html, includes/ (navbar, footer, contacto), maintenance.html
 static/src/        Fuente del frontend: main.js, BookingApp.vue, input.css (Tailwind)
@@ -52,7 +52,7 @@ static/js/dist/    Salida de Vite (ignorada por git; se genera con npm run build
 docs/              Documentación operativa (deploy, panel, emails, propuesta de traducción)
 ```
 
-Cada app Django sigue el esquema `models / views / urls / admin / templates / migrations`.
+Cada app Django sigue el esquema `models / views / urls / templates / migrations` (sin `admin.py`: la gestión va en `panel/`).
 
 ## 4. Apps y modelos de datos
 
@@ -93,7 +93,7 @@ Cada app Django sigue el esquema `models / views / urls / admin / templates / mi
 | `/pagos/flow-confirm/` | Webhook servidor-a-servidor de Flow |
 | `/pagos/vista_confirmacion_pago/<id>` | Pantalla de confirmación al cliente |
 | `/panel/...` | Panel de gestión (ver sección 8) |
-| `/admin/` | Django Admin (Unfold) |
+| `/admin/` | Django Admin (Unfold): solo usuarios, grupos y contraseñas |
 | `/ckeditor/` | Subida de imágenes del editor |
 
 ## 6. Flujos clave
@@ -121,7 +121,7 @@ Página del tour ──► Widget Vue (BookingApp.vue)
 
 ### 6.2 Reserva sin pago
 
-`POST /tours/api/reserva/crear/` crea una `Reserva` PENDIENTE y lanza `enviar_notificaciones_reserva` en un **hilo aparte** (la respuesta no espera al email). Un administrador la confirma o cancela desde el panel/admin.
+`POST /tours/api/reserva/crear/` crea una `Reserva` PENDIENTE y lanza `enviar_notificaciones_reserva` en un **hilo aparte** (la respuesta no espera al email). Un administrador la confirma o cancela desde el panel.
 
 ### 6.3 Cambio de estado de una reserva (signal)
 
@@ -148,7 +148,7 @@ El diccionario `EMAIL_POR_TOUR` (`tours/views.py`) elige el destinatario adminis
 
 ## 8. Panel de gestión (`/panel/`)
 
-Alternativa al admin para usuarios no técnicos. Vistas basadas en clases con `StaffRequiredMixin` (solo `is_staff`), estilos en línea en `panel/templates/panel/base.html` (no requiere build).
+Único sistema de gestión, pensado para usuarios no técnicos. Vistas basadas en clases con `StaffRequiredMixin` (solo `is_staff`), estilos en línea en `panel/templates/panel/base.html` (no requiere build).
 
 | Sección | Capacidad |
 |---|---|
@@ -161,7 +161,7 @@ Alternativa al admin para usuarios no técnicos. Vistas basadas en clases con `S
 | Blog | CRUD con imágenes entre párrafos y carrusel |
 | Nosotros / Tercera edad / Mantención | Edición de los singletons |
 
-Más detalle en `docs/PANEL.md`. El panel y el admin conviven y comparten base de datos y usuarios.
+Más detalle en `docs/PANEL.md`. El admin (`/admin/`) solo se usa para usuarios, grupos y contraseñas.
 
 ## 9. Configuración y entornos
 

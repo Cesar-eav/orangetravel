@@ -24,8 +24,6 @@ from django.conf.urls.static import static
 # Sin prefijo de idioma: admin/panel en español, URLs fijas para Flow
 # (pagos/) y APIs que Vue llama con rutas absolutas (tours/api/).
 urlpatterns = [
-    # path('jet/', include('jet.urls', 'jet')),  # URLs de JET
-    # path('jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')), #
     path('admin/', admin.site.urls),
     path('panel/', include('panel.urls')),
     path('ckeditor/', include('ckeditor_uploader.urls')),

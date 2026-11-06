@@ -68,7 +68,7 @@ class CotizacionTests(TestCase):
     def test_listado_muestra_a_cotizar(self):
         r = self.client.get(reverse('tours_home'))
         self.assertContains(r, 'A cotizar')
-        self.assertContains(r, '$20000')
+        self.assertContains(r, '$20.000')  # filtro |clp: punto de miles
 
     def test_panel_lista_y_marca_atendida(self):
         c = Cotizacion.objects.create(tour=self.tour_cotizar, nombre='Ana', email='ana@x.cl', telefono='12345678')

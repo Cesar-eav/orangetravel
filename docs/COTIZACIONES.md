@@ -31,7 +31,6 @@ Desde octubre de 2026, según la categoría del tour, el sitio permite **pagar e
 ## Gestión
 
 - **Panel** (`/panel/cotizaciones/`): lista con búsqueda (nombre, email o teléfono), filtro por tour y «Solo sin atender». En el detalle se marca como **atendida**. El inicio del panel muestra el contador «Cotizaciones sin atender».
-- **Admin** (`/admin/tours/cotizacion/`): `atendida` se puede editar desde la lista.
 
 ## Otros cambios
 
@@ -43,7 +42,7 @@ Desde octubre de 2026, según la categoría del tour, el sitio permite **pagar e
 
 ## Archivos
 
-- Modelo y lógica: `tours/models.py`, `tours/views.py`, `tours/urls.py`, `tours/admin.py`, `tours/migrations/0014_cotizacion.py`.
+- Modelo y lógica: `tours/models.py`, `tours/views.py`, `tours/urls.py`, `tours/migrations/0014_cotizacion.py`.
 - Pagos: `payments/views.py`.
 - Frontend: `static/src/components/CotizacionApp.vue` (nuevo), `static/src/main.js`, `tours/templates/tours/tour.html`, `tours/templates/tours/tours_home.html`, `home/templates/home/index.html`.
 - Panel: `panel/forms.py` (`CotizacionGestionForm`), `panel/views.py` (`CotizacionListView`, `CotizacionDetailView`), `panel/urls.py`, `panel/templates/panel/cotizaciones_list.html`, `panel/templates/panel/cotizacion_detail.html`, `base.html` (menú) y `dashboard.html` (contador).

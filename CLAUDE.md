@@ -16,9 +16,14 @@ Leer completo antes de modificar nada. Este archivo **no debe contener valores s
 6. Nunca commitear `.env`, API keys, secrets ni contraseñas. Si se documenta una variable, solo su nombre.
 7. Producción despliega la rama **`fix-orange`**. No reescribir historial de esa rama (el server hace `git pull`).
 
+## Panel vs admin
+
+- **`/panel/` (app `panel`) es el único sistema de gestión**: reservas, cotizaciones, ventas, pagos, tours, categorías, zonas, bloqueos, blog, páginas, mantención y sitio en inglés.
+- `/admin/` (Django + Unfold) quedó **solo para Usuarios, Grupos y contraseñas**. No hay `admin.py` en las apps: no crearlos ni registrar modelos en el admin; toda funcionalidad nueva va en `panel/`. Links en emails al equipo → `/panel/...`, nunca `/admin/...`.
+
 ## Stack
 
-- Django 5.2 (apps: `home`, `tours`, `payments`, `blog`), admin con Unfold, singletons con `django-solo`.
+- Django 5.2 (apps: `home`, `tours`, `payments`, `blog`, `panel`), admin con Unfold (solo usuarios), singletons con `django-solo`.
 - Frontend: Tailwind + Vue (`static/src/`, p. ej. `static/src/components/BookingApp.vue`) compilado con Vite → `static/js/dist/`.
 - BD: MySQL en producción (vía `DATABASE_URL` + PyMySQL); Postgres local.
 - Email: Mailgun vía Anymail (`EMAIL_BACKEND` hardcodeado en `config/settings.py`).
@@ -92,7 +97,7 @@ Implementado en la rama `traduccion` (worktree `../orangetravel-i18n`); mientras
 | Qué cambió | Qué correr en el server tras `git pull` |
 |---|---|
 | Solo templates | `touch tmp/restart.txt` |
-| Python (views, models, urls, admin, settings) | `migrate` si hay migraciones nuevas + `touch tmp/restart.txt` |
+| Python (views, models, urls, settings) | `migrate` si hay migraciones nuevas + `touch tmp/restart.txt` |
 | Tailwind/CSS/JS/Vue o `vite.config.mjs` | `npm run build` + `collectstatic --noinput` + restart |
 | Archivos nuevos en `static/` | `collectstatic --noinput` + restart |
 | `requirements.txt` | `~/virtualenv/orangetravel/3.11/bin/pip install -r requirements.txt` + restart |
@@ -100,7 +105,7 @@ Implementado en la rama `traduccion` (worktree `../orangetravel-i18n`); mientras
 | Variables de entorno | Editar en cPanel + **Restart desde cPanel** |
 
 - Error "Incomplete response received from application" = Django no arrancó. Revisar `passenger.log`; causa típica: una vista referenciada en `urls.py` que no existe en `views.py`.
-- **Modo mantención**: toggle en `/admin/` (modelo `MaintenanceMode` en `home/models.py`, `home/middleware.py`). Los no-staff reciben 503; los staff ven el sitio. Usarlo antes de deploys riesgosos.
+- **Modo mantención**: toggle en `/panel/mantencion/` (modelo `MaintenanceMode` en `home/models.py`, `home/middleware.py`). Los no-staff reciben 503; los staff ven el sitio. Usarlo antes de deploys riesgosos.
 - Jailshell de cPanel: no soporta process substitution (`<(...)`); usar archivos temporales.
 - Archivos ocultos en el File Manager de cPanel: Settings → Show Hidden Files.
 

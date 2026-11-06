@@ -1,6 +1,6 @@
 # Panel de gestión (`/panel/`)
 
-Panel alternativo al admin de Django/Unfold, pensado para usuarios no técnicos. **Convive con `/admin/`**, que no se modifica: ambos usan la misma base de datos y los mismos usuarios.
+Panel de gestión del sitio, pensado para usuarios no técnicos. **Es el único sistema para gestionar el negocio.** Desde el 5 nov 2026 `/admin/` (Django/Unfold) solo tiene Usuarios y Grupos: se borraron los `admin.py` de `home`, `tours`, `payments` y `blog`. No registrar modelos nuevos en el admin; lo nuevo va en `panel/`.
 
 ## Decisiones de diseño
 - App Django nueva `panel`, montada en `config/urls.py` como `panel/`.
@@ -63,7 +63,7 @@ Commits en la rama `fix-orange`:
 
 ## Decisiones pendientes / diferidas
 - **Permisos por grupo**: diferidos. Hoy hay un solo usuario, así que basta `is_staff` (todo staff ve todo). Si se suman usuarios con roles distintos, la propuesta es 3 grupos (Reservas y pagos / Catálogo / Contenido y ajustes) verificados en `StaffRequiredMixin` y filtrando el menú de `base.html`.
-- **Retiro del admin**: se deja `/admin/` intacto (sigue siendo respaldo y única vía para lo que el panel no cubre: usuarios, grupos). Para retirarlo más adelante: operar solo con el panel un tiempo, restringir `/admin/` a superusuarios y recién después evaluar quitarlo de `config/urls.py`.
+- **Retiro del admin**: primer paso hecho el 5 nov 2026 (`/admin/` quedó solo con Usuarios y Grupos, única vía web para crear usuarios y cambiar contraseñas). Para quitarlo del todo falta que el panel gestione usuarios; además `ckeditor_uploader` usa `staff_member_required`, que redirige a `admin:login` sin sesión.
 
 ## Lógica existente que el panel reutiliza (sin modificarla)
 - `payments/emails.py`: `send_payment_confirmation_to_customer` y `send_payment_confirmation_to_admins`.

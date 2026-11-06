@@ -120,7 +120,7 @@ Merge `traduccion` → `fix-orange`. Antes de encender el inglés, cargar `DEEPL
 
 En el server (`hostname` = int15, `cd ~/orangetravel`):
 
-1. Activar modo mantención (`/admin/`).
+1. Activar modo mantención (`/panel/mantencion/`).
 2. Respaldo de la BD.
 3. `git pull`.
 4. `~/virtualenv/orangetravel/3.11/bin/pip install -r requirements.txt` (dependencia nueva: django-modeltranslation).
