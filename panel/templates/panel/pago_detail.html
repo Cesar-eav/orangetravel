@@ -4,6 +4,7 @@
 <p><a href="{% url 'panel:pagos' %}">← Volver a pagos</a></p>
 <h2>Pago {{ pago.codigo }} <span class="badge b-{{ pago.status }}">{{ estado_texto }}</span></h2>
 <div class="card"><dl>
+<dt>N° de orden en Flow</dt><dd>{{ pago.pk }}</dd>
 <dt>Tour</dt><dd>{{ pago.tour_nombre_al_pagar|default:pago.tour.nombre }}</dd>
 <dt>Fecha del tour</dt><dd>{{ pago.reservation_date|date:"d/m/Y" }}</dd>
 <dt>Cliente</dt><dd>{{ pago.customer_name }}</dd>

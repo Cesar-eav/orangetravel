@@ -11,6 +11,7 @@
 <dt>Teléfono</dt><dd>{{ reserva.telefono_cliente }}</dd>
 <dt>Pasajeros</dt><dd>{{ reserva.adultos }} adultos, {{ reserva.ninos }} niños</dd>
 <dt>Total</dt><dd>${{ reserva.precio_total }}</dd>
+<dt>Pago Flow</dt><dd>{% if reserva.pago_id %}<a href="{% url 'panel:pago_detalle' reserva.pago_id %}" class="badge b-{{ reserva.pago_estado }}">{{ pago_texto }}</a>{% else %}Sin pago Flow{% endif %}</dd>
 <dt>Creada</dt><dd>{{ reserva.creada_el|date:"d/m/Y H:i" }}</dd>
 </dl></div>
 {% include 'panel/_google_calendar.html' %}

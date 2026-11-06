@@ -3,7 +3,7 @@ from datetime import timedelta
 
 from django.contrib import messages
 from django.contrib.auth.views import LoginView, redirect_to_login
-from django.db.models import Count, F, Q, Sum
+from django.db.models import Count, F, OuterRef, Q, Subquery, Sum
 from django.http import QueryDict
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
@@ -41,6 +41,30 @@ ESTADO_PAGO = {
     Payment.STATUS_FAILED: 'Fallido',
     Payment.STATUS_CANCELED: 'Cancelado',
 }
+
+
+SIN_PAGO = 'sin_pago'
+
+# TourCheckoutView crea el Payment y enseguida su Reserva (en local, a 0,02 s); los reintentos
+# del mismo cliente generan pares nuevos con igual tour, fecha y email, separados por segundos.
+# Por eso el pago de una reserva es el último con esos datos creado justo antes que ella.
+VENTANA_PAGO_RESERVA = timedelta(seconds=2)
+
+
+def con_pago(reservas):
+    """Anota pago_id y pago_estado (None si la reserva no pasó por Flow)."""
+    pago = Payment.objects.filter(
+        tour_id=OuterRef('tour_id'),
+        reservation_date=OuterRef('fecha'),
+        customer_email=OuterRef('email_cliente'),
+        deleted_at__isnull=True,
+        created_at__lte=OuterRef('creada_el'),
+        created_at__gte=OuterRef('creada_el') - VENTANA_PAGO_RESERVA,
+    ).order_by('-created_at')
+    return reservas.annotate(
+        pago_id=Subquery(pago.values('pk')[:1]),
+        pago_estado=Subquery(pago.values('status')[:1]),
+    )
 
 
 class PanelLoginView(LoginView):
@@ -100,8 +124,12 @@ class ReservaListView(PanelView, ListView):
     paginate_by = PAGE_SIZE
 
     def get_queryset(self):
-        qs = Reserva.objects.select_related('tour')
+        qs = con_pago(Reserva.objects.select_related('tour'))
         g = self.request.GET
+        if g.get('pago') == SIN_PAGO:
+            qs = qs.filter(pago_id__isnull=True)
+        elif g.get('pago') in ESTADO_PAGO:
+            qs = qs.filter(pago_estado=g['pago'])
         if q := g.get('q', '').strip():
             qs = qs.filter(
                 Q(codigo__icontains=q) | Q(nombre_cliente__icontains=q) | Q(email_cliente__icontains=q)
@@ -120,9 +148,12 @@ class ReservaListView(PanelView, ListView):
         params.pop('page', None)
         ctx.update(
             estados=Reserva.Estado.choices,
+            estados_pago=[*ESTADO_PAGO.items(), (SIN_PAGO, 'Sin pago Flow')],
             tours=Tour.objects.order_by('nombre'),
             querystring=params.urlencode(),
         )
+        for r in ctx['reservas']:
+            r.pago_texto = ESTADO_PAGO.get(r.pago_estado, '')
         g = self.request.GET
         if g.get('estado') == Reserva.Estado.CONFIRMADA and g.get('proximas'):
             ventas = ventas_confirmadas_proximas().select_related('tour').order_by('fecha_servicio')
@@ -152,9 +183,13 @@ class ReservaDetailView(PanelView, UpdateView):
             url += '?agregar_calendario=1'  # abre el pop up de Google Calendar
         return url
 
+    def get_queryset(self):
+        return con_pago(Reserva.objects.select_related('tour'))
+
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx.update(contexto_calendario(self.object, self.request))
+        ctx['pago_texto'] = ESTADO_PAGO.get(self.object.pago_estado, '')
         return ctx
 
     def form_valid(self, form):

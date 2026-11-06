@@ -1,8 +1,13 @@
 {% extends 'panel/base.html' %}
 {% block title %}Pagos{% endblock %}
 {% block content %}
-<h2>Pagos</h2>
-<details class="ayuda"><summary>¿Cómo funciona esta pantalla?</summary><p>Lista de solo lectura de los pagos hechos con Flow. Entra a un pago para reenviar el email de confirmación al cliente o a los administradores (solo pagos con estado «paid»).</p></details>
+<h2>Estado Pagos Flow</h2>
+<details class="ayuda"><summary>¿Cómo funciona esta pantalla?</summary><p>Lista de solo lectura de los pagos hechos con Flow. Entra a un pago para reenviar el email de confirmación al cliente o a los administradores (solo pagos con estado «paid»).</p>
+<p>El estado es la respuesta que entrega Flow sobre cada pago:</p>
+<p><strong>Paid</strong>: Flow confirmó el pago. Se enviaron los emails al cliente y a los administradores.</p>
+<p><strong>Pending</strong>: el cliente fue enviado a pagar a Flow, pero Flow todavía no informa un resultado. Casi siempre significa que el cliente cerró la página sin pagar; también puede ser un pago que Flow aún está procesando. Si el cliente dice que pagó, búscalo en el panel de Flow con el «N° de orden en Flow» (está en el detalle del pago) antes de confirmarle algo.</p>
+<p><strong>Failed</strong>: Flow rechazó el pago, o no se pudo crear la orden en Flow.</p>
+<p><strong>Canceled</strong>: el cliente canceló el pago en Flow.</p></details>
 <form class="filters" method="get">
   <div><label>Buscar</label><input name="q" value="{{ request.GET.q }}" placeholder="Código, nombre o email"></div>
   <div><label>Estado</label><select name="status"><option value="">Todos</option>
@@ -16,7 +21,7 @@
 {% for p in pagos %}<tr>
 <td><a href="{% url 'panel:pago_detalle' p.pk %}">{{ p.codigo }}</a></td><td>{{ p.customer_name }}<br><small>{{ p.customer_email }}</small></td>
 <td>{{ p.tour.nombre }}</td><td>{{ p.reservation_date|date:"d/m/Y" }}</td><td>${{ p.amount }}</td>
-<td><span class="badge b-{{ p.status }}">{{ p.get_status_display }}</span></td></tr>
+<td><span class="badge b-{{ p.status }}" title="{% if p.status == 'paid' %}Flow confirmó el pago{% elif p.status == 'pending' %}Flow aún no informa resultado: casi siempre el cliente no terminó de pagar{% elif p.status == 'failed' %}Flow rechazó el pago{% elif p.status == 'canceled' %}El cliente canceló el pago en Flow{% endif %}">{{ p.get_status_display }}</span></td></tr>
 {% empty %}<tr><td colspan="6">No hay pagos con esos filtros.</td></tr>{% endfor %}</table>
 {% include 'panel/_pager.html' %}</div>
 {% endblock %}
