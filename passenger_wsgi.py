@@ -4,6 +4,14 @@ import sys
 import pymysql
 pymysql.install_as_MySQLdb()
 
+# En int15 Passenger arranca Python con stdout en ASCII: un print() con emoji o tildes
+# lanzaba UnicodeEncodeError y cortaba el envío de emails (desde el 15 oct 2026).
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding='utf-8', errors='backslashreplace')
+    except Exception:  # noqa: BLE001 — Passenger podría dar un stream sin reconfigure
+        pass
+
 # Si existe .env en la raíz del proyecto, sus valores sobreescriben los de cPanel
 from dotenv import load_dotenv
 load_dotenv(os.path.join(os.path.dirname(__file__), '.env'), override=True)

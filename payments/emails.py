@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.core.mail import EmailMultiAlternatives # Importante para enviar HTML
@@ -10,6 +12,8 @@ from django.utils.translation import gettext as _
 from .models import Payment
 from tours.traduccion import texto
 from tours.views import EMAIL_POR_TOUR, EMAIL_ADMIN_DEFAULT, CC_RESERVAS
+
+logger = logging.getLogger(__name__)
 
 
 def get_email_admin_pago(payment):
@@ -210,15 +214,13 @@ def send_payment_confirmation_to_admins(payment: Payment) -> None:
 
 
 def enviar_confirmacion_pago(payment):
-    print(f"DEBUG: 🍊 Iniciando envío vía Anymail (Mailgun API) para Pago #{payment.id}...")
+    """Avisa al cliente y al admin. Sin print(): en int15 stdout es ASCII y un emoji
+    cortaba el envío. Cada email va en su propio try para que un fallo no frene al otro."""
     try:
         send_payment_confirmation_to_customer(payment)
-        print("DEBUG: ✅ Anymail: Correo cliente enviado.")
-
-        email_admin = get_email_admin_pago(payment)
-        print(f"DEBUG: 📧 Notificación pago → {email_admin} (tour: {payment.tour.nombre_es})")
+    except Exception:
+        logger.exception("No se pudo enviar el email de pago al cliente (pago %s)", payment.id)
+    try:
         send_payment_confirmation_to_admins(payment)
-        print("DEBUG: ✅ Anymail: Correo admin enviado.")
-
-    except Exception as e:
-        print(f"❌ ERROR CON ANYMAIL/MAILGUN: {e}")
+    except Exception:
+        logger.exception("No se pudo enviar el email de pago al admin (pago %s)", payment.id)

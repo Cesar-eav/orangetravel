@@ -1,14 +1,16 @@
+import io
 import json
 from datetime import date, timedelta
 from decimal import Decimal
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.core import mail
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import translation
 
-from .models import TIPO_CON_PRECIO_ID, Cotizacion, PrecioTour, TipoTour, Tour
+from .models import TIPO_CON_PRECIO_ID, Cotizacion, PrecioTour, Reserva, TipoTour, Tour
 
 
 class CotizacionTests(TestCase):
@@ -96,3 +98,35 @@ class CotizacionTests(TestCase):
         self.client.post(reverse('panel:cotizacion_detalle', args=[c.pk]), {'atendida': 'on'})
         c.refresh_from_db()
         self.assertTrue(c.atendida)
+
+
+@override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+class StdoutAsciiNotificacionesTests(TestCase):
+    """En int15 stdout es ASCII: los emails no deben depender de print()."""
+
+    @classmethod
+    def setUpTestData(cls):
+        tipo = TipoTour.objects.create(pk=2, nombre='Trekking')
+        cls.tour = Tour.objects.create(tipo=tipo, nombre='Excursión Surire', slug='surire')
+
+    def _stdout_ascii(self):
+        return patch('sys.stdout', io.TextIOWrapper(io.BytesIO(), encoding='ascii'))
+
+    def test_reserva_envia_cliente_y_admin(self):
+        from .views import enviar_notificaciones_reserva
+        reserva = Reserva.objects.create(
+            tour=self.tour, nombre_cliente='José Peña', email_cliente='jose@example.com',
+            telefono_cliente='+56 9 1111 2222', fecha=date.today() + timedelta(days=5),
+        )
+        with self._stdout_ascii():
+            enviar_notificaciones_reserva(reserva)
+        self.assertEqual(len(mail.outbox), 2)
+
+    def test_cotizacion_envia_cliente_y_admin(self):
+        from .views import enviar_notificaciones_cotizacion
+        cotizacion = Cotizacion.objects.create(
+            tour=self.tour, nombre='José Peña', email='jose@example.com', telefono='+56911112222',
+        )
+        with self._stdout_ascii():
+            enviar_notificaciones_cotizacion(cotizacion)
+        self.assertEqual(len(mail.outbox), 2)

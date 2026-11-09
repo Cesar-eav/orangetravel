@@ -82,7 +82,6 @@ class TourCheckoutView(APIView):
         if not tour.con_precio:
             return Response({"detail": _("Este tour se reserva por cotización.")}, status=status.HTTP_400_BAD_REQUEST)
 
-        print("Resreva: ", data)
         # El email debe venir en el POST ya que el usuario no está registrado
         email = request.data.get("email")
         if not email:

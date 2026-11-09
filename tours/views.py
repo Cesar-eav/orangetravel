@@ -1,3 +1,4 @@
+import logging
 import threading
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
@@ -21,6 +22,8 @@ from django.utils.translation import gettext as _
 from .traduccion import mostrar_aprobado, texto
 from datetime import date
 import os
+
+logger = logging.getLogger(__name__)
 
 # Email del admin según el tour (keyword en el nombre en español → destinatario)
 EMAIL_POR_TOUR = {
@@ -184,8 +187,6 @@ def crear_reserva(request):
         return JsonResponse({'status': 'error', 'mensaje': str(e)}, status=500)
 
 def enviar_notificaciones_reserva(reserva):
-    print(f"DEBUG: Iniciando envío de correos para la reserva {reserva.id}...") # Checkpoint 1
-
     # --- 1. CONFIGURACIÓN PARA EL CLIENTE (en su idioma) ---
     with translation.override(reserva.idioma):
         tour_nombre = texto(reserva.tour, 'nombre', reserva.idioma)
@@ -206,25 +207,22 @@ def enviar_notificaciones_reserva(reserva):
             'reserva': reserva, 'tel_limpio': tel_limpio, 'dominio': dominio,
         })
 
+    # Sin print(): en int15 stdout es ASCII y un emoji o tilde cortaba el envío.
+    # Cada email en su propio try para que un fallo no frene al otro.
+    email_admin = get_email_admin(reserva)
+    cc_admin = [email for email in CC_RESERVAS if email != email_admin]
     try:
-        print(f"DEBUG: Intentando conectar con SMTP: {settings.EMAIL_HOST}") # Checkpoint 2
-        # Enviar al Cliente
         msg_cli = EmailMultiAlternatives(asunto_cliente, texto_cliente, settings.DEFAULT_FROM_EMAIL, [reserva.email_cliente])
         msg_cli.attach_alternative(html_cliente, "text/html")
         msg_cli.send()
-        print("DEBUG: Correo cliente enviado con éxito.") # Checkpoint 3
-
-        # Enviar al Admin (destinatario según el tour)
-        email_admin = get_email_admin(reserva)
-        cc_admin = [email for email in CC_RESERVAS if email != email_admin]
-        print(f"DEBUG: 📧 Notificación admin → {email_admin} cc={cc_admin} (tour: {reserva.tour.nombre_es})")
+    except Exception:
+        logger.exception("No se pudo enviar el email de reserva al cliente (reserva %s)", reserva.id)
+    try:
         msg_adm = EmailMultiAlternatives(asunto_admin, "Nueva reserva recibida.", settings.DEFAULT_FROM_EMAIL, [email_admin], cc=cc_admin)
         msg_adm.attach_alternative(html_admin, "text/html")
         msg_adm.send()
-        print("DEBUG: Correo admin enviado con éxito.") # Checkpoint 4
-        
-    except Exception as e:
-        print(f"Error enviando correos: {e}")
+    except Exception:
+        logger.exception("No se pudo enviar el email de reserva al admin (reserva %s)", reserva.id)
 
 @require_POST
 def crear_cotizacion(request):
@@ -303,19 +301,20 @@ def enviar_notificaciones_cotizacion(cotizacion):
             'cotizacion': cotizacion, 'tel_limpio': tel_limpio, 'dominio': dominio,
         })
 
+    email_admin = get_email_admin(cotizacion)
+    cc_admin = [email for email in CC_RESERVAS if email != email_admin]
     try:
         msg_cli = EmailMultiAlternatives(asunto_cliente, texto_cliente, settings.DEFAULT_FROM_EMAIL, [cotizacion.email])
         msg_cli.attach_alternative(html_cliente, "text/html")
         msg_cli.send()
-
-        email_admin = get_email_admin(cotizacion)
-        cc_admin = [email for email in CC_RESERVAS if email != email_admin]
-        print(f"DEBUG: 📧 Cotización {cotizacion.id} → {email_admin} cc={cc_admin} (tour: {cotizacion.tour.nombre_es})")
+    except Exception:
+        logger.exception("No se pudo enviar el email de cotización al cliente (cotización %s)", cotizacion.id)
+    try:
         msg_adm = EmailMultiAlternatives(asunto_admin, "Nueva solicitud de cotización.", settings.DEFAULT_FROM_EMAIL, [email_admin], cc=cc_admin, reply_to=[cotizacion.email])
         msg_adm.attach_alternative(html_admin, "text/html")
         msg_adm.send()
-    except Exception as e:
-        print(f"Error enviando correos de cotización: {e}")
+    except Exception:
+        logger.exception("No se pudo enviar el email de cotización al admin (cotización %s)", cotizacion.id)
 
 def get_fechas_bloqueadas(request, tour_id):
     """

@@ -93,7 +93,8 @@ En producción desde el 2 nov 2026 (merge `cbcadac` de la rama `traduccion` en `
 - Python: `~/virtualenv/orangetravel/3.11/bin/python`. **No existe `.venv/` ni `python3`** en el server (`docs/DEPLOY.md` menciona `.venv/bin/python`, pero en producción es el virtualenv).
 - Node no está en el PATH: antes de `npm` correr `export PATH=/opt/alt/alt-nodejs22/root/usr/bin:$PATH` (el proyecto pide Node ≥ 22). `node_modules/` ya está instalado (`npm ci`); no correr `npm audit fix` en el server (modifica `package-lock.json`).
 - Reiniciar desde cPanel → Setup Python App → Restart. `touch tmp/restart.txt` no está verificado en int15.
-- Log: `~/logs/passenger.log` (no verificado en int15).
+- Log de la app en int15: **`~/orangetravel/stderr.log`** (`print` y `logging`). `~/logs/passenger.log` es de srv28 y termina el 15 oct 2026.
+- **En int15 Passenger arranca Python con stdout en ASCII**: un `print()` con emoji o tilde lanza `UnicodeEncodeError`. Así se perdieron los emails de pago, el admin de reservas y cotizaciones, y fallaba el checkout con nombres con tilde (15 oct al 9 nov 2026). `passenger_wsgi.py` fuerza UTF-8 en stdout/stderr; aun así, en el código usar `logging` (`logger.exception`), no `print`, y nunca un `print` antes de enviar un email.
 
 | Qué cambió | Qué correr en el server tras `git pull` |
 |---|---|
