@@ -107,6 +107,7 @@ En producción desde el 2 nov 2026 (merge `cbcadac` de la rama `traduccion` en `
 
 - Error "Incomplete response received from application" = Django no arrancó. Revisar `passenger.log`; causa típica: una vista referenciada en `urls.py` que no existe en `views.py`.
 - **Modo mantención**: toggle en `/panel/mantencion/` (modelo `MaintenanceMode` en `home/models.py`, `home/middleware.py`). Los no-staff reciben 503; los staff ven el sitio. Usarlo antes de deploys riesgosos.
+  - La vuelta de Flow (`/pagos/flow-confirm/`, `/pagos/flow-return/`, `/pagos/vista_confirmacion_pago/`) queda exenta: el webhook llega sin cookies y el return es un POST desde flow.cl donde la sesión (`SameSite=Lax`) no viaja, así que ni el staff se ve logueado. El checkout sigue bloqueado.
 - Jailshell de cPanel: no soporta process substitution (`<(...)`); usar archivos temporales.
 - Archivos ocultos en el File Manager de cPanel: Settings → Show Hidden Files.
 

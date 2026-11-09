@@ -8,7 +8,14 @@ from .models import MaintenanceMode, SitioIngles
 
 
 class MaintenanceModeMiddleware:
-    EXEMPT_PREFIXES = ('/admin/', '/panel/', '/ckeditor/')
+    # Vuelta de Flow exenta: el webhook (flow-confirm) llega sin cookies y el return es un
+    # POST desde flow.cl, donde la cookie de sesión (SameSite=Lax) no viaja y ni el staff
+    # se ve logueado. Bloquearlas deja el pago en pending y sin emails. El checkout sigue
+    # bloqueado: con mantención nadie fuera del staff inicia un pago nuevo.
+    EXEMPT_PREFIXES = (
+        '/admin/', '/panel/', '/ckeditor/',
+        '/pagos/flow-confirm/', '/pagos/flow-return/', '/pagos/vista_confirmacion_pago/',
+    )
 
     def __init__(self, get_response):
         self.get_response = get_response
