@@ -314,3 +314,20 @@ FLOW_SECRET_KEY = os.getenv("FLOW_SECRET_KEY")
 FLOW_API_BASE = os.getenv("FLOW_API_BASE", "https://sandbox.flow.cl/api")
 # 13 Traducción automática (DeepL, cuenta de Orange Travel). En producción viene de cPanel.
 DEEPL_API_KEY = os.getenv("DEEPL_API_KEY")
+
+# 14 Logging: los logger de payments y tours escriben en stderr, que en int15 queda en
+# ~/orangetravel/stderr.log. Sin esto, logger.info() no se ve (solo WARNING o más).
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {'format': '[{asctime}] {levelname} {name}: {message}', 'style': '{'},
+    },
+    'handlers': {
+        'stderr': {'class': 'logging.StreamHandler', 'formatter': 'simple'},
+    },
+    'loggers': {
+        'payments': {'handlers': ['stderr'], 'level': 'INFO', 'propagate': False},
+        'tours': {'handlers': ['stderr'], 'level': 'INFO', 'propagate': False},
+    },
+}

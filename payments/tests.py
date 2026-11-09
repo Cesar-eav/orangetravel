@@ -109,3 +109,84 @@ class StdoutAsciiPagoTests(TestCase):
         with stdout_ascii():
             r = self.client.post(reverse('tour_checkout', args=[self.tour.id]), payload, content_type='application/json')
         self.assertEqual(r.status_code, 200, r.content)
+
+
+@override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+class ConciliacionFlowTests(TestCase):
+    """Respaldo del webhook: el pago se confirma aunque Flow no avise y el cliente no vuelva."""
+
+    @classmethod
+    def setUpTestData(cls):
+        tipo = TipoTour.objects.create(pk=TIPO_CON_PRECIO_ID, nombre='Excursiones de un Día')
+        cls.tour = Tour.objects.create(tipo=tipo, nombre='Valle', slug='valle')
+        PrecioTour.objects.create(tour=cls.tour, valor_adulto=20000)
+
+    def setUp(self):
+        self.pago = Payment.objects.create(
+            tour=self.tour, amount=20000, status=Payment.STATUS_PENDING,
+            customer_name='Ann', customer_email='ann@example.com', customer_phone='+56911112222',
+            reservation_date=date.today() + timedelta(days=5), pax_adults=1, pax_children=0,
+            provider_token='tok-conciliar',
+        )
+
+    def _conciliar(self, status_data, *args):
+        from django.core.management import call_command
+        salida = io.StringIO()
+        with patch('payments.management.commands.conciliar_pagos_flow.FlowClient.is_configured', return_value=True), \
+                patch('payments.management.commands.conciliar_pagos_flow.FlowClient.get_status', return_value=status_data):
+            call_command('conciliar_pagos_flow', *args, stdout=salida)
+        self.pago.refresh_from_db()
+        return salida.getvalue()
+
+    def test_confirma_pago_y_envia_emails_una_vez(self):
+        self._conciliar({'status': 2})
+        self.assertEqual(self.pago.status, Payment.STATUS_PAID)
+        self.assertEqual(len(mail.outbox), 2)
+        self._conciliar({'status': 2})  # segunda pasada del cron: ya no está pendiente
+        self.assertEqual(len(mail.outbox), 2)
+
+    def test_simular_no_cambia_nada(self):
+        salida = self._conciliar({'status': 2}, '--simular')
+        self.assertEqual(self.pago.status, Payment.STATUS_PENDING)
+        self.assertEqual(len(mail.outbox), 0)
+        self.assertIn('simulado', salida)
+
+    def test_sin_emails(self):
+        self._conciliar({'status': 2}, '--sin-emails')
+        self.assertEqual(self.pago.status, Payment.STATUS_PAID)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_rechazado_queda_fallido(self):
+        self._conciliar({'status': 3})
+        self.assertEqual(self.pago.status, Payment.STATUS_FAILED)
+
+    def test_token_desconocido_queda_pendiente(self):
+        salida = self._conciliar({'code': 105, 'message': 'Token inválido'})
+        self.assertEqual(self.pago.status, Payment.STATUS_PENDING)
+        self.assertIn('Token inválido', salida)
+
+    def test_ignora_pagos_antiguos(self):
+        Payment.objects.filter(pk=self.pago.pk).update(created_at=date.today() - timedelta(days=10))
+        self._conciliar({'status': 2})
+        self.assertEqual(self.pago.status, Payment.STATUS_PENDING)
+        self._conciliar({'status': 2}, '--dias', '30')
+        self.assertEqual(self.pago.status, Payment.STATUS_PAID)
+
+    @patch('payments.views.FlowClient.get_status', return_value={'status': 2})
+    def test_webhook_y_retorno_no_duplican_emails(self, _):
+        self.client.post(reverse('flow_confirm'), {'token': 'tok-conciliar'})
+        self.client.post(reverse('flow_return'), {'token': 'tok-conciliar'})
+        self.assertEqual(len(mail.outbox), 2)
+
+    @patch('payments.views.FlowClient.is_configured', return_value=True)
+    @patch('payments.views.FlowClient.create_payment')
+    def test_checkout_manda_urls_https_a_flow(self, create_payment, _):
+        create_payment.return_value.token = 'tok-x'
+        create_payment.return_value.raw = {}
+        create_payment.return_value.redirect_url = 'https://sandbox.flow.cl/pay?token=tok-x'
+        payload = {'nombre': 'Ann', 'email': 'ann@example.com', 'telefono': '+56911112222',
+                   'fecha': str(date.today() + timedelta(days=5)), 'adultos': 1, 'ninos': 0, 'total': 20000}
+        self.client.post(reverse('tour_checkout', args=[self.tour.id]), payload, content_type='application/json')
+        kwargs = create_payment.call_args.kwargs
+        self.assertTrue(kwargs['url_confirmation'].startswith('https://'), kwargs['url_confirmation'])
+        self.assertTrue(kwargs['url_return'].startswith('https://'), kwargs['url_return'])

@@ -54,6 +54,8 @@ Leer completo antes de modificar nada. Este archivo **no debe contener valores s
   ```
 - Pasar producción a sandbox temporalmente (solo si es imprescindible): crear `.env` en la raíz del server con las 3 vars sandbox → Restart → probar → **borrar el `.env`** → Restart. Olvidar borrarlo deja el sitio cobrando en sandbox.
 - Comando de auditoría: `python manage.py detectar_incongruencias_pago`.
+- **Confirmación del pago**: webhook, retorno y conciliación pasan por `payments/confirmacion.py::aplicar_estado_flow` (UPDATE condicional sobre `paid_at`: los emails salen una sola vez aunque coincidan).
+- **Conciliación (respaldo del webhook)**: `python manage.py conciliar_pagos_flow` pregunta a Flow por los pagos `pending` de los últimos 3 días (`--dias N`) y los confirma con emails. `--simular` solo muestra; `--sin-emails` para pagos antiguos. En producción corre por cron de cPanel cada 10 min (ver `docs/INCIDENTE_EMAILS_INT15.md`). Cada llegada del webhook queda en `stderr.log` («Webhook Flow recibido»).
 
 ## Emails de notificación
 
@@ -119,4 +121,5 @@ En producción desde el 2 nov 2026 (merge `cbcadac` de la rama `traduccion` en `
 - `docs/PRODUCCION_VARS_EMAIL.md`: variables en cPanel, por qué no hay `.env`, DNS y enrutamiento de emails.
 - `docs/COTIZACIONES.md`: tours con precio (categoría 1) vs. tours con cotización; flujo, modelo, panel y deploy.
 - `docs/email-deliverability.md`: SPF/DKIM/DMARC y Mailgun.
+- `docs/INCIDENTE_EMAILS_INT15.md`: por qué no salieron emails del 15 oct al 9 nov 2026 (stdout ASCII en int15), el arreglo y los pendientes.
 - `docs/PROPUESTA_TRADUCCION_ES_EN.md`: sitio bilingüe ES/EN; el anexo técnico tiene las decisiones (modeltranslation, URLs, idioma en emails/webhook), los problemas conocidos y el deploy de cada entrega. Orden de ejecución y checklists: `docs/PLAN_TRADUCCION_ETAPAS.md`.
