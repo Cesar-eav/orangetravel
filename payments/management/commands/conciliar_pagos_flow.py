@@ -74,4 +74,6 @@ class Command(BaseCommand):
 
         total = sum(resumen.values())
         partes = ', '.join(f'{k}: {v}' for k, v in sorted(resumen.items())) or 'nada que revisar'
-        self.stdout.write(f"{total} pagos pendientes revisados ({partes}).")
+        # Con hora: en conciliar.log cada corrida queda fechada (historial del cron).
+        ahora = timezone.localtime().strftime('%Y-%m-%d %H:%M')
+        self.stdout.write(f"[{ahora}] {total} pagos pendientes revisados ({partes}).")
