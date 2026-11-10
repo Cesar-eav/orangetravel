@@ -61,16 +61,40 @@ h3 { font-size: 1.15rem; margin-top: 8px; }
 p { margin: 0; }
 
 /* Cabecera */
-header.top { padding-block: 48px 28px; border-bottom: 1px solid var(--line); display: grid; gap: 18px; }
+header.top { padding-block: 36px 28px; border-bottom: 1px solid var(--line); display: grid; gap: 18px; }
 .eyebrow { font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
 h1 { font-size: clamp(2.1rem, 1.5rem + 3vw, 3.3rem); letter-spacing: -0.02em; }
 h1 .dim { color: var(--muted); font-weight: 600; }
 .lede { font-size: 1.12rem; color: var(--muted); max-width: 62ch; }
 .thesis { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent); padding: 16px 18px; border-radius: 6px; max-width: 72ch; }
 .thesis strong { color: var(--fg); }
-nav.toc { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 4px; }
-nav.toc a { font-size: 13.5px; text-decoration: none; color: var(--fg); background: var(--surface); border: 1px solid var(--line); padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
-nav.toc a:hover { border-color: var(--accent); color: var(--accent); }
+/* Barra de navegación fija */
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg); }
+nav.topbar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  margin-left: calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+  margin-right: calc(-1 * max(16px, env(safe-area-inset-right, 0px)));
+  background: var(--bg);
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.topbar-in {
+  max-width: 1440px; margin: 0 auto; display: flex; align-items: center; gap: 14px; padding-block: 8px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.topbar .brand { font-family: var(--f-display); font-weight: 700; font-size: 15px; color: var(--fg); text-decoration: none; white-space: nowrap; }
+.topbar .brand span { color: var(--accent); }
+.toc { position: relative; flex: 1; min-width: 0; display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain; }
+.toc::-webkit-scrollbar { display: none; }
+.toc.fade-r { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); }
+.toc.fade-l { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to left, #000 calc(100% - 32px), transparent); }
+.toc.fade-l.fade-r { -webkit-mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent); }
+.toc a { flex: none; font-size: 13px; text-decoration: none; color: var(--muted); padding: 5px 8px; border-radius: 999px; border: 1px solid transparent; white-space: nowrap; }
+.toc a:hover { color: var(--accent); }
+.toc a[aria-current="true"] { color: var(--accent); background: var(--accent-soft); border-color: var(--accent); }
+section[id], header[id] { scroll-margin-top: 64px; }
+@media (max-width: 620px) { .topbar .brand { display: none; } }
 
 /* Secciones */
 section { padding-block: 44px 8px; display: grid; gap: 18px; }
@@ -211,7 +235,7 @@ pre.out { background: var(--surface); border-style: dashed; }
 .gloss-group { display: grid; gap: 10px; }
 dl.glossary { margin: 0; display: grid; grid-template-columns: minmax(140px, 210px) minmax(0, 1fr); gap: 0; max-width: 880px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
 dl.glossary dt, dl.glossary dd { padding: 10px 14px; border-bottom: 1px solid var(--line); margin: 0; }
-dl.glossary dt { font-weight: 600; scroll-margin-top: 20px; }
+dl.glossary dt { font-weight: 600; scroll-margin-top: 72px; }
 dl.glossary dd { font-size: 15px; }
 dl.glossary dt:last-of-type, dl.glossary dd:last-of-type { border-bottom: 0; }
 dl.glossary dt:target, dl.glossary dt:target + dd { background: var(--accent-soft); }
@@ -227,28 +251,34 @@ html { scroll-behavior: smooth; }
 </head>
 <body>
 
+<nav class="topbar" aria-label="Secciones">
+  <div class="topbar-in">
+    <a class="brand" href="#top">Flow <span>·</span> Orange Travel</a>
+    <div class="toc" id="toc">
+      <a href="#conceptos">Conceptos</a>
+      <a href="#recorrido">Recorrido</a>
+      <a href="#endpoints">Endpoints</a>
+      <a href="#firma">La firma</a>
+      <a href="#tres-vias">Tres vías</a>
+      <a href="#estados">Estados</a>
+      <a href="#cron">Vigilar el cron</a>
+      <a href="#ingles">Español e inglés</a>
+      <a href="#trampas">Detalles finos</a>
+      <a href="#repo">Leer el código</a>
+      <a href="#probar">Probar en local</a>
+      <a href="#profundizar">Para profundizar</a>
+      <a href="#glosario">Glosario</a>
+    </div>
+  </div>
+</nav>
+
 <div class="wrap">
 
-<header class="top">
+<header class="top" id="top">
   <div class="eyebrow">orangetravel.cl · rama fix-orange · 10 nov 2026</div>
   <h1>Pagos con Flow <span class="dim">y el sitio en inglés</span></h1>
   <p class="lede">Cómo viaja una reserva pagada desde el botón «Reservar» hasta el email de confirmación: quién habla con quién, cómo se confirma un pago sin cobrar ni avisar dos veces y qué cambia cuando el cliente navega en <code>/en/</code>.</p>
   <div class="thesis"><strong>En una frase:</strong> Flow cobra en una página propia y avisa del resultado por tres vías que pueden llegar a la vez (<a class="term" href="#g-webhook">webhook</a>, retorno del navegador y un <a class="term" href="#g-cron">cron</a>). Las tres pasan por un mismo <a class="term" href="#g-atomico"><code>UPDATE</code> condicional</a> que deja ganar a una sola. El inglés no cambia el pago: lo único que cambia es que el idioma se guarda en la base de datos, porque al ir y volver de flow.cl se pierden la URL <code>/en/</code> y la sesión.</div>
-  <nav class="toc" aria-label="Secciones">
-    <a href="#conceptos">Conceptos</a>
-    <a href="#recorrido">Recorrido</a>
-    <a href="#endpoints">Endpoints</a>
-    <a href="#firma">La firma</a>
-    <a href="#tres-vias">Tres vías</a>
-    <a href="#estados">Estados</a>
-    <a href="#cron">Vigilar el cron</a>
-    <a href="#ingles">Español e inglés</a>
-    <a href="#trampas">Detalles finos</a>
-    <a href="#repo">Leer el código</a>
-    <a href="#probar">Probar en local</a>
-    <a href="#profundizar">Para profundizar</a>
-    <a href="#glosario">Glosario</a>
-  </nav>
 </header>
 
 <!-- 0 -->
@@ -1206,6 +1236,45 @@ enviar_confirmacion_pago(Payment.objects.get(id=<span class="k">&lt;ID&gt;</span
   document.addEventListener('click', function (e) { if (actual && !e.target.closest('a.term')) ocultar(); });
   window.addEventListener('scroll', function () { if (actual) ubicar(actual); }, { passive: true });
   window.addEventListener('resize', function () { if (actual) ubicar(actual); });
+})();
+</script>
+<script>
+(function () {
+  var toc = document.getElementById('toc');
+  var links = Array.prototype.slice.call(toc.querySelectorAll('a'));
+  var secciones = links.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); });
+  var activo = null, pendiente = false;
+
+  function bordes() {
+    toc.classList.toggle('fade-l', toc.scrollLeft > 4);
+    toc.classList.toggle('fade-r', toc.scrollLeft + toc.clientWidth < toc.scrollWidth - 4);
+  }
+  function marcar() {
+    pendiente = false;
+    var limite = 90, idx = -1;
+    secciones.forEach(function (sec, i) { if (sec && sec.getBoundingClientRect().top <= limite) idx = i; });
+    // Al final de la página, la última sección queda activa aunque sea corta.
+    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) idx = secciones.length - 1;
+    var nuevo = idx >= 0 ? links[idx] : null;
+    if (nuevo === activo) return;
+    if (activo) activo.removeAttribute('aria-current');
+    activo = nuevo;
+    if (activo) {
+      activo.setAttribute('aria-current', 'true');
+      var x = activo.offsetLeft - toc.clientWidth / 2 + activo.offsetWidth / 2;
+      toc.scrollTo({ left: Math.max(0, x), behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    }
+  }
+  window.addEventListener('scroll', function () { if (!pendiente) { pendiente = true; requestAnimationFrame(marcar); } }, { passive: true });
+  window.addEventListener('resize', function () { bordes(); marcar(); });
+  toc.addEventListener('scroll', bordes, { passive: true });
+  // Con la rueda del mouse (vertical), la barra se desliza hacia el lado.
+  toc.addEventListener('wheel', function (e) {
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX) && toc.scrollWidth > toc.clientWidth) {
+      toc.scrollLeft += e.deltaY; e.preventDefault();
+    }
+  }, { passive: false });
+  bordes(); marcar();
 })();
 </script>
 </body>
