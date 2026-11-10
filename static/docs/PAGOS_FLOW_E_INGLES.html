@@ -85,16 +85,32 @@ nav.topbar {
 }
 .topbar .brand { font-family: var(--f-display); font-weight: 700; font-size: 15px; color: var(--fg); text-decoration: none; white-space: nowrap; }
 .topbar .brand span { color: var(--accent); }
-.toc { position: relative; flex: 1; min-width: 0; display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain; }
-.toc::-webkit-scrollbar { display: none; }
-.toc.fade-r { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); }
-.toc.fade-l { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to left, #000 calc(100% - 32px), transparent); }
-.toc.fade-l.fade-r { -webkit-mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent); }
-.toc a { flex: none; font-size: 13px; text-decoration: none; color: var(--muted); padding: 5px 8px; border-radius: 999px; border: 1px solid transparent; white-space: nowrap; }
-.toc a:hover { color: var(--accent); }
-.toc a[aria-current="true"] { color: var(--accent); background: var(--accent-soft); border-color: var(--accent); }
 section[id], header[id] { scroll-margin-top: 64px; }
-@media (max-width: 620px) { .topbar .brand { display: none; } }
+.menu { list-style: none; margin: 0; padding: 0; display: flex; gap: 2px; }
+.grupo { position: relative; }
+.grupo-btn { font: inherit; font-size: 13.5px; color: var(--muted); background: none; border: 1px solid transparent; border-radius: 999px; padding: 5px 11px 5px 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+.grupo-btn::after, .todo-btn::after { content: ""; width: 6px; height: 6px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: translateY(-2px) rotate(45deg); transition: transform 0.15s; }
+.grupo-btn[aria-expanded="true"]::after, .todo-btn[aria-expanded="true"]::after { transform: translateY(1px) rotate(-135deg); }
+.grupo-btn:hover, .grupo-btn[aria-expanded="true"] { color: var(--fg); background: var(--surface); border-color: var(--line); }
+.grupo-btn.activo { color: var(--accent); }
+.grupo-btn.activo::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.panel { position: absolute; top: calc(100% + 10px); left: 0; z-index: 40; min-width: 300px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 14px 36px var(--shadow); padding: 6px; display: grid; gap: 2px; }
+.grupo:nth-last-child(-n+2) .panel { left: auto; right: 0; }
+.panel a, .todo a { display: grid; grid-template-columns: 2rem minmax(0, 1fr); gap: 8px; align-items: baseline; padding: 8px 10px; border-radius: 6px; text-decoration: none; color: var(--fg); }
+.panel a:hover, .panel a:focus-visible, .todo a:hover, .todo a:focus-visible { background: var(--bg); }
+.panel a[aria-current="true"], .todo a[aria-current="true"] { background: var(--accent-soft); }
+.panel .n, .todo .n { font-family: var(--f-mono); font-size: 12px; color: var(--accent); }
+.panel .t, .todo .t { display: grid; font-size: 14.5px; font-weight: 500; line-height: 1.3; }
+.panel small, .todo small { font-weight: 400; font-size: 12.5px; color: var(--muted); }
+.actual { margin-left: auto; min-width: 0; font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.actual b { font-family: var(--f-mono); font-weight: 500; color: var(--accent); margin-right: 6px; }
+.todo-btn { display: none; flex: none; font: inherit; font-size: 13.5px; font-weight: 500; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px 5px 13px; cursor: pointer; align-items: center; gap: 8px; }
+.todo { border-top: 1px solid var(--line); background: var(--surface); max-height: calc(100vh - 70px); max-height: calc(100dvh - 70px); overflow-y: auto; overscroll-behavior: contain; padding-block: 10px 18px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px 20px; }
+.todo h4 { margin: 0 0 4px; padding-inline: 10px; font-family: var(--f-mono); font-weight: 500; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.progreso { height: 2px; }
+.progreso span { display: block; height: 100%; width: 0; background: var(--accent); }
+@media (max-width: 900px) { .menu { display: none; } .todo-btn { display: inline-flex; } }
+@media (max-width: 520px) { .topbar .brand { display: none; } .actual { margin-left: 0; flex: 1; } }
 
 /* Secciones */
 section { padding-block: 44px 8px; display: grid; gap: 18px; }
@@ -328,23 +344,52 @@ html { scroll-behavior: smooth; }
 <nav class="topbar" aria-label="Secciones">
   <div class="topbar-in">
     <a class="brand" href="#top">Flow <span>·</span> Orange Travel</a>
-    <div class="toc" id="toc">
-      <a href="#conceptos">Conceptos</a>
-      <a href="#recorrido">Recorrido</a>
-      <a href="#simulador">Simulador</a>
-      <a href="#endpoints">Endpoints</a>
-      <a href="#firma">La firma</a>
-      <a href="#tres-vias">Tres vías</a>
-      <a href="#estados">Estados</a>
-      <a href="#cron">Vigilar el cron</a>
-      <a href="#ingles">Español e inglés</a>
-      <a href="#trampas">Detalles finos</a>
-      <a href="#repo">Leer el código</a>
-      <a href="#probar">Probar en local</a>
-      <a href="#profundizar">Para profundizar</a>
-      <a href="#glosario">Glosario</a>
-    </div>
+    <ul class="menu">
+      <li class="grupo">
+        <button type="button" class="grupo-btn" aria-expanded="false" aria-controls="m-intro">Introducción</button>
+        <div class="panel" id="m-intro" hidden>
+          <a href="#conceptos"><span class="n">00</span><span class="t">Conceptos<small>seis ideas con analogías</small></span></a>
+          <a href="#recorrido"><span class="n">01</span><span class="t">Recorrido<small>el pago de punta a punta</small></span></a>
+          <a href="#simulador"><span class="n">02</span><span class="t">Simulador<small>animación con 6 escenarios</small></span></a>
+        </div>
+      </li>
+      <li class="grupo">
+        <button type="button" class="grupo-btn" aria-expanded="false" aria-controls="m-dentro">El pago por dentro</button>
+        <div class="panel" id="m-dentro" hidden>
+          <a href="#endpoints"><span class="n">03</span><span class="t">Endpoints<small>las puertas del sistema</small></span></a>
+          <a href="#firma"><span class="n">04</span><span class="t">La firma<small>cómo Flow sabe que eres tú</small></span></a>
+          <a href="#tres-vias"><span class="n">05</span><span class="t">Tres vías<small>webhook, retorno y cron</small></span></a>
+          <a href="#estados"><span class="n">06</span><span class="t">Estados<small>qué provoca cada código de Flow</small></span></a>
+        </div>
+      </li>
+      <li class="grupo">
+        <button type="button" class="grupo-btn" aria-expanded="false" aria-controls="m-prod">En producción</button>
+        <div class="panel" id="m-prod" hidden>
+          <a href="#cron"><span class="n">07</span><span class="t">Vigilar el cron<small>comandos para revisarlo</small></span></a>
+          <a href="#ingles"><span class="n">08</span><span class="t">Español e inglés<small>qué cambia y qué no</small></span></a>
+          <a href="#trampas"><span class="n">09</span><span class="t">Detalles finos<small>trampas que explican el código</small></span></a>
+        </div>
+      </li>
+      <li class="grupo">
+        <button type="button" class="grupo-btn" aria-expanded="false" aria-controls="m-dev">Para desarrollar</button>
+        <div class="panel" id="m-dev" hidden>
+          <a href="#repo"><span class="n">10</span><span class="t">Leer el código<small>archivos en orden</small></span></a>
+          <a href="#probar"><span class="n">11</span><span class="t">Probar en local<small>con el sandbox de Flow</small></span></a>
+        </div>
+      </li>
+      <li class="grupo">
+        <button type="button" class="grupo-btn" aria-expanded="false" aria-controls="m-rec">Recursos</button>
+        <div class="panel" id="m-rec" hidden>
+          <a href="#profundizar"><span class="n">12</span><span class="t">Para profundizar<small>documentación y videos</small></span></a>
+          <a href="#glosario"><span class="n">13</span><span class="t">Glosario<small>todos los términos</small></span></a>
+        </div>
+      </li>
+    </ul>
+    <span class="actual" id="actual"></span>
+    <button type="button" class="todo-btn" id="todo-btn" aria-expanded="false" aria-controls="todo">Secciones</button>
   </div>
+  <div class="todo" id="todo" hidden></div>
+  <div class="progreso" aria-hidden="true"><span id="progreso"></span></div>
 </nav>
 
 <div class="wrap">
@@ -1369,41 +1414,79 @@ enviar_confirmacion_pago(Payment.objects.get(id=<span class="k">&lt;ID&gt;</span
 </script>
 <script>
 (function () {
-  var toc = document.getElementById('toc');
-  var links = Array.prototype.slice.call(toc.querySelectorAll('a'));
-  var secciones = links.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); });
-  var activo = null, pendiente = false;
+  var nav = document.querySelector('nav.topbar');
+  var grupos = Array.prototype.slice.call(nav.querySelectorAll('.grupo'));
+  var botones = grupos.map(function (g) { return g.querySelector('.grupo-btn'); });
+  var links = Array.prototype.slice.call(nav.querySelectorAll('.panel a'));
+  var todoBtn = document.getElementById('todo-btn'), todo = document.getElementById('todo');
+  var actual = document.getElementById('actual'), barra = document.getElementById('progreso');
 
-  function bordes() {
-    toc.classList.toggle('fade-l', toc.scrollLeft > 4);
-    toc.classList.toggle('fade-r', toc.scrollLeft + toc.clientWidth < toc.scrollWidth - 4);
+  // Panel del celular: los mismos grupos, uno debajo del otro.
+  grupos.forEach(function (g) {
+    var bloque = document.createElement('div');
+    var h = document.createElement('h4');
+    h.textContent = g.querySelector('.grupo-btn').textContent;
+    bloque.appendChild(h);
+    Array.prototype.forEach.call(g.querySelectorAll('.panel a'), function (a) { bloque.appendChild(a.cloneNode(true)); });
+    todo.appendChild(bloque);
+  });
+  var todos = Array.prototype.slice.call(nav.querySelectorAll('.panel a, .todo a'));
+  var ids = links.map(function (a) { return a.getAttribute('href').slice(1); });
+  var secciones = ids.map(function (id) { return document.getElementById(id); });
+
+  function panelDe(b) { return document.getElementById(b.getAttribute('aria-controls')); }
+  function cerrar(excepto) {
+    botones.concat([todoBtn]).forEach(function (b) {
+      if (b === excepto) return;
+      b.setAttribute('aria-expanded', 'false');
+      panelDe(b).hidden = true;
+    });
   }
+  function alternar(b) {
+    var abrir = b.getAttribute('aria-expanded') !== 'true';
+    cerrar(b);
+    b.setAttribute('aria-expanded', abrir ? 'true' : 'false');
+    panelDe(b).hidden = !abrir;
+  }
+  botones.concat([todoBtn]).forEach(function (b) { b.addEventListener('click', function () { alternar(b); }); });
+  todos.forEach(function (a) { a.addEventListener('click', function () { cerrar(null); }); });
+  document.addEventListener('click', function (e) { if (!nav.contains(e.target)) cerrar(null); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    var abierto = botones.concat([todoBtn]).filter(function (b) { return b.getAttribute('aria-expanded') === 'true'; })[0];
+    if (abierto) { cerrar(null); abierto.focus(); }
+  });
+
+  // Sección actual y avance de lectura.
+  var activo = null, pendiente = false;
   function marcar() {
     pendiente = false;
-    var limite = 90, idx = -1;
-    secciones.forEach(function (sec, i) { if (sec && sec.getBoundingClientRect().top <= limite) idx = i; });
-    // Al final de la página, la última sección queda activa aunque sea corta.
-    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) idx = secciones.length - 1;
-    var nuevo = idx >= 0 ? links[idx] : null;
-    if (nuevo === activo) return;
-    if (activo) activo.removeAttribute('aria-current');
-    activo = nuevo;
-    if (activo) {
-      activo.setAttribute('aria-current', 'true');
-      var x = activo.offsetLeft - toc.clientWidth / 2 + activo.offsetWidth / 2;
-      toc.scrollTo({ left: Math.max(0, x), behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    var idx = -1;
+    secciones.forEach(function (sec, i) { if (sec && sec.getBoundingClientRect().top <= 90) idx = i; });
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    if (max > 0 && window.scrollY >= max - 4) idx = secciones.length - 1;
+    barra.style.width = (max > 0 ? Math.min(100, window.scrollY / max * 100) : 0) + '%';
+    var id = idx >= 0 ? ids[idx] : null;
+    if (id === activo) return;
+    activo = id;
+    todos.forEach(function (a) {
+      if (id && a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'true');
+      else a.removeAttribute('aria-current');
+    });
+    grupos.forEach(function (g, k) { botones[k].classList.toggle('activo', !!id && !!g.querySelector('a[href="#' + id + '"]')); });
+    actual.textContent = '';
+    if (idx >= 0) {
+      var b = document.createElement('b');
+      b.textContent = links[idx].querySelector('.n').textContent;
+      actual.appendChild(b);
+      actual.appendChild(document.createTextNode(links[idx].querySelector('.t').firstChild.textContent));
+    } else {
+      actual.textContent = 'Inicio';
     }
   }
   window.addEventListener('scroll', function () { if (!pendiente) { pendiente = true; requestAnimationFrame(marcar); } }, { passive: true });
-  window.addEventListener('resize', function () { bordes(); marcar(); });
-  toc.addEventListener('scroll', bordes, { passive: true });
-  // Con la rueda del mouse (vertical), la barra se desliza hacia el lado.
-  toc.addEventListener('wheel', function (e) {
-    if (Math.abs(e.deltaY) > Math.abs(e.deltaX) && toc.scrollWidth > toc.clientWidth) {
-      toc.scrollLeft += e.deltaY; e.preventDefault();
-    }
-  }, { passive: false });
-  bordes(); marcar();
+  window.addEventListener('resize', marcar);
+  marcar();
 })();
 </script>
 <script>
