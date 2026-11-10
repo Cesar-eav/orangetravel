@@ -2,12 +2,13 @@
 {% block title %}Pagos{% endblock %}
 {% block content %}
 <h2>Estado Pagos Flow</h2>
-<details class="ayuda"><summary>¿Cómo funciona esta pantalla?</summary><p>Lista de solo lectura de los pagos hechos con Flow. Entra a un pago para reenviar el email de confirmación al cliente o a los administradores (solo pagos con estado «paid»).</p>
+<details class="ayuda"><summary>¿Cómo funciona esta pantalla?</summary><p>Lista de los pagos hechos con Flow. Entra a un pago para reenviar el email de confirmación al cliente o a los administradores (solo pagos con estado «paid»).</p>
 <p>El estado es la respuesta que entrega Flow sobre cada pago:</p>
 <p><strong>Paid</strong>: Flow confirmó el pago. Se enviaron los emails al cliente y a los administradores.</p>
 <p><strong>Pending</strong>: el cliente fue enviado a pagar a Flow, pero Flow todavía no informa un resultado. Casi siempre significa que el cliente cerró la página sin pagar; también puede ser un pago que Flow aún está procesando. Si el cliente dice que pagó, búscalo en el panel de Flow con el «N° de orden en Flow» (está en el detalle del pago) antes de confirmarle algo.</p>
 <p><strong>Failed</strong>: Flow rechazó el pago, o no se pudo crear la orden en Flow.</p>
-<p><strong>Canceled</strong>: el cliente canceló el pago en Flow.</p></details>
+<p><strong>Canceled</strong>: el cliente canceló el pago en Flow.</p>
+<p>Para eliminar pagos (por ejemplo, los de prueba), marca sus casillas y pulsa «Eliminar seleccionados» abajo de la tabla. Se quitan de esta lista junto con la reserva que creó cada uno. No se envía email al cliente y en Flow no cambia nada (un pago real sigue cobrado allá).</p></details>
 <form class="filters" method="get">
   <div><label>Buscar</label><input name="q" value="{{ request.GET.q }}" placeholder="Código, nombre o email"></div>
   <div><label>Estado</label><select name="status"><option value="">Todos</option>
@@ -16,12 +17,56 @@
     {% for t in tours %}<option value="{{ t.pk }}" {% if request.GET.tour == t.pk|stringformat:"s" %}selected{% endif %}>{{ t.nombre }}</option>{% endfor %}</select></div>
   <button class="btn">Filtrar</button> <a class="btn sec" href="{% url 'panel:pagos' %}">Limpiar</a>
 </form>
-<div class="card"><table>
-<tr><th>Código</th><th>Cliente</th><th>Tour</th><th>Fecha tour</th><th>Monto</th><th>Estado</th></tr>
+<div class="card" style="overflow-x:auto"><table class="tabla-pagos">
+<tr><th class="col-marca"><input type="checkbox" id="marcar-todas" aria-label="Marcar todos"></th><th>Código</th><th>Cliente</th><th>Tour</th><th>Fecha tour</th><th>Monto</th><th>Estado</th></tr>
 {% for p in pagos %}<tr>
+<td class="col-marca"><input type="checkbox" name="ids" value="{{ p.pk }}" form="eliminar-varias" class="marca-eliminar" data-codigo="{{ p.codigo|default:p.pk }}" data-estado="{{ p.status }}" aria-label="Seleccionar {{ p.codigo|default:p.pk }}"></td>
 <td><a href="{% url 'panel:pago_detalle' p.pk %}">{{ p.codigo }}</a></td><td>{{ p.customer_name }}<br><small>{{ p.customer_email }}</small></td>
 <td>{{ p.tour.nombre }}</td><td>{{ p.reservation_date|date:"d/m/Y" }}</td><td>${{ p.amount }}</td>
 <td><span class="badge b-{{ p.status }}" title="{% if p.status == 'paid' %}Flow confirmó el pago{% elif p.status == 'pending' %}Flow aún no informa resultado: casi siempre el cliente no terminó de pagar{% elif p.status == 'failed' %}Flow rechazó el pago{% elif p.status == 'canceled' %}El cliente canceló el pago en Flow{% endif %}">{{ p.get_status_display }}</span></td></tr>
-{% empty %}<tr><td colspan="6">No hay pagos con esos filtros.</td></tr>{% endfor %}</table>
+{% empty %}<tr><td colspan="7">No hay pagos con esos filtros.</td></tr>{% endfor %}</table>
+{% if pagos %}<form id="eliminar-varias" method="post" action="{% url 'panel:pagos_eliminar' %}" class="eliminar-varias">{% csrf_token %}
+<input type="hidden" name="next" value="{{ request.get_full_path }}">
+<button class="btn red" id="btn-eliminar-varias" disabled>Eliminar seleccionados</button></form>{% endif %}
 {% include 'panel/_pager.html' %}</div>
+<style>
+.tabla-pagos .col-marca{width:1%;padding-right:2px}
+.eliminar-varias{margin:16px 0 0;text-align:right}
+#btn-eliminar-varias{padding:6px 14px;font-size:14px}
+#btn-eliminar-varias:disabled{opacity:.35;cursor:not-allowed}
+</style>
+<script>
+(function () {
+  // Eliminar varios: casillas por fila + botón aparte, con confirmación que lista los códigos.
+  const form = document.getElementById('eliminar-varias');
+  if (!form) return;
+  const boton = document.getElementById('btn-eliminar-varias');
+  const todas = document.getElementById('marcar-todas');
+  const marcas = Array.from(document.querySelectorAll('input.marca-eliminar'));
+  const marcadas = () => marcas.filter((m) => m.checked);
+  function actualizar() {
+    const n = marcadas().length;
+    boton.disabled = n === 0;
+    boton.textContent = n ? 'Eliminar seleccionados (' + n + ')' : 'Eliminar seleccionados';
+    todas.checked = n > 0 && n === marcas.length;
+    todas.indeterminate = n > 0 && n < marcas.length;
+  }
+  marcas.forEach((m) => m.addEventListener('change', actualizar));
+  todas.addEventListener('change', function () {
+    marcas.forEach((m) => { m.checked = todas.checked; });
+    actualizar();
+  });
+  form.addEventListener('submit', function (e) {
+    const sel = marcadas();
+    const codigos = sel.map((m) => m.dataset.codigo);
+    const msg = codigos.length === 1
+      ? '¿Eliminar el pago ' + codigos[0] + '?'
+      : '¿Eliminar estos ' + codigos.length + ' pagos?\n\n' + codigos.join(', ');
+    const pagados = sel.some((m) => m.dataset.estado === 'paid')
+      ? '\n\nOjo: hay pagos con estado «Paid». En Flow siguen cobrados.' : '';
+    if (!codigos.length || !confirm(msg + '\n\nTambién se elimina su reserva. No se envía email al cliente.' + pagados)) e.preventDefault();
+  });
+  actualizar();
+})();
+</script>
 {% endblock %}

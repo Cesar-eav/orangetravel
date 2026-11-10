@@ -231,7 +231,7 @@ def reserva_cambiar_estado(request, pk):
     reserva = get_object_or_404(Reserva, pk=pk)
     estado = request.POST.get('estado')
     # Vuelve a la lista con sus filtros; si quedó confirmada, con el pop up de Google Calendar
-    ruta, params = _destino_lista_reservas(request)
+    ruta, params = _destino_lista(request)
 
     if estado in Reserva.Estado.values and estado != reserva.estado:
         reserva.estado = estado
@@ -243,11 +243,11 @@ def reserva_cambiar_estado(request, pk):
     return redirect(f'{ruta}?{params.urlencode()}' if params else ruta)
 
 
-def _destino_lista_reservas(request):
-    """Ruta y querystring de `next` (la lista con sus filtros), o /panel/reservas/ si no es segura."""
+def _destino_lista(request, defecto='panel:reservas'):
+    """Ruta y querystring de `next` (la lista con sus filtros), o la lista `defecto` si no es segura."""
     destino = request.POST.get('next', '')
     if not url_has_allowed_host_and_scheme(destino, allowed_hosts={request.get_host()}):
-        destino = reverse('panel:reservas')
+        destino = reverse(defecto)
     ruta, _, query = destino.partition('?')
     params = QueryDict(query, mutable=True)
     params.pop('agregar_calendario', None)
@@ -261,7 +261,7 @@ def reserva_eliminar(request, pk):
     reserva = get_object_or_404(Reserva, pk=pk)
     reserva.delete()  # borrado lógico
     messages.success(request, f'Reserva {reserva.codigo} eliminada.')
-    ruta, params = _destino_lista_reservas(request)
+    ruta, params = _destino_lista(request)
     return redirect(f'{ruta}?{params.urlencode()}' if params else ruta)
 
 
@@ -277,7 +277,7 @@ def reservas_eliminar(request):
         codigos = ', '.join(r.codigo or str(r.pk) for r in reservas)
         texto = 'Reserva eliminada' if len(reservas) == 1 else f'{len(reservas)} reservas eliminadas'
         messages.success(request, f'{texto}: {codigos}.')
-    ruta, params = _destino_lista_reservas(request)
+    ruta, params = _destino_lista(request)
     return redirect(f'{ruta}?{params.urlencode()}' if params else ruta)
 
 
@@ -887,6 +887,52 @@ class SitioInglesView(SingletonFormView):
     ayuda = ('«/en/ accesible»: cualquiera con el link puede ver el sitio en inglés (apagado, solo el staff). '
              '«Mostrar banderas»: aparece el selector ES | EN para todos y Google puede indexar /en/; '
              'mientras esté apagado, el sitio en español no muestra ningún cambio.')
+
+
+def _eliminar_pagos(pagos):
+    """Borrado lógico de los pagos y de la reserva que creó cada checkout; devuelve las reservas."""
+    # Las reservas se buscan antes de borrar: con_pago solo ve pagos vivos.
+    reservas = list(con_pago(Reserva.objects.filter(
+        tour_id__in={p.tour_id for p in pagos},
+        email_cliente__in={p.customer_email for p in pagos},
+    )).filter(pago_id__in=[p.pk for p in pagos]))
+    for pago in pagos:
+        pago.delete()  # borrado lógico
+    for reserva in reservas:
+        reserva.delete()  # borrado lógico
+    return reservas
+
+
+def _texto_eliminados(pagos, reservas):
+    codigos = ', '.join(p.codigo or str(p.pk) for p in pagos)
+    texto = f'Pago eliminado: {codigos}' if len(pagos) == 1 else f'{len(pagos)} pagos eliminados: {codigos}'
+    if reservas:
+        cods = ', '.join(r.codigo or str(r.pk) for r in reservas)
+        texto += f'. También {"su reserva" if len(reservas) == 1 else "sus reservas"}: {cods}'
+    return texto + '.'
+
+
+@_staff_only
+@require_POST
+def pago_eliminar(request, pk):
+    """Borrado lógico desde el detalle del pago (y de su reserva)."""
+    pago = get_object_or_404(Payment, pk=pk, deleted_at__isnull=True)
+    reservas = _eliminar_pagos([pago])
+    messages.success(request, _texto_eliminados([pago], reservas))
+    return redirect('panel:pagos')
+
+
+@_staff_only
+@require_POST
+def pagos_eliminar(request):
+    """Borrado lógico de los pagos marcados en /panel/pagos/ y de sus reservas (vuelve a `next`)."""
+    ids = [i for i in request.POST.getlist('ids') if i.isdigit()]
+    pagos = list(Payment.objects.filter(pk__in=ids, deleted_at__isnull=True))
+    if pagos:
+        reservas = _eliminar_pagos(pagos)
+        messages.success(request, _texto_eliminados(pagos, reservas))
+    ruta, params = _destino_lista(request, defecto='panel:pagos')
+    return redirect(f'{ruta}?{params.urlencode()}' if params else ruta)
 
 
 @_staff_only

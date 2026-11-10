@@ -311,6 +311,65 @@ class PagoTests(PanelBase):
         self.client.post(reverse('panel:pago_reenviar', args=[self.pago.pk, 'cliente']))
         cliente.assert_not_called()
 
+    def _pago_con_reserva(self, email):
+        """Pago y la reserva que crea el checkout justo después (mismo tour, fecha y email)."""
+        fecha = date.today() + timedelta(days=9)
+        pago = Payment.objects.create(
+            tour=self.tour, amount=1000, customer_name='Prueba', customer_email=email,
+            reservation_date=fecha,
+        )
+        reserva = Reserva.objects.create(
+            tour=self.tour, nombre_cliente='Prueba', email_cliente=email,
+            telefono_cliente='9', fecha=fecha,
+        )
+        return pago, reserva
+
+    def test_lista_muestra_eliminar_seleccionados(self):
+        r = self.client.get(reverse('panel:pagos'))
+        self.assertContains(r, reverse('panel:pagos_eliminar'))
+        self.assertContains(r, f'name="ids" value="{self.pago.pk}"')
+
+    def test_eliminar_seleccionados_borra_pagos_y_sus_reservas(self):
+        pago1, reserva1 = self._pago_con_reserva('p1@x.cl')
+        pago2, reserva2 = self._pago_con_reserva('p2@x.cl')
+        next_url = '/panel/pagos/?status=pending'
+        r = self.client.post(reverse('panel:pagos_eliminar'),
+                             {'ids': [pago1.pk, pago2.pk, 'x'], 'next': next_url})
+        self.assertRedirects(r, next_url, fetch_redirect_response=False)
+        # Borrado lógico: siguen en la BD, fuera de la lista.
+        self.assertEqual(Payment.objects.filter(pk__in=[pago1.pk, pago2.pk], deleted_at__isnull=False).count(), 2)
+        self.assertNotContains(self.client.get(reverse('panel:pagos')), reverse('panel:pago_detalle', args=[pago1.pk]))
+        self.assertFalse(Reserva.objects.filter(pk__in=[reserva1.pk, reserva2.pk]).exists())
+        self.assertEqual(Reserva.all_objects.filter(pk__in=[reserva1.pk, reserva2.pk]).count(), 2)
+        # Lo no marcado queda intacto (la reserva de Ana no es de ningún pago borrado).
+        self.assertTrue(Payment.objects.filter(pk=self.pago.pk, deleted_at__isnull=True).exists())
+        self.assertTrue(Reserva.objects.filter(pk=self.reserva.pk).exists())
+
+    def test_no_borra_reserva_de_otro_cliente(self):
+        pago, _ = self._pago_con_reserva('p1@x.cl')
+        _, ajena = self._pago_con_reserva('otro@x.cl')
+        self.client.post(reverse('panel:pagos_eliminar'), {'ids': [pago.pk]})
+        self.assertTrue(Reserva.objects.filter(pk=ajena.pk).exists())
+
+    def test_eliminar_desde_detalle(self):
+        pago, reserva = self._pago_con_reserva('p1@x.cl')
+        self.assertContains(self.client.get(reverse('panel:pago_detalle', args=[pago.pk])),
+                            reverse('panel:pago_eliminar', args=[pago.pk]))
+        r = self.client.post(reverse('panel:pago_eliminar', args=[pago.pk]))
+        self.assertRedirects(r, reverse('panel:pagos'), fetch_redirect_response=False)
+        self.assertEqual(self.client.get(reverse('panel:pago_detalle', args=[pago.pk])).status_code, 404)
+        self.assertFalse(Reserva.objects.filter(pk=reserva.pk).exists())
+
+    def test_eliminar_por_get_no_permitido(self):
+        self.assertEqual(self.client.get(reverse('panel:pagos_eliminar')).status_code, 405)
+        self.assertEqual(self.client.get(reverse('panel:pago_eliminar', args=[self.pago.pk])).status_code, 405)
+
+    def test_eliminar_anonimo_no_borra(self):
+        self.client.logout()
+        self.client.post(reverse('panel:pagos_eliminar'), {'ids': [self.pago.pk]})
+        self.client.post(reverse('panel:pago_eliminar', args=[self.pago.pk]))
+        self.assertTrue(Payment.objects.filter(pk=self.pago.pk, deleted_at__isnull=True).exists())
+
 
 class BlogTests(PanelBase):
     def setUp(self):

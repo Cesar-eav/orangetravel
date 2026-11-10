@@ -48,6 +48,8 @@ urlpatterns = [
     path('mantencion/', views.MantencionView.as_view(), name='mantencion'),
     path('sitio-ingles/', views.SitioInglesView.as_view(), name='sitio_ingles'),
     path('pagos/', views.PagoListView.as_view(), name='pagos'),
+    path('pagos/eliminar/', views.pagos_eliminar, name='pagos_eliminar'),
     path('pagos/<int:pk>/', views.PagoDetailView.as_view(), name='pago_detalle'),
+    path('pagos/<int:pk>/eliminar/', views.pago_eliminar, name='pago_eliminar'),
     path('pagos/<int:pk>/reenviar/<str:destino>/', views.pago_reenviar, name='pago_reenviar'),
 ]
