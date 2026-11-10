@@ -185,6 +185,80 @@ a.term:hover, a.term:focus-visible { color: var(--accent); }
 #tip strong { font-family: var(--f-display); font-size: 15px; color: var(--accent); }
 @media (prefers-reduced-motion: no-preference) { #tip { animation: tip-in 120ms ease-out; } @keyframes tip-in { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } } }
 
+/* Simulador */
+.sim { display: grid; gap: 14px; border-radius: 8px; }
+.sim:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; }
+.sim-top { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; }
+.sim-scen { display: flex; flex-wrap: wrap; gap: 6px; }
+.sim-scen button { font: inherit; font-size: 13.5px; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; }
+.sim-scen button:hover { border-color: var(--accent); }
+.sim-scen button[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.sim-lang { display: inline-flex; gap: 8px; align-items: center; font-size: 14px; color: var(--muted); cursor: pointer; }
+.sim-lang input { accent-color: var(--accent); width: 16px; height: 16px; margin: 0; }
+.sim-desc { font-size: 15px; color: var(--muted); max-width: 80ch; min-height: 1.6em; }
+.sim-stage { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px; overflow-x: auto; }
+.sim-stage svg { display: block; width: 100%; min-width: 640px; height: auto; color: var(--fg); }
+.sim-body { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 14px; align-items: start; }
+@media (max-width: 780px) { .sim-body { grid-template-columns: minmax(0, 1fr); } }
+.sim-narr { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: grid; gap: 8px; align-content: start; min-height: 15.5rem; }
+.sim-paso { font-family: var(--f-mono); font-size: 12px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; }
+.sim-narr h3 { margin: 0; font-size: 1.15rem; }
+.sim-narr p { font-size: 15px; }
+.sim-code { font-size: 13px; color: var(--muted); }
+.sim-ctrl { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 6px; }
+.sim-ctrl button { font: inherit; font-size: 14px; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); cursor: pointer; }
+.sim-ctrl button:hover:not(:disabled) { border-color: var(--accent); }
+.sim-ctrl button.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); font-weight: 600; min-width: 8.5rem; }
+.sim-ctrl button:disabled { opacity: 0.4; cursor: default; }
+.sim-dots { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 2px; }
+.sim-dots button { width: 13px; height: 13px; padding: 0; border-radius: 50%; border: 1.5px solid var(--muted); background: transparent; cursor: pointer; }
+.sim-dots button.hecho { background: var(--muted); }
+.sim-dots button[aria-current="step"] { background: var(--accent); border-color: var(--accent); transform: scale(1.3); }
+.sim-ficha { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: grid; gap: 12px; }
+.sim-ficha h3 { margin: 0; font-size: 1rem; }
+.sim-ficha h3 small { font-family: var(--f-body); font-weight: 400; color: var(--muted); font-size: 13px; }
+.sim-ficha dl { margin: 0; display: grid; grid-template-columns: 7.2rem minmax(0, 1fr); gap: 7px 10px; font-size: 14px; }
+.sim-ficha dt { color: var(--muted); }
+.sim-ficha dd { margin: 0; min-width: 0; font-family: var(--f-mono); font-size: 13px; overflow-wrap: anywhere; }
+.st { display: inline-block; font-family: var(--f-mono); font-size: 12.5px; padding: 1px 9px; border-radius: 999px; border: 1px solid currentColor; }
+.st-none, .st-pending { color: var(--muted); }
+.st-paid { color: var(--ok); }
+.st-failed, .st-canceled { color: var(--bad); }
+.st.cambio { animation: sim-pulso 0.8s ease-out; }
+@keyframes sim-pulso { from { box-shadow: 0 0 0 0 currentColor; } to { box-shadow: 0 0 0 12px transparent; } }
+.sim-warn { color: var(--bad); font-family: var(--f-body); font-size: 13px; }
+.sim-maq { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
+.sim-maq .e { padding: 2px 8px; border-radius: 999px; border: 1px dashed var(--line); }
+.sim-maq .e.on { border-style: solid; font-weight: 500; }
+.sim-maq .e.on[data-st="pending"] { border-color: var(--muted); color: var(--fg); }
+.sim-maq .e.on[data-st="paid"] { border-color: var(--ok); color: var(--ok); }
+.sim-maq .e.on[data-st="failed"], .sim-maq .e.on[data-st="canceled"] { border-color: var(--bad); color: var(--bad); }
+.sim-maq-t { font-family: var(--f-body); font-size: 12.5px; color: var(--muted); width: 100%; }
+.sim-kbd { font-size: 13px; color: var(--muted); }
+svg .sim-edge { stroke: var(--line); stroke-width: 1.5; }
+svg .sim-edge-on { stroke: var(--accent); stroke-width: 2.5; stroke-dasharray: 6 5; fill: none; animation: sim-hormigas 0.9s linear infinite; }
+svg .sim-edge-on.falla { stroke: var(--bad); }
+@keyframes sim-hormigas { to { stroke-dashoffset: -11; } }
+svg .sim-node rect { transition: stroke-width 0.2s; }
+svg .sim-node.on rect { stroke-width: 3; }
+svg .sim-node.foco rect { stroke-width: 3; animation: sim-latido 1.2s ease-in-out infinite; }
+@keyframes sim-latido { 50% { stroke-width: 5; } }
+svg .pkt circle { stroke: var(--surface); stroke-width: 2; }
+svg .pkt-req circle { fill: var(--fg); }
+svg .pkt-resp circle, svg .pkt-pierde circle { fill: var(--muted); }
+svg .pkt-aviso circle { fill: var(--accent); }
+svg .pkt-falla circle, svg .pkt-falla-ok circle { fill: var(--bad); }
+svg .pkt-gana circle { fill: var(--ok); }
+svg .pkt .chip rect { fill: var(--surface); stroke: var(--line); stroke-width: 1; }
+svg .pkt-aviso .chip rect { stroke: var(--accent); }
+svg .pkt-falla .chip rect, svg .pkt-falla-ok .chip rect { stroke: var(--bad); }
+svg .pkt-gana .chip rect { stroke: var(--ok); }
+svg .pkt .chip text { font-family: var(--f-mono); font-size: 11px; }
+svg .pkt-falla .chip text { fill: var(--bad); }
+svg .pkt-gana .chip text { fill: var(--ok); }
+svg .sim-x line { stroke: var(--bad); stroke-width: 3; stroke-linecap: round; }
+@media (prefers-reduced-motion: reduce) { svg .sim-edge-on, svg .sim-node.foco rect, .st.cambio { animation: none; } }
+
 /* Endpoints */
 svg .zone-acc { fill: none; stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 6 5; }
 svg .zone-flow { fill: none; stroke: var(--flow); stroke-width: 1.5; stroke-dasharray: 6 5; }
@@ -257,6 +331,7 @@ html { scroll-behavior: smooth; }
     <div class="toc" id="toc">
       <a href="#conceptos">Conceptos</a>
       <a href="#recorrido">Recorrido</a>
+      <a href="#simulador">Simulador</a>
       <a href="#endpoints">Endpoints</a>
       <a href="#firma">La firma</a>
       <a href="#tres-vias">Tres vías</a>
@@ -284,7 +359,7 @@ html { scroll-behavior: smooth; }
 <!-- 0 -->
 <section id="conceptos">
   <div class="sec-head"><span class="num">00</span><h2>Conceptos en un minuto</h2></div>
-  <p class="prose">Seis ideas sostienen todo lo que sigue. Las palabras con <a class="term" href="#g-webhook">subrayado punteado</a> muestran su definición al pasar el mouse (o al tocarlas una vez en el celular), y todas están en el <a href="#glosario">glosario</a> del final.</p>
+  <p class="prose">Seis ideas sostienen todo lo que sigue. Las palabras con <a class="term" href="#g-webhook">subrayado punteado</a> muestran su definición al pasar el mouse (o al tocarlas una vez en el celular), y todas están en el <a href="#glosario">glosario</a> del final. Para verlas funcionando juntas, prueba el <a href="#simulador">simulador</a>.</p>
   <div class="concepts">
     <div class="concept"><h3>Webhook</h3><p class="analogy">Dejas tu número para que te llamen cuando esté listo, en vez de llamar tú cada cinco minutos.</p><p class="here">En el sitio: Flow avisa a <code>/pagos/flow-confirm/</code> cuando termina un pago.</p></div>
     <div class="concept"><h3>Token</h3><p class="analogy">El número del ticket del guardarropía: con él preguntas por tu abrigo sin tener que describirlo.</p><p class="here">En el sitio: <code>payment.provider_token</code>, la llave para preguntarle a Flow por ese pago.</p></div>
@@ -381,7 +456,7 @@ html { scroll-behavior: smooth; }
     </div></li>
     <li><div>
       <h3>Confirmación: tres vías, una sola función</h3>
-      <p>El webhook, el retorno y el cron llaman a <code>FlowClient.get_status(token)</code> y pasan la respuesta a <code>payments/confirmacion.py::aplicar_estado_flow</code>. Está detallado en la <a href="#tres-vias">sección 04</a>.</p>
+      <p>El webhook, el retorno y el cron llaman a <code>FlowClient.get_status(token)</code> y pasan la respuesta a <code>payments/confirmacion.py::aplicar_estado_flow</code>. Está detallado en la <a href="#tres-vias">sección 05</a>.</p>
     </div></li>
     <li><div>
       <h3>Página final: <code>VistaConfirmacionPago</code></h3>
@@ -390,9 +465,63 @@ html { scroll-behavior: smooth; }
   </ol>
 </section>
 
+<!-- simulador -->
+<section id="simulador">
+  <div class="sec-head"><span class="num">02</span><h2>El pago en movimiento</h2></div>
+  <p class="prose">Elige un escenario y aprieta <strong>Reproducir</strong>, o avanza paso a paso. Cada punto que viaja es un mensaje entre dos partes del sistema, y la ficha de la derecha muestra cómo cambia el registro del pago en la base de datos. Los datos son de ejemplo.</p>
+  <div class="sim" id="sim" tabindex="-1" aria-label="Simulador del pago">
+    <div class="sim-top">
+      <div class="sim-scen" id="sim-scen" role="group" aria-label="Escenario"></div>
+      <label class="sim-lang"><input type="checkbox" id="sim-en"> Cliente en inglés</label>
+    </div>
+    <p class="sim-desc" id="sim-desc">Todo funciona: el webhook llega primero y confirma el pago; cuando el cliente vuelve, el pago ya está pagado.</p>
+    <div class="sim-stage">
+      <svg id="sim-svg" viewBox="0 0 760 390" role="img" aria-label="Animación del pago: mensajes que viajan entre el navegador, Django, la base de datos, el cron, los emails y Flow. El texto del paso actual está en el cuadro de narración."></svg>
+    </div>
+    <div class="sim-body">
+      <div class="sim-narr">
+        <div class="sim-paso" id="sim-paso">Paso 1 de 14</div>
+        <div aria-live="polite">
+          <h3 id="sim-titulo">El cliente aprieta «Reservar»</h3>
+          <p id="sim-texto">Vue envía los datos de la reserva (fecha, pasajeros, contacto) junto con el idioma de la página: español.</p>
+        </div>
+        <p class="sim-code">En el código: <code id="sim-codigo">BookingApp.vue → TourCheckoutView</code></p>
+        <div class="sim-ctrl">
+          <button type="button" id="sim-prev">◄ Anterior</button>
+          <button type="button" id="sim-play" class="primary" aria-pressed="false">► Reproducir</button>
+          <button type="button" id="sim-next">Siguiente ►</button>
+          <button type="button" id="sim-reset">Reiniciar</button>
+        </div>
+        <div class="sim-dots" id="sim-dots" role="group" aria-label="Pasos"></div>
+      </div>
+      <div class="sim-ficha">
+        <h3>Payment #231 <small>· registro de ejemplo</small></h3>
+        <dl>
+          <dt>status</dt><dd id="sim-status"><span class="st st-none">todavía no existe</span></dd>
+          <dt>Flow dice</dt><dd id="sim-flow">—</dd>
+          <dt>provider_token</dt><dd id="sim-token">—</dd>
+          <dt>paid_at</dt><dd id="sim-paid">vacío</dd>
+          <dt>Emails</dt><dd id="sim-emails">0 de 2</dd>
+          <dt>Fecha</dt><dd id="sim-fecha">libre</dd>
+          <dt>idioma</dt><dd id="sim-idioma">—</dd>
+          <dt>Último UPDATE</dt><dd id="sim-ultimo">—</dd>
+        </dl>
+        <div class="sim-maq" id="sim-maq">
+          <span class="sim-maq-t">Estados posibles del pago:</span>
+          <span class="e" data-st="pending">pending</span><span aria-hidden="true">→</span>
+          <span class="e" data-st="paid">paid</span><span aria-hidden="true">|</span>
+          <span class="e" data-st="failed">failed</span><span aria-hidden="true">|</span>
+          <span class="e" data-st="canceled">canceled</span>
+        </div>
+      </div>
+    </div>
+    <p class="sim-kbd">Con el teclado: haz clic en el simulador y usa ← → para cambiar de paso y la barra espaciadora para reproducir o pausar.</p>
+  </div>
+</section>
+
 <!-- endpoints -->
 <section id="endpoints">
-  <div class="sec-head"><span class="num">02</span><h2>Los endpoints: las puertas del sistema</h2></div>
+  <div class="sec-head"><span class="num">03</span><h2>Los endpoints: las puertas del sistema</h2></div>
   <p class="prose">Un <a class="term" href="#g-endpoint">endpoint</a> es una dirección a la que se le puede pedir algo. En un pago participan seis: cuatro son <strong>nuestros</strong> (viven en orangetravel.cl, en <code>payments/urls.py</code>) y dos son <strong>de Flow</strong> (viven en flow.cl). Aunque dos de los nuestros lleven «flow» en el nombre, son del sitio: son las direcciones que le damos a Flow para que nos avise o nos devuelva al cliente.</p>
   <figure>
     <div class="fig-scroll">
@@ -552,7 +681,7 @@ path(<span class="k">'vista_confirmacion_pago/&lt;int:payment_id&gt;'</span>, vi
 
 <!-- 2 -->
 <section id="firma">
-  <div class="sec-head"><span class="num">03</span><h2>La firma: cómo Flow sabe que eres tú</h2></div>
+  <div class="sec-head"><span class="num">04</span><h2>La firma: cómo Flow sabe que eres tú</h2></div>
   <p class="prose">Cada llamada a la <a class="term" href="#g-api">API</a> lleva <code>apiKey</code> y un parámetro <code>s</code>: un <a class="term" href="#g-hmac">HMAC-SHA256</a> calculado con <code>FLOW_SECRET_KEY</code> sobre todos los demás parámetros. Quien no tiene el secreto no puede crear órdenes a nombre de Orange Travel, y si alguien cambia el monto en el camino, la firma deja de calzar.</p>
   <figure>
     <div class="fig-scroll">
@@ -610,7 +739,7 @@ path(<span class="k">'vista_confirmacion_pago/&lt;int:payment_id&gt;'</span>, vi
 
 <!-- 3 -->
 <section id="tres-vias">
-  <div class="sec-head"><span class="num">04</span><h2>Tres vías, un solo pago</h2></div>
+  <div class="sec-head"><span class="num">05</span><h2>Tres vías, un solo pago</h2></div>
   <p class="prose">Ninguna vía es confiable por sí sola. El webhook puede no llegar (fue lo que pasó en int15 con los pagos de prueba 226 y 227), el cliente puede cerrar la pestaña antes de volver, y el cron tarda hasta 10 minutos. Por eso hay tres, y como pueden coincidir en el mismo segundo (una <a class="term" href="#g-carrera">condición de carrera</a>), el paso a pagado lo decide la base de datos.</p>
   <figure>
     <div class="fig-scroll">
@@ -684,7 +813,7 @@ path(<span class="k">'vista_confirmacion_pago/&lt;int:payment_id&gt;'</span>, vi
 
 <!-- 4 -->
 <section id="estados">
-  <div class="sec-head"><span class="num">05</span><h2>Estados y qué provocan</h2></div>
+  <div class="sec-head"><span class="num">06</span><h2>Estados y qué provocan</h2></div>
   <p class="prose"><code>getStatus</code> devuelve un <code>status</code> numérico. <code>estado_flow()</code> lo traduce (también acepta el texto <code>"paid"</code>) y <code>aplicar_estado_flow</code> lo convierte en el estado local:</p>
   <div class="table-scroll">
   <table>
@@ -702,7 +831,7 @@ path(<span class="k">'vista_confirmacion_pago/&lt;int:payment_id&gt;'</span>, vi
 
 <!-- cron -->
 <section id="cron">
-  <div class="sec-head"><span class="num">06</span><h2>Vigilar el cron</h2></div>
+  <div class="sec-head"><span class="num">07</span><h2>Vigilar el cron</h2></div>
   <p class="prose">El <a class="term" href="#g-cron">cron</a> de <a class="term" href="#g-conciliacion">conciliación</a> es la red de seguridad cuando el webhook no llega. Si deja de correr, nadie se entera: los pagos sin webhook quedan en <code>pending</code>, no salen los emails y la fecha no se bloquea. Por eso conviene revisarlo de vez en cuando con estos comandos, por SSH en int15.</p>
   <div class="note"><strong>Antes de empezar:</strong> los comandos con <code>grep</code>, <code>tail</code>, <code>ls</code> y <code>crontab -l</code> solo leen archivos. En cambio, todo lo que pase por <code>manage.py</code> se conecta a la <strong>base de datos real de producción</strong> (regla 3 de CLAUDE.md). Con <code>--simular</code> solo consulta y no cambia nada.</div>
 
@@ -783,7 +912,7 @@ for p in Payment.objects.order_by('-id')[:15]:
 
 <!-- 5 -->
 <section id="ingles">
-  <div class="sec-head"><span class="num">07</span><h2>Español e inglés: qué cambia y qué no</h2></div>
+  <div class="sec-head"><span class="num">08</span><h2>Español e inglés: qué cambia y qué no</h2></div>
   <p class="prose"><strong>El pago es idéntico:</strong> misma API, mismo monto en CLP y mismas URLs <code>/pagos/…</code>. Lo que cambia, en términos de <a class="term" href="#g-i18n">i18n</a>, es cómo el idioma atraviesa un proceso que, a mitad de camino, pierde la URL y la sesión.</p>
 
   <h3>Dónde vive cada URL</h3>
@@ -886,7 +1015,7 @@ for p in Payment.objects.order_by('-id')[:15]:
 
 <!-- 6 -->
 <section id="trampas">
-  <div class="sec-head"><span class="num">08</span><h2>Detalles finos que explican el código</h2></div>
+  <div class="sec-head"><span class="num">09</span><h2>Detalles finos que explican el código</h2></div>
   <div class="traps">
     <div class="trap"><h3>El monto lo calcula el servidor</h3><p>Vue manda <code>total</code>, pero al crear el pago <code>Payment.save()</code> lo recalcula con <code>tour.precio</code> (adultos × precio adulto + niños × precio niño). Además guarda una copia de cómo estaba el tour en ese momento: <code>tour_nombre_al_pagar</code>, <code>tour_precio_al_pagar</code> y <code>tour_precio_nino_al_pagar</code>. Así nadie puede bajar el precio desde las DevTools.</p></div>
     <div class="trap"><h3>Las URLs para Flow siempre van en https</h3><p><code>_coerce_https_if_forwarded</code> corrige <code>http://</code> a <code>https://</code>. Si Flow recibiera http, <code>SECURE_SSL_REDIRECT</code> respondería 301, y Flow no repite un POST después de una redirección: el webhook se perdería en silencio.</p></div>
@@ -899,7 +1028,7 @@ for p in Payment.objects.order_by('-id')[:15]:
 
 <!-- 7 -->
 <section id="repo">
-  <div class="sec-head"><span class="num">09</span><h2>Leer el código en este orden</h2></div>
+  <div class="sec-head"><span class="num">10</span><h2>Leer el código en este orden</h2></div>
   <ol class="steps">
     <li><div><p><code>static/src/main.js</code> y <code>static/src/components/BookingApp.vue</code> (líneas ~210-260): de dónde sale el idioma, el payload y la redirección.</p></div></li>
     <li><div><p><code>payments/views.py</code>: las cuatro vistas (checkout, retorno, webhook y página de confirmación).</p></div></li>
@@ -915,7 +1044,7 @@ for p in Payment.objects.order_by('-id')[:15]:
 
 <!-- 8 -->
 <section id="probar">
-  <div class="sec-head"><span class="num">10</span><h2>Probarlo en local</h2></div>
+  <div class="sec-head"><span class="num">11</span><h2>Probarlo en local</h2></div>
   <p class="prose">El <code>.env</code> local tiene credenciales <strong>sandbox</strong>, así que puedes pagar con las tarjetas de prueba de la documentación de Flow sin cobrar nada.</p>
   <ol class="steps">
     <li><div><p>Haz una reserva en <code>/tours/&lt;slug&gt;/</code> y otra en <code>/en/tours/&lt;slug&gt;/</code>, y págalas en sandbox.</p></div></li>
@@ -931,7 +1060,7 @@ enviar_confirmacion_pago(Payment.objects.get(id=<span class="k">&lt;ID&gt;</span
 
 <!-- 9 -->
 <section id="profundizar">
-  <div class="sec-head"><span class="num">11</span><h2>Para profundizar</h2></div>
+  <div class="sec-head"><span class="num">12</span><h2>Para profundizar</h2></div>
 
   <div class="res-group">
     <h3>Flow (la referencia oficial)</h3>
@@ -1080,7 +1209,7 @@ enviar_confirmacion_pago(Payment.objects.get(id=<span class="k">&lt;ID&gt;</span
 
 <!-- glosario -->
 <section id="glosario">
-  <div class="sec-head"><span class="num">12</span><h2>Glosario</h2></div>
+  <div class="sec-head"><span class="num">13</span><h2>Glosario</h2></div>
   <p class="prose">Las definiciones que aparecen al pasar el mouse sobre las palabras subrayadas, todas juntas.</p>
   <div class="gloss-group">
     <h3>Pagos</h3>
@@ -1276,6 +1405,434 @@ enviar_confirmacion_pago(Payment.objects.get(id=<span class="k">&lt;ID&gt;</span
   }, { passive: false });
   bordes(); marcar();
 })();
+</script>
+<script>
+(function (global) {
+  /* ---------- Datos: nodos, conexiones y escenarios ---------- */
+  var BW = 150, BH = 52;
+  var NODOS = {
+    nav:  { x: 110, y: 70,  t: 'Navegador',      d: 'neutro' },
+    page: { x: 650, y: 70,  t: 'Página de pago', d: 'flow' },
+    dj:   { x: 380, y: 175, t: 'Django',         d: 'nuestro' },
+    api:  { x: 650, y: 255, t: 'Flow API',       d: 'flow' },
+    db:   { x: 380, y: 330, t: 'Base de datos',  d: 'nuestro' },
+    cron: { x: 110, y: 255, t: 'Cron',           d: 'nuestro' },
+    mail: { x: 110, y: 345, t: 'Emails',         d: 'neutro' }
+  };
+  var CONEXIONES = [['nav', 'dj'], ['dj', 'api'], ['nav', 'page'], ['page', 'dj'], ['dj', 'db'], ['cron', 'dj'], ['dj', 'mail']];
+  var BASE = { status: '—', paidAt: '', token: '', flow: null, emails: 0, fecha: 'libre', pantalla: 'ficha del tour', reloj: 'cada 10 min', ultimo: '—' };
+  var FLOW_TXT = { 1: '1 · pendiente', 2: '2 · pagado', 3: '3 · rechazado', 4: '4 · anulado' };
+
+  function m(de, a, et, tipo, extra) {
+    var o = { de: de, a: a, et: et, tipo: tipo || 'req' };
+    if (extra) for (var k in extra) o[k] = extra[k];
+    return o;
+  }
+  function P(movs, titulo, texto, codigo, estado, foco) {
+    return { movs: movs, titulo: titulo, texto: texto, codigo: codigo, estado: estado || {}, foco: foco || null };
+  }
+
+  // Pasos 1 a 5: iguales en todos los escenarios.
+  function inicio() {
+    return [
+      P([m('nav', 'dj', 'POST /pagos/checkout/')], 'El cliente aprieta «Reservar»',
+        'Vue envía los datos de la reserva (fecha, pasajeros, contacto) junto con el idioma de la página: {LANG}.',
+        'BookingApp.vue → TourCheckoutView', { pantalla: 'enviando reserva…' }),
+      P([m('dj', 'db', 'INSERT Payment + Reserva')], 'Se anotan el pago y la reserva',
+        'Django crea el Payment en «pending» y la Reserva. El monto lo recalcula el servidor con el precio del tour: el total que mandó el navegador no se usa.',
+        'Payment.save() · payments/models.py', { status: 'pending' }),
+      P([m('dj', 'api', 'payment/create + firma s')], 'Django le pide a Flow que prepare el cobro',
+        'Envía el monto, el email, las dos URLs de vuelta y la firma HMAC, que prueba que el pedido viene de Orange Travel.',
+        'FlowClient.create_payment · payments/flow.py', { flow: 1 }),
+      P([m('api', 'dj', '{ url, token }', 'resp')], 'Flow responde con un token',
+        'El token identifica este pago en Flow. Django lo guarda en el Payment: con él preguntará después cómo terminó.',
+        'payment.provider_token', { token: '…a9f3' }),
+      P([m('dj', 'nav', '{ redirect_url }', 'resp')], 'El sitio entrega la dirección de pago',
+        'Django responde a Vue con la URL de la página de Flow, y Vue lleva al cliente hacia allá.',
+        'window.location.href = redirect_url', { pantalla: 'redirigiendo a Flow…' })
+    ];
+  }
+  var pagaOk = P([m('nav', 'page', 'abre flow.cl')], 'El cliente paga en Flow',
+    'Escribe su tarjeta en la página de Flow; Orange Travel nunca ve esos datos. El pago se aprueba: para Flow, la orden pasa a 2 (pagado).',
+    'página de pago de flow.cl', { pantalla: 'pagando en flow.cl', flow: 2 });
+  var webhook = P([m('page', 'dj', 'POST /pagos/flow-confirm/', 'aviso')], 'Flow avisa al sitio (webhook)',
+    'Apenas termina el pago, el servidor de Flow llama al sitio. El aviso solo trae el token: no dice si se pagó.',
+    'FlowConfirmView · payments/views.py');
+  var webhookPerdido = P([m('page', 'dj', 'POST /pagos/flow-confirm/', 'falla')], 'El aviso de Flow no llega',
+    'El webhook se pierde en el camino (en int15 pasó con los pagos 226 y 227: un firewall o filtro del hosting). El cliente ya pagó, pero el pago sigue «pending».',
+    'stderr.log sin «Webhook Flow recibido»');
+  function consulta(quien) {
+    return P([m('dj', 'api', 'getStatus(token)')], 'Django le pregunta a Flow',
+      'En vez de creerle ' + quien + ', Django consulta el estado real con su propia llamada firmada.',
+      'FlowClient.get_status · payments/flow.py');
+  }
+  var dice2 = P([m('api', 'dj', 'status: 2', 'resp')], 'Flow confirma: pagado',
+    'El 2 significa pagado. Ahora sí es seguro confirmar la reserva.', 'estado_flow() · payments/confirmacion.py');
+  var marcaPagado = P([m('dj', 'db', 'UPDATE … WHERE paid_at IS NULL', 'gana')], 'Se marca como pagado',
+    'El UPDATE condicional encuentra paid_at vacío y cambia 1 fila: esta vía «gana». La fecha queda bloqueada en el calendario.',
+    'aplicar_estado_flow · payments/confirmacion.py',
+    { status: 'paid', paidAt: '14:32', fecha: 'bloqueada', ultimo: '1 fila · gana' });
+  var emails = P([m('dj', 'mail', 'email cliente + admin')], 'Salen los emails',
+    'Solo la vía que ganó los envía: al cliente en {LANG} y al equipo siempre en español.',
+    'enviar_confirmacion_pago · payments/emails.py', { emails: 2 });
+  var vuelve = P([m('page', 'nav', 'vuelve a orangetravel.cl', 'resp')], 'Flow devuelve al cliente',
+    'Flow manda el navegador de vuelta al sitio, con el token.', 'urlReturn', { pantalla: 'volviendo al sitio…' });
+  function retorno(texto) {
+    return P([m('nav', 'dj', 'POST /pagos/flow-return/')], 'El retorno llega a Django', texto, 'FlowReturnView · payments/views.py');
+  }
+  var confirmacion = P([m('dj', 'nav', 'página de confirmación', 'resp')], 'El cliente ve su confirmación',
+    'Django lo redirige a /pagos/vista_confirmacion_pago/, que muestra la reserva confirmada en {LANG}.',
+    'VistaConfirmacionPago · payments/views.py', { pantalla: 'Confirmada ✓ ({L})' });
+  var esperaCron = P([], 'Pasan hasta 10 minutos',
+    'Nadie avisó al sitio. El pago espera hasta la próxima corrida del cron, que llega cada 10 minutos.',
+    'cPanel → Cron Jobs (*/10 * * * *)', { reloj: '+10 min' }, 'cron');
+  var cronCorre = P([m('cron', 'dj', 'conciliar_pagos_flow')], 'El cron despierta',
+    'Corre el comando de conciliación, que revisa los pagos «pending» de los últimos 3 días.',
+    'payments/management/commands/conciliar_pagos_flow.py');
+  var buscaPendientes = P([m('dj', 'db', 'SELECT … status=pending')], 'Busca los pagos pendientes',
+    'Encuentra el pago 231, que sigue en «pending» y tiene token.', 'Payment.objects.filter(status=pending)');
+
+  var ESCENARIOS = [
+    { id: 'normal', nombre: 'Pago normal',
+      desc: 'Todo funciona: el webhook llega primero y confirma el pago; cuando el cliente vuelve, el pago ya está pagado.',
+      pasos: inicio().concat([pagaOk, webhook, consulta('al aviso'), dice2, marcaPagado, emails, vuelve,
+        retorno('FlowReturnView ve que el pago ya está «paid»: no consulta a Flow ni envía nada más.'),
+        confirmacion]) },
+    { id: 'webhook', nombre: 'Webhook perdido',
+      desc: 'El aviso de Flow no llega. El pago se salva porque el cliente vuelve al sitio.',
+      pasos: inicio().concat([pagaOk, webhookPerdido, vuelve,
+        retorno('FlowReturnView ve el pago todavía en «pending» y le pregunta a Flow por su cuenta.'),
+        consulta('al navegador'), dice2, marcaPagado, emails, confirmacion]) },
+    { id: 'cron', nombre: 'Rescate del cron',
+      desc: 'No llega el webhook y el cliente cierra la pestaña. El cron confirma el pago a los pocos minutos.',
+      pasos: inicio().concat([pagaOk, webhookPerdido,
+        P([m('page', 'nav', 'vuelve a orangetravel.cl', 'falla')], 'El cliente cierra la pestaña',
+          'Pagó, pero cerró la ventana antes de volver (o pagó desde la app del banco). Ninguna vía llegó: el pago sigue «pending», sin emails y con la fecha libre. Otra persona podría reservar ese cupo.',
+          'sin retorno ni webhook', { pantalla: 'pestaña cerrada' }),
+        esperaCron, cronCorre, buscaPendientes, consulta('a nadie'), dice2, marcaPagado, emails]) },
+    { id: 'carrera', nombre: 'Carrera',
+      desc: 'El webhook y el retorno llegan casi al mismo tiempo. Los dos intentan confirmar, pero solo uno puede ganar.',
+      pasos: inicio().concat([pagaOk,
+        P([m('page', 'dj', 'POST /pagos/flow-confirm/', 'aviso'), m('page', 'nav', 'vuelve a orangetravel.cl', 'resp', { lado: 1 })],
+          'Dos cosas a la vez', 'Flow envía el webhook y, en el mismo momento, devuelve al cliente al sitio.', 'FlowConfirmView + urlReturn',
+          { pantalla: 'volviendo al sitio…' }),
+        P([m('nav', 'dj', 'POST /pagos/flow-return/')], 'Dos vías procesando el mismo pago',
+          'El webhook y el retorno están en Django a la vez, y los dos ven el pago en «pending». Esto es una condición de carrera.',
+          'FlowConfirmView y FlowReturnView en paralelo'),
+        P([m('dj', 'api', 'getStatus · webhook'), m('dj', 'api', 'getStatus · retorno', 'req', { retraso: 350, lado: 1 })],
+          'Las dos le preguntan a Flow', 'Cada vía hace su propia consulta firmada.', 'FlowClient.get_status (dos veces)'),
+        P([m('api', 'dj', 'status: 2', 'resp'), m('api', 'dj', 'status: 2', 'resp', { retraso: 350, lado: 1 })],
+          'Flow responde lo mismo a las dos', 'Para las dos vías, el pago está pagado.', 'estado_flow()'),
+        P([m('dj', 'db', 'UPDATE · webhook'), m('dj', 'db', 'UPDATE · retorno', 'req', { retraso: 350, lado: 1 })],
+          'Las dos intentan marcarlo pagado',
+          'Las dos envían el mismo «UPDATE … WHERE paid_at IS NULL». La base de datos los ejecuta uno tras otro, nunca a la vez sobre la misma fila.',
+          'aplicar_estado_flow · payments/confirmacion.py'),
+        P([m('db', 'dj', '1 fila → gana', 'gana'), m('db', 'dj', '0 filas → ya_pagado', 'pierde', { retraso: 350, lado: 1 })],
+          'Solo una gana',
+          'La primera cambia 1 fila y gana. La segunda encuentra paid_at con fecha, cambia 0 filas y recibe «ya_pagado». Esto es la idempotencia.',
+          'ganado = …update(…)  →  1 o 0',
+          { status: 'paid', paidAt: '14:32', fecha: 'bloqueada', ultimo: '1 fila (webhook) · 0 filas (retorno)' }),
+        P([m('dj', 'mail', 'email cliente + admin')], 'Los emails salen una sola vez',
+          'Solo la vía ganadora envía: al cliente en {LANG} y al equipo en español. La otra no hace nada.',
+          'enviar_confirmacion_pago · payments/emails.py', { emails: 2 }),
+        confirmacion]) },
+    { id: 'rechazado', nombre: 'Pago rechazado',
+      desc: 'La tarjeta no pasa. El pago termina en «failed», sin emails y con la fecha libre.',
+      pasos: inicio().concat([
+        P([m('nav', 'page', 'abre flow.cl')], 'El pago es rechazado',
+          'La tarjeta no pasa (sin fondos, datos mal escritos o el banco lo niega). Flow marca la orden como 3 (rechazado).',
+          'página de pago de flow.cl', { pantalla: 'pago rechazado en Flow', flow: 3 }),
+        webhook, consulta('al aviso'),
+        P([m('api', 'dj', 'status: 3', 'resp')], 'Flow dice: rechazado', 'El 3 significa rechazado.', 'estado_flow()'),
+        P([m('dj', 'db', 'UPDATE status=failed WHERE status=pending', 'falla-ok')], 'El pago pasa a «failed»',
+          'Solo cambia si seguía en «pending». No se envían emails y la fecha sigue libre para otros clientes.',
+          'aplicar_estado_flow (rama rechazado/anulado)', { status: 'failed', ultimo: '1 fila · failed' }),
+        vuelve,
+        retorno('Como el pago no está «paid», vuelve a consultar a Flow (otra vez 3) y prepara el mensaje de pago rechazado.'),
+        P([m('dj', 'nav', 'fail.html', 'resp')], 'El cliente ve que el pago no pasó',
+          'La página final muestra que el pago fue rechazado, en {LANG}, para que intente de nuevo.',
+          'VistaConfirmacionPago → fail.html', { pantalla: 'Pago rechazado ✕ ({L})' })]) },
+    { id: 'abandono', nombre: 'Checkout abandonado',
+      desc: 'El cliente llega a Flow y se arrepiente. El pago queda pendiente y no bloquea nada.',
+      pasos: inicio().concat([
+        P([m('nav', 'page', 'abre flow.cl')], 'El cliente llega a Flow', 'Ve la página de pago, pero no paga.',
+          'página de pago de flow.cl', { pantalla: 'mirando flow.cl' }),
+        P([m('page', 'nav', 'cierra la pestaña', 'falla')], 'Cierra sin pagar',
+          'Flow deja la orden en 1 (pendiente). No hay webhook, porque no hubo pago.', 'sin webhook', { pantalla: 'pestaña cerrada' }),
+        esperaCron, cronCorre, buscaPendientes, consulta('a nadie'),
+        P([m('api', 'dj', 'status: 1', 'resp')], 'Flow dice: pendiente', 'El 1 significa que nadie ha pagado esa orden.', 'estado_flow()'),
+        P([], 'Sigue «pending», y está bien',
+          'El cron no cambia nada: el pago queda «pending», sin emails y sin bloquear la fecha. Lo vuelve a revisar cada 10 minutos durante 3 días; después deja de mirarlo.',
+          'conciliar_pagos_flow --dias 3', { reloj: 'cada 10 min · 3 días' }, 'db')]) }
+  ];
+
+  // Estado acumulado hasta el paso i (incluido).
+  function estadoHasta(esc, i) {
+    var e = {}, k;
+    for (k in BASE) e[k] = BASE[k];
+    for (var j = 0; j <= i; j++) for (k in esc.pasos[j].estado) e[k] = esc.pasos[j].estado[k];
+    return e;
+  }
+
+  global.__simDatos = { NODOS: NODOS, ESCENARIOS: ESCENARIOS, estadoHasta: estadoHasta };
+  if (typeof document === 'undefined') return;
+
+  /* ---------- Interfaz ---------- */
+  var NS = 'http://www.w3.org/2000/svg';
+  var $ = function (id) { return document.getElementById(id); };
+  var svg = $('sim-svg');
+  if (!svg) return;
+  var reducido = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var DUR = reducido ? 0 : 1100, LECTURA = 2600;
+  var sim = { esc: 0, i: 0, en: false, playing: false, timer: null, raf: null, prevStatus: null };
+
+  function el(tag, attrs, padre) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (padre) padre.appendChild(n);
+    return n;
+  }
+  function borde(n, hacia) {
+    var dx = hacia.x - n.x, dy = hacia.y - n.y;
+    var tx = dx ? (BW / 2 + 5) / Math.abs(dx) : Infinity, ty = dy ? (BH / 2 + 5) / Math.abs(dy) : Infinity;
+    var t = Math.min(tx, ty);
+    return { x: n.x + dx * t, y: n.y + dy * t };
+  }
+
+  // Dibujo fijo: conexiones, capa activa, nodos y capa de paquetes.
+  var capaLineas = el('g', {}, svg), capaActiva = el('g', {}, svg), capaNodos = el('g', {}, svg), capaPaq = el('g', {}, svg);
+  CONEXIONES.forEach(function (c) {
+    var a = NODOS[c[0]], b = NODOS[c[1]];
+    el('line', { x1: a.x, y1: a.y, x2: b.x, y2: b.y, 'class': 'sim-edge' }, capaLineas);
+  });
+  var subs = {}, gruposNodo = {};
+  Object.keys(NODOS).forEach(function (id) {
+    var n = NODOS[id];
+    var g = el('g', { 'class': 'sim-node' }, capaNodos);
+    var clase = n.d === 'nuestro' ? 'box-acc' : n.d === 'flow' ? 'box-flow' : 'box';
+    el('rect', { x: n.x - BW / 2, y: n.y - BH / 2, width: BW, height: BH, rx: 8, 'class': clase }, g);
+    var t = el('text', { x: n.x, y: n.y - 4, 'text-anchor': 'middle', 'class': 't-b' }, g); t.textContent = n.t;
+    subs[id] = el('text', { x: n.x, y: n.y + 15, 'text-anchor': 'middle', 'class': 't-m' }, g);
+    gruposNodo[id] = g;
+  });
+
+  function textoNodo(id, e) {
+    switch (id) {
+      case 'nav': return e.pantalla;
+      case 'page': return 'flow.cl';
+      case 'dj': return 'orangetravel.cl';
+      case 'api': return e.flow ? 'orden: ' + FLOW_TXT[e.flow] : 'sin orden';
+      case 'db': return e.status === '—' ? 'sin pago' : 'Payment: ' + e.status;
+      case 'cron': return e.reloj;
+      case 'mail': return e.emails + ' de 2 enviados';
+    }
+  }
+  function lang(s) {
+    return String(s).replace(/\{LANG\}/g, sim.en ? 'inglés' : 'español').replace(/\{L\}/g, sim.en ? 'EN' : 'ES');
+  }
+
+  // Paquetes
+  function crearPaquete(mv) {
+    var g = el('g', { 'class': 'pkt pkt-' + mv.tipo }, capaPaq);
+    el('circle', { r: 7 }, g);
+    var chip = el('g', { 'class': 'chip' }, g);
+    var r = el('rect', { rx: 4, height: 18, y: -9 }, chip);
+    var t = el('text', { 'text-anchor': 'middle', y: 4 }, chip);
+    t.textContent = mv.et;
+    var w = (t.getComputedTextLength && t.getComputedTextLength()) || mv.et.length * 6.6;
+    r.setAttribute('width', w + 12); r.setAttribute('x', -(w + 12) / 2);
+    return { g: g, chip: chip, w: w + 12, dy: mv.lado === 1 ? 26 : -20 };
+  }
+  function ubicar(p, x, y) {
+    p.g.setAttribute('transform', 'translate(' + x.toFixed(1) + ',' + y.toFixed(1) + ')');
+    var cx = 0, min = 4 + p.w / 2, max = 756 - p.w / 2;
+    if (x < min) cx = min - x; else if (x > max) cx = max - x;
+    p.chip.setAttribute('transform', 'translate(' + cx.toFixed(1) + ',' + p.dy + ')');
+  }
+  function equis(x, y) {
+    var g = el('g', { 'class': 'sim-x' }, capaPaq);
+    el('line', { x1: x - 9, y1: y - 9, x2: x + 9, y2: y + 9 }, g);
+    el('line', { x1: x - 9, y1: y + 9, x2: x + 9, y2: y - 9 }, g);
+    var t = el('text', { x: x, y: y + 26, 'text-anchor': 'middle', 'class': 't-bad halo' }, g);
+    t.textContent = 'no llega';
+  }
+  function ease(p) { return p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2; }
+
+  function animar(movs, fin) {
+    var items = movs.map(function (mv) {
+      var a = NODOS[mv.de], b = NODOS[mv.a];
+      var desde = borde(a, b), hasta = borde(b, a);
+      return { p: crearPaquete(mv), desde: desde, hasta: hasta, retraso: reducido ? 0 : (mv.retraso || 0),
+               tope: mv.tipo === 'falla' ? 0.55 : (mv.lado === 1 ? 0.45 : 0.72), falla: mv.tipo === 'falla', listo: false };
+    });
+    var t0 = performance.now();
+    function frame(ahora) {
+      var todos = true;
+      items.forEach(function (it) {
+        var p = DUR ? Math.min(1, Math.max(0, (ahora - t0 - it.retraso) / DUR)) : 1;
+        if (p < 1) todos = false;
+        var k = ease(p) * it.tope;
+        var x = it.desde.x + (it.hasta.x - it.desde.x) * k, y = it.desde.y + (it.hasta.y - it.desde.y) * k;
+        ubicar(it.p, x, y);
+        if (p >= 1 && it.falla && !it.listo) { equis(x, y); }
+        if (p >= 1) it.listo = true;
+      });
+      if (!todos) sim.raf = requestAnimationFrame(frame);
+      else { sim.raf = null; if (fin) fin(); }
+    }
+    if (DUR) sim.raf = requestAnimationFrame(frame); else frame(t0);
+  }
+
+  // Panel de estado
+  var ficha = {
+    status: $('sim-status'), flow: $('sim-flow'), token: $('sim-token'), paid: $('sim-paid'),
+    emails: $('sim-emails'), fecha: $('sim-fecha'), idioma: $('sim-idioma'), ultimo: $('sim-ultimo')
+  };
+  function pintarFicha(e) {
+    var st = e.status === '—' ? 'none' : e.status;
+    ficha.status.innerHTML = '';
+    var pill = document.createElement('span');
+    pill.className = 'st st-' + st;
+    pill.textContent = e.status === '—' ? 'todavía no existe' : e.status;
+    if (sim.prevStatus !== null && sim.prevStatus !== e.status && !reducido) pill.classList.add('cambio');
+    ficha.status.appendChild(pill);
+    sim.prevStatus = e.status;
+    ficha.flow.textContent = e.flow ? FLOW_TXT[e.flow] : '—';
+    ficha.token.textContent = e.token || '—';
+    ficha.paid.textContent = e.paidAt ? '10-11-2026 ' + e.paidAt : 'vacío';
+    ficha.emails.textContent = e.emails + ' de 2';
+    var riesgo = e.flow === 2 && e.status !== 'paid';
+    ficha.fecha.innerHTML = '';
+    ficha.fecha.appendChild(document.createTextNode(e.fecha));
+    if (riesgo) {
+      var w = document.createElement('span');
+      w.className = 'sim-warn';
+      w.textContent = ' · riesgo: el cliente pagó y la fecha sigue libre';
+      ficha.fecha.appendChild(w);
+    }
+    ficha.idioma.textContent = e.status === '—' ? '—' : (sim.en ? 'en' : 'es');
+    ficha.ultimo.textContent = e.ultimo;
+    var maq = $('sim-maq');
+    Array.prototype.forEach.call(maq.querySelectorAll('[data-st]'), function (s) {
+      s.classList.toggle('on', s.getAttribute('data-st') === e.status);
+    });
+  }
+
+  function limpiar() {
+    if (sim.raf) cancelAnimationFrame(sim.raf);
+    if (sim.timer) clearTimeout(sim.timer);
+    sim.raf = sim.timer = null;
+    while (capaPaq.firstChild) capaPaq.removeChild(capaPaq.firstChild);
+    while (capaActiva.firstChild) capaActiva.removeChild(capaActiva.firstChild);
+  }
+
+  function irA(i) {
+    var esc = ESCENARIOS[sim.esc];
+    sim.i = Math.max(0, Math.min(i, esc.pasos.length - 1));
+    limpiar();
+    var paso = esc.pasos[sim.i], e = estadoHasta(esc, sim.i);
+    // Nodos y textos
+    Object.keys(NODOS).forEach(function (id) {
+      subs[id].textContent = lang(textoNodo(id, e));
+      var activo = paso.movs.some(function (mv) { return mv.de === id || mv.a === id; });
+      gruposNodo[id].setAttribute('class', 'sim-node' + (activo ? ' on' : '') + (paso.foco === id ? ' foco' : ''));
+    });
+    paso.movs.forEach(function (mv) {
+      var a = NODOS[mv.de], b = NODOS[mv.a];
+      el('line', { x1: a.x, y1: a.y, x2: b.x, y2: b.y, 'class': 'sim-edge-on' + (mv.tipo === 'falla' ? ' falla' : '') }, capaActiva);
+    });
+    // Narración
+    $('sim-paso').textContent = 'Paso ' + (sim.i + 1) + ' de ' + esc.pasos.length;
+    $('sim-titulo').textContent = lang(paso.titulo);
+    $('sim-texto').textContent = lang(paso.texto);
+    $('sim-codigo').textContent = paso.codigo;
+    pintarFicha(e);
+    // Controles
+    $('sim-prev').disabled = sim.i === 0;
+    $('sim-next').disabled = sim.i === esc.pasos.length - 1;
+    Array.prototype.forEach.call($('sim-dots').children, function (b, k) {
+      b.classList.toggle('hecho', k < sim.i);
+      if (k === sim.i) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
+    });
+    animar(paso.movs, function () {
+      if (sim.playing) sim.timer = setTimeout(avanzar, LECTURA);
+    });
+  }
+  function avanzar() {
+    if (sim.i < ESCENARIOS[sim.esc].pasos.length - 1) irA(sim.i + 1);
+    else setPlaying(false);
+  }
+  function setPlaying(v) {
+    sim.playing = v;
+    var b = $('sim-play');
+    b.textContent = v ? '❚❚ Pausa' : '► Reproducir';
+    b.setAttribute('aria-pressed', v ? 'true' : 'false');
+  }
+  function reproducir() {
+    if (sim.playing) { setPlaying(false); if (sim.timer) clearTimeout(sim.timer); sim.timer = null; return; }
+    setPlaying(true);
+    if (sim.i >= ESCENARIOS[sim.esc].pasos.length - 1) irA(0);
+    else avanzar();
+  }
+  function manual(i) { setPlaying(false); irA(i); }
+
+  function elegirEscenario(k) {
+    sim.esc = k;
+    sim.prevStatus = null;
+    try { localStorage.setItem('sim-esc', ESCENARIOS[k].id); } catch (e) {}
+    Array.prototype.forEach.call($('sim-scen').children, function (b, j) { b.setAttribute('aria-pressed', j === k ? 'true' : 'false'); });
+    $('sim-desc').textContent = ESCENARIOS[k].desc;
+    var dots = $('sim-dots');
+    dots.innerHTML = '';
+    ESCENARIOS[k].pasos.forEach(function (p, j) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('aria-label', 'Paso ' + (j + 1) + ': ' + lang(p.titulo));
+      b.title = 'Paso ' + (j + 1) + ': ' + lang(p.titulo);
+      b.addEventListener('click', function () { manual(j); });
+      dots.appendChild(b);
+    });
+    setPlaying(false);
+    irA(0);
+  }
+
+  // Botones de escenario
+  var cont = $('sim-scen');
+  ESCENARIOS.forEach(function (esc, k) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = esc.nombre;
+    b.addEventListener('click', function () { elegirEscenario(k); });
+    cont.appendChild(b);
+  });
+  $('sim-prev').addEventListener('click', function () { manual(sim.i - 1); });
+  $('sim-next').addEventListener('click', function () { manual(sim.i + 1); });
+  $('sim-reset').addEventListener('click', function () { manual(0); });
+  $('sim-play').addEventListener('click', reproducir);
+  $('sim-en').addEventListener('change', function (ev) {
+    sim.en = ev.target.checked;
+    try { localStorage.setItem('sim-en', sim.en ? '1' : '0'); } catch (e) {}
+    var playing = sim.playing;
+    irA(sim.i);
+    if (!playing) setPlaying(false);
+  });
+  $('sim').addEventListener('keydown', function (ev) {
+    if (ev.key === 'ArrowRight') { ev.preventDefault(); manual(sim.i + 1); }
+    else if (ev.key === 'ArrowLeft') { ev.preventDefault(); manual(sim.i - 1); }
+    else if (ev.key === ' ' && ev.target.tagName !== 'BUTTON' && ev.target.tagName !== 'INPUT') { ev.preventDefault(); reproducir(); }
+  });
+
+  // Inicio: escenario e idioma recordados (si el navegador lo permite).
+  var inicial = 0;
+  try {
+    var guardado = localStorage.getItem('sim-esc');
+    ESCENARIOS.forEach(function (e, k) { if (e.id === guardado) inicial = k; });
+    sim.en = localStorage.getItem('sim-en') === '1';
+  } catch (e) {}
+  $('sim-en').checked = sim.en;
+  elegirEscenario(inicial);
+  global.__sim = { ir: manual, escenario: elegirEscenario };
+})(typeof window !== 'undefined' ? window : globalThis);
 </script>
 </body>
 </html>
