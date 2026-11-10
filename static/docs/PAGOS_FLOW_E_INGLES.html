@@ -23,6 +23,7 @@
   --ok: #2B7A4B;
   --bad: #B3261E;
   --code-bg: #EEF1F5;
+  --shadow: rgba(23, 32, 43, 0.16);
   --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
   --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
   --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
@@ -31,13 +32,13 @@
   :root:not([data-theme="light"]) {
     --bg: #0F141B; --surface: #171E28; --fg: #E6EBF1; --muted: #9AA5B4; --line: #2A3441;
     --accent: #FF8A3D; --accent-soft: #3A2415; --flow: #7EB2EE; --flow-soft: #182A40;
-    --ok: #6CC08D; --bad: #F2867E; --code-bg: #1C2532; color-scheme: dark;
+    --ok: #6CC08D; --bad: #F2867E; --code-bg: #1C2532; --shadow: rgba(0, 0, 0, 0.55); color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #0F141B; --surface: #171E28; --fg: #E6EBF1; --muted: #9AA5B4; --line: #2A3441;
   --accent: #FF8A3D; --accent-soft: #3A2415; --flow: #7EB2EE; --flow-soft: #182A40;
-  --ok: #6CC08D; --bad: #F2867E; --code-bg: #1C2532; color-scheme: dark;
+  --ok: #6CC08D; --bad: #F2867E; --code-bg: #1C2532; --shadow: rgba(0, 0, 0, 0.55); color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -152,6 +153,73 @@ td.same { color: var(--muted); }
 .card .host { font-family: var(--f-mono); font-size: 11.5px; color: var(--muted); overflow-wrap: anywhere; }
 
 footer { margin-top: 48px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13.5px; }
+
+/* Términos con definición al pasar el mouse */
+a.term { color: inherit; text-decoration: underline dotted var(--accent); text-decoration-thickness: 1.5px; text-underline-offset: 3px; cursor: help; }
+a.term:hover, a.term:focus-visible { color: var(--accent); }
+#tip { position: fixed; z-index: 50; left: 0; top: 0; max-width: min(320px, calc(100vw - 16px)); background: var(--surface); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; box-shadow: 0 8px 28px var(--shadow); font-size: 14px; line-height: 1.45; display: grid; gap: 4px; pointer-events: none; }
+#tip strong { font-family: var(--f-display); font-size: 15px; color: var(--accent); }
+@media (prefers-reduced-motion: no-preference) { #tip { animation: tip-in 120ms ease-out; } @keyframes tip-in { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } } }
+
+/* Endpoints */
+svg .zone-acc { fill: none; stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 6 5; }
+svg .zone-flow { fill: none; stroke: var(--flow); stroke-width: 1.5; stroke-dasharray: 6 5; }
+.aud { display: grid; gap: 14px; }
+.aud-head { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; }
+.aud-head h3 { margin: 0; font-size: 1.25rem; }
+.tag { font-family: var(--f-mono); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; }
+.tag.dev { color: var(--flow); } .tag.cli { color: var(--accent); }
+.ep-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+.ep { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.ep.theirs { border-color: var(--flow); }
+.ep-path { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; }
+.ep-path code { font-size: 13px; overflow-wrap: anywhere; background: none; padding: 0; font-weight: 500; }
+.verb { font-family: var(--f-mono); font-size: 11px; font-weight: 500; padding: 1px 7px; border-radius: 4px; color: var(--surface); }
+.verb.post { background: var(--accent); } .verb.get { background: var(--flow); }
+.owner { font-size: 12px; color: var(--muted); margin-left: auto; }
+.ep dl { margin: 0; display: grid; grid-template-columns: 5.2rem minmax(0, 1fr); gap: 4px 10px; font-size: 14px; }
+.ep dt { color: var(--muted); }
+.ep dd { margin: 0; min-width: 0; }
+.story { list-style: none; counter-reset: h; padding: 0; margin: 0; display: grid; gap: 12px; }
+.story > li { counter-increment: h; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px 14px 56px; position: relative; max-width: 78ch; }
+.story > li::before { content: counter(h); position: absolute; left: 16px; top: 14px; width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: var(--surface); font-family: var(--f-mono); font-size: 13px; display: grid; place-items: center; }
+.story strong { display: block; font-family: var(--f-display); font-size: 1.05rem; margin-bottom: 2px; }
+.story .tech { display: block; margin-top: 6px; font-size: 12.5px; color: var(--muted); font-family: var(--f-mono); }
+.benefits { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.benefits > div { background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 8px; padding: 12px 14px; display: grid; gap: 4px; align-content: start; }
+.benefits strong { font-family: var(--f-display); }
+
+/* Conceptos en un minuto */
+.concepts { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+.concept { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.concept h3 { margin: 0; font-size: 1.08rem; }
+.concept .analogy { font-size: 15px; }
+.concept .here { font-size: 13.5px; color: var(--muted); }
+
+/* Vigilar el cron */
+.checks { display: grid; gap: 22px; }
+.check { display: grid; gap: 8px; max-width: 82ch; min-width: 0; }
+.check h3 { margin: 0; font-size: 1.05rem; }
+.check p { font-size: 15px; }
+pre.out { background: var(--surface); border-style: dashed; }
+.note { background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 8px; padding: 12px 14px; font-size: 15px; max-width: 76ch; }
+.signs { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.signs > div { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.signs h3 { margin: 0; font-size: 1rem; }
+
+/* Glosario */
+.gloss-group { display: grid; gap: 10px; }
+dl.glossary { margin: 0; display: grid; grid-template-columns: minmax(140px, 210px) minmax(0, 1fr); gap: 0; max-width: 880px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+dl.glossary dt, dl.glossary dd { padding: 10px 14px; border-bottom: 1px solid var(--line); margin: 0; }
+dl.glossary dt { font-weight: 600; scroll-margin-top: 20px; }
+dl.glossary dd { font-size: 15px; }
+dl.glossary dt:last-of-type, dl.glossary dd:last-of-type { border-bottom: 0; }
+dl.glossary dt:target, dl.glossary dt:target + dd { background: var(--accent-soft); }
+@media (max-width: 560px) {
+  dl.glossary { grid-template-columns: minmax(0, 1fr); }
+  dl.glossary dt { border-bottom: 0; padding-bottom: 2px; }
+  dl.glossary dt:last-of-type { border-bottom: 0; }
+}
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
 html { scroll-behavior: smooth; }
 </style>
@@ -165,24 +233,42 @@ html { scroll-behavior: smooth; }
   <div class="eyebrow">orangetravel.cl · rama fix-orange · 10 nov 2026</div>
   <h1>Pagos con Flow <span class="dim">y el sitio en inglés</span></h1>
   <p class="lede">Cómo viaja una reserva pagada desde el botón «Reservar» hasta el email de confirmación: quién habla con quién, cómo se confirma un pago sin cobrar ni avisar dos veces y qué cambia cuando el cliente navega en <code>/en/</code>.</p>
-  <div class="thesis"><strong>En una frase:</strong> Flow cobra en una página propia y avisa del resultado por tres vías que pueden llegar a la vez (webhook, retorno del navegador y un cron). Las tres pasan por un mismo <code>UPDATE</code> condicional que deja ganar a una sola. El inglés no cambia el pago: lo único que cambia es que el idioma se guarda en la base de datos, porque al ir y volver de flow.cl se pierden la URL <code>/en/</code> y la sesión.</div>
+  <div class="thesis"><strong>En una frase:</strong> Flow cobra en una página propia y avisa del resultado por tres vías que pueden llegar a la vez (<a class="term" href="#g-webhook">webhook</a>, retorno del navegador y un <a class="term" href="#g-cron">cron</a>). Las tres pasan por un mismo <a class="term" href="#g-atomico"><code>UPDATE</code> condicional</a> que deja ganar a una sola. El inglés no cambia el pago: lo único que cambia es que el idioma se guarda en la base de datos, porque al ir y volver de flow.cl se pierden la URL <code>/en/</code> y la sesión.</div>
   <nav class="toc" aria-label="Secciones">
+    <a href="#conceptos">Conceptos</a>
     <a href="#recorrido">Recorrido</a>
+    <a href="#endpoints">Endpoints</a>
     <a href="#firma">La firma</a>
     <a href="#tres-vias">Tres vías</a>
     <a href="#estados">Estados</a>
+    <a href="#cron">Vigilar el cron</a>
     <a href="#ingles">Español e inglés</a>
     <a href="#trampas">Detalles finos</a>
     <a href="#repo">Leer el código</a>
     <a href="#probar">Probar en local</a>
     <a href="#profundizar">Para profundizar</a>
+    <a href="#glosario">Glosario</a>
   </nav>
 </header>
+
+<!-- 0 -->
+<section id="conceptos">
+  <div class="sec-head"><span class="num">00</span><h2>Conceptos en un minuto</h2></div>
+  <p class="prose">Seis ideas sostienen todo lo que sigue. Las palabras con <a class="term" href="#g-webhook">subrayado punteado</a> muestran su definición al pasar el mouse (o al tocarlas una vez en el celular), y todas están en el <a href="#glosario">glosario</a> del final.</p>
+  <div class="concepts">
+    <div class="concept"><h3>Webhook</h3><p class="analogy">Dejas tu número para que te llamen cuando esté listo, en vez de llamar tú cada cinco minutos.</p><p class="here">En el sitio: Flow avisa a <code>/pagos/flow-confirm/</code> cuando termina un pago.</p></div>
+    <div class="concept"><h3>Token</h3><p class="analogy">El número del ticket del guardarropía: con él preguntas por tu abrigo sin tener que describirlo.</p><p class="here">En el sitio: <code>payment.provider_token</code>, la llave para preguntarle a Flow por ese pago.</p></div>
+    <div class="concept"><h3>Firma HMAC</h3><p class="analogy">Un sello lacrado: si alguien abre el sobre y cambia el monto, el sello ya no calza.</p><p class="here">En el sitio: el parámetro <code>s</code>, calculado con <code>FLOW_SECRET_KEY</code>.</p></div>
+    <div class="concept"><h3>Idempotencia</h3><p class="analogy">Apretar diez veces el botón del ascensor no llama a diez ascensores.</p><p class="here">En el sitio: aunque el pago se confirme por tres vías, los emails salen una sola vez.</p></div>
+    <div class="concept"><h3>Cron</h3><p class="analogy">Un despertador que cada 10 minutos revisa si quedó algún pago sin confirmar.</p><p class="here">En el sitio: <code>conciliar_pagos_flow</code>, programado en cPanel.</p></div>
+    <div class="concept"><h3>Sandbox</h3><p class="analogy">Un banco de juguete: se paga con tarjetas de prueba y no se cobra nada.</p><p class="here">En el sitio: <code>FLOW_API_BASE</code> apuntando a <code>sandbox.flow.cl</code> (el <code>.env</code> local).</p></div>
+  </div>
+</section>
 
 <!-- 1 -->
 <section id="recorrido">
   <div class="sec-head"><span class="num">01</span><h2>El recorrido completo</h2></div>
-  <p class="prose">Hay tres actores: el navegador del cliente (con Vue), el servidor Django y Flow. Flow usa una <em>página de pago alojada</em>: la tarjeta nunca se escribe en orangetravel.cl. El sitio solo crea una orden, manda al cliente a pagar y después pregunta a Flow cómo terminó.</p>
+  <p class="prose">Hay tres actores: el navegador del cliente (con Vue), el servidor Django y Flow. Flow usa una <a class="term" href="#g-pagina-alojada">página de pago alojada</a>: la tarjeta nunca se escribe en orangetravel.cl. El sitio solo crea una orden, manda al cliente a pagar y después pregunta a Flow cómo terminó.</p>
 
   <figure>
     <div class="fig-scroll">
@@ -252,12 +338,12 @@ html { scroll-behavior: smooth; }
 
   <ol class="steps">
     <li><div>
-      <h3>Checkout: <code>TourCheckoutView</code></h3>
-      <p><code>static/src/main.js</code> lee <code>document.documentElement.lang</code> y se lo pasa a <code>BookingApp.vue</code>, que hace <code>POST /pagos/checkout/&lt;tourId&gt;/</code> con nombre, email, teléfono, fecha, adultos, niños, <code>total</code> e <code>idioma</code>. La vista exige un tour <code>con_precio</code> (categoría 1), un email y una fecha desde mañana. Después crea un <code>Payment</code> en <code>pending</code> y una <code>Reserva</code>, y las dos guardan el idioma.</p>
+      <h3><a class="term" href="#g-checkout">Checkout</a>: <code>TourCheckoutView</code></h3>
+      <p><code>static/src/main.js</code> lee <code>document.documentElement.lang</code> y se lo pasa a <code>BookingApp.vue</code>, que hace un POST al <a class="term" href="#g-endpoint">endpoint</a> <code>/pagos/checkout/&lt;tourId&gt;/</code> con un <a class="term" href="#g-payload">payload</a> que lleva nombre, email, teléfono, fecha, adultos, niños, <code>total</code> e <code>idioma</code>. La vista exige un tour <code>con_precio</code> (categoría 1), un email y una fecha desde mañana. Después crea un <code>Payment</code> en <code>pending</code> y una <code>Reserva</code>, y las dos guardan el idioma.</p>
     </div></li>
     <li><div>
       <h3>Orden en Flow: <code>FlowClient.create_payment</code></h3>
-      <p>Manda <code>commerceOrder = payment.id</code>, <code>subject = "Reserva Tour: " + tour.nombre_es</code>, el monto, el email y dos URLs: <code>urlReturn</code> (a dónde vuelve el navegador) y <code>urlConfirmation</code> (a dónde avisa el servidor de Flow). Las dos se fuerzan a <code>https://</code>. Flow responde <code>url</code> + <code>token</code>, y el token queda en <code>payment.provider_token</code>, que es la llave para todo lo que viene.</p>
+      <p>Manda <code>commerceOrder = payment.id</code>, <code>subject = "Reserva Tour: " + tour.nombre_es</code>, el monto, el email y dos URLs: <code>urlReturn</code> (a dónde vuelve el navegador) y <code>urlConfirmation</code> (a dónde avisa el servidor de Flow). Las dos se fuerzan a <a class="term" href="#g-https"><code>https://</code></a>. Flow responde <code>url</code> + <code>token</code>, y el <a class="term" href="#g-token">token</a> queda en <code>payment.provider_token</code>, que es la llave para todo lo que viene.</p>
     </div></li>
     <li><div>
       <h3>Pago en flow.cl</h3>
@@ -265,7 +351,7 @@ html { scroll-behavior: smooth; }
     </div></li>
     <li><div>
       <h3>Confirmación: tres vías, una sola función</h3>
-      <p>El webhook, el retorno y el cron llaman a <code>FlowClient.get_status(token)</code> y pasan la respuesta a <code>payments/confirmacion.py::aplicar_estado_flow</code>. Está detallado en la <a href="#tres-vias">sección 03</a>.</p>
+      <p>El webhook, el retorno y el cron llaman a <code>FlowClient.get_status(token)</code> y pasan la respuesta a <code>payments/confirmacion.py::aplicar_estado_flow</code>. Está detallado en la <a href="#tres-vias">sección 04</a>.</p>
     </div></li>
     <li><div>
       <h3>Página final: <code>VistaConfirmacionPago</code></h3>
@@ -274,10 +360,170 @@ html { scroll-behavior: smooth; }
   </ol>
 </section>
 
+<!-- endpoints -->
+<section id="endpoints">
+  <div class="sec-head"><span class="num">02</span><h2>Los endpoints: las puertas del sistema</h2></div>
+  <p class="prose">Un <a class="term" href="#g-endpoint">endpoint</a> es una dirección a la que se le puede pedir algo. En un pago participan seis: cuatro son <strong>nuestros</strong> (viven en orangetravel.cl, en <code>payments/urls.py</code>) y dos son <strong>de Flow</strong> (viven en flow.cl). Aunque dos de los nuestros lleven «flow» en el nombre, son del sitio: son las direcciones que le damos a Flow para que nos avise o nos devuelva al cliente.</p>
+  <figure>
+    <div class="fig-scroll">
+    <svg viewBox="0 0 760 440" role="img" aria-label="Mapa de endpoints: a la izquierda el navegador, al centro los cuatro endpoints de orangetravel.cl y a la derecha los de Flow. El navegador llama al checkout, Django llama a payment/create y a payment/getStatus de Flow, Flow avisa al webhook flow-confirm y devuelve al cliente a flow-return, que redirige a la página final.">
+      <defs>
+        <marker id="e-h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker>
+        <marker id="e-ha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="head-acc"/></marker>
+      </defs>
+      <!-- zonas -->
+      <rect x="205" y="14" width="310" height="376" rx="10" class="zone-acc"/>
+      <text x="221" y="38" class="t-b t-acc">orangetravel.cl · nuestro servidor</text>
+      <rect x="560" y="14" width="185" height="376" rx="10" class="zone-flow"/>
+      <text x="576" y="38" class="t-b t-flow">flow.cl · servidor de Flow</text>
+
+      <!-- navegador -->
+      <rect x="15" y="56" width="160" height="56" rx="6" class="box"/>
+      <text x="95" y="80" text-anchor="middle" class="t-b">Navegador</text>
+      <text x="95" y="99" text-anchor="middle" class="t-m">cliente + Vue</text>
+
+      <!-- nuestros endpoints -->
+      <rect x="222" y="56" width="276" height="52" rx="6" class="box-acc"/>
+      <text x="236" y="78" class="t-mono">POST /pagos/checkout/‹id›/</text>
+      <text x="236" y="97" class="t-m">inicia el pago</text>
+      <rect x="222" y="146" width="276" height="52" rx="6" class="box-acc"/>
+      <text x="236" y="168" class="t-mono">POST /pagos/flow-confirm/</text>
+      <text x="236" y="187" class="t-m">recibe el aviso de Flow (webhook)</text>
+      <rect x="222" y="236" width="276" height="52" rx="6" class="box-acc"/>
+      <text x="236" y="258" class="t-mono">/pagos/flow-return/</text>
+      <text x="236" y="277" class="t-m">recibe al cliente de vuelta</text>
+      <rect x="222" y="316" width="276" height="52" rx="6" class="box-acc"/>
+      <text x="236" y="338" class="t-mono">/pagos/vista_confirmacion_pago/‹id›</text>
+      <text x="236" y="357" class="t-m">página final: confirmado o fallido</text>
+
+      <!-- endpoints de Flow -->
+      <rect x="575" y="56" width="158" height="52" rx="6" class="box-flow"/>
+      <text x="589" y="78" class="t-mono">payment/create</text>
+      <text x="589" y="97" class="t-m">crea la orden</text>
+      <rect x="575" y="146" width="158" height="52" rx="6" class="box-flow"/>
+      <text x="589" y="168" class="t-mono">payment/getStatus</text>
+      <text x="589" y="187" class="t-m">¿cómo va el pago?</text>
+      <rect x="575" y="236" width="158" height="52" rx="6" class="box-flow"/>
+      <text x="589" y="258" class="t-b">Página de pago</text>
+      <text x="589" y="277" class="t-m">el cliente paga aquí</text>
+
+      <!-- flechas -->
+      <line x1="175" y1="84" x2="218" y2="84" class="ar" marker-end="url(#e-h)"/>
+      <text x="190" y="76" text-anchor="middle" class="t-m halo">1</text>
+      <line x1="498" y1="82" x2="571" y2="82" class="ar" marker-end="url(#e-h)"/>
+      <text x="536" y="74" text-anchor="middle" class="t-m halo">2 · crea</text>
+      <path d="M95,112 L95,418 L654,418 L654,292" class="ar" marker-end="url(#e-h)"/>
+      <text x="375" y="410" text-anchor="middle" class="halo">3 · el cliente va a pagar a flow.cl</text>
+      <line x1="575" y1="252" x2="502" y2="186" class="ar-acc" marker-end="url(#e-ha)"/>
+      <text x="540" y="230" text-anchor="middle" class="t-acc halo">4 · avisa</text>
+      <line x1="498" y1="160" x2="571" y2="160" class="ar" marker-end="url(#e-h)"/>
+      <text x="536" y="152" text-anchor="middle" class="t-m halo">5 · consulta</text>
+      <line x1="575" y1="272" x2="502" y2="272" class="ar" marker-end="url(#e-h)"/>
+      <text x="538" y="300" text-anchor="middle" class="t-m halo">6 · devuelve</text>
+      <line x1="360" y1="288" x2="360" y2="312" class="ar" marker-end="url(#e-h)"/>
+      <text x="370" y="305" class="t-m">7 · redirige</text>
+    </svg>
+    </div>
+    <figcaption>Lo naranjo vive en nuestro servidor; lo azul, en el de Flow. Los números siguen el orden de un pago normal. <code>flow-return</code> y el <a class="term" href="#g-cron">cron</a> también consultan <code>payment/getStatus</code>: esa flecha no se dibuja para que el esquema se lea mejor.</figcaption>
+  </figure>
+
+  <div class="aud">
+    <div class="aud-head"><span class="tag dev">Para programadores</span><h3>Cómo funciona por dentro</h3></div>
+    <p class="prose">En Django, un endpoint es la suma de tres cosas: una <strong>ruta</strong> (la URL), un <a class="term" href="#g-metodo">método HTTP</a> (GET para pedir, POST para enviar datos) y una <a class="term" href="#g-vista">vista</a> (la función o clase que responde). La ruta se declara en <code>urls.py</code> y apunta a la vista:</p>
+    <p class="code-label">payments/urls.py (montado bajo <code>pagos/</code> en config/urls.py)</p>
+<pre><code>path(<span class="k">'checkout/&lt;int:tour_id&gt;/'</span>, TourCheckoutView.as_view(), name=<span class="k">'tour_checkout'</span>),
+path(<span class="k">'flow-return/'</span>,  FlowReturnView.as_view(),  name=<span class="k">'flow_return'</span>),
+path(<span class="k">'flow-confirm/'</span>, FlowConfirmView.as_view(), name=<span class="k">'flow_confirm'</span>),
+path(<span class="k">'vista_confirmacion_pago/&lt;int:payment_id&gt;'</span>, views.VistaConfirmacionPago, name=<span class="k">'vista_confirmacion_pago'</span>),</code></pre>
+    <p class="prose">Los <code>name</code> sirven para no escribir URLs a mano: <code>reverse("flow_confirm")</code> devuelve <code>/pagos/flow-confirm/</code>, y así el checkout arma la <code>urlConfirmation</code> que le entrega a Flow. Los dos endpoints de Flow no se declaran aquí: se llaman desde <code>payments/flow.py</code> con <code>requests</code>, sumando la ruta a <code>FLOW_API_BASE</code> y firmando los parámetros.</p>
+    <div class="ep-grid">
+    <div class="ep">
+      <div class="ep-path"><span class="verb post">POST</span><code>/pagos/checkout/&lt;tour_id&gt;/</code><span class="owner">nuestro</span></div>
+      <dl>
+        <dt>Vista</dt><dd><code>TourCheckoutView</code></dd>
+        <dt>Lo llama</dt><dd>Vue (<code>BookingApp.vue</code>) con axios</dd>
+        <dt>Recibe</dt><dd>JSON con nombre, email, teléfono, fecha, adultos, niños, total e idioma</dd>
+        <dt>Hace</dt><dd>Valida, crea <code>Payment</code> y <code>Reserva</code> en <code>pending</code> y llama a <code>payment/create</code> de Flow</dd>
+        <dt>Responde</dt><dd><a class="term" href="#g-200">200</a> <code>{"redirect_url": "…"}</code>, o un error 400, 500 o 502 con <code>{"detail": "…"}</code></dd>
+      </dl>
+    </div>
+    <div class="ep">
+      <div class="ep-path"><span class="verb post">POST</span><code>/pagos/flow-confirm/</code><span class="owner">nuestro</span></div>
+      <dl>
+        <dt>Vista</dt><dd><code>FlowConfirmView</code></dd>
+        <dt>Lo llama</dt><dd>El servidor de Flow (es el webhook)</dd>
+        <dt>Recibe</dt><dd>Formulario con un solo dato: <code>token</code></dd>
+        <dt>Hace</dt><dd>Busca el pago por token, pregunta a <code>payment/getStatus</code> y aplica el resultado</dd>
+        <dt>Responde</dt><dd>Siempre <code>200 OK</code>, aunque el token no exista (Flow lo exige)</dd>
+      </dl>
+    </div>
+    <div class="ep">
+      <div class="ep-path"><span class="verb get">GET</span> <span class="verb post">POST</span><code>/pagos/flow-return/</code><span class="owner">nuestro</span></div>
+      <dl>
+        <dt>Vista</dt><dd><code>FlowReturnView</code></dd>
+        <dt>Lo llama</dt><dd>El navegador del cliente, enviado por Flow al terminar</dd>
+        <dt>Recibe</dt><dd><code>token</code></dd>
+        <dt>Hace</dt><dd>Si el pago no está pagado, consulta <code>getStatus</code>; activa el idioma del pago y deja un mensaje</dd>
+        <dt>Responde</dt><dd>Redirección 302 a la página final</dd>
+      </dl>
+    </div>
+    <div class="ep">
+      <div class="ep-path"><span class="verb get">GET</span><code>/pagos/vista_confirmacion_pago/&lt;payment_id&gt;</code><span class="owner">nuestro</span></div>
+      <dl>
+        <dt>Vista</dt><dd><code>VistaConfirmacionPago</code> (función)</dd>
+        <dt>Lo llama</dt><dd>El navegador, después del retorno</dd>
+        <dt>Recibe</dt><dd>El id del pago en la URL</dd>
+        <dt>Hace</dt><dd>Lee el pago; no consulta a Flow</dd>
+        <dt>Responde</dt><dd>HTML: <code>confirmacion_reserva.html</code> si está <code>paid</code>, si no <code>fail.html</code></dd>
+      </dl>
+    </div>
+    <div class="ep theirs">
+      <div class="ep-path"><span class="verb post">POST</span><code>FLOW_API_BASE + /payment/create</code><span class="owner">de Flow</span></div>
+      <dl>
+        <dt>Cliente</dt><dd><code>FlowClient.create_payment</code></dd>
+        <dt>Lo llama</dt><dd>Django, dentro de <code>TourCheckoutView</code></dd>
+        <dt>Envía</dt><dd>apiKey, commerceOrder, subject, amount, email, urlReturn, urlConfirmation y la firma <code>s</code></dd>
+        <dt>Responde</dt><dd><code>{"url": "…", "token": "…"}</code></dd>
+      </dl>
+    </div>
+    <div class="ep theirs">
+      <div class="ep-path"><span class="verb get">GET</span><code>FLOW_API_BASE + /payment/getStatus</code><span class="owner">de Flow</span></div>
+      <dl>
+        <dt>Cliente</dt><dd><code>FlowClient.get_status</code></dd>
+        <dt>Lo llama</dt><dd>Django: webhook, retorno y cron</dd>
+        <dt>Envía</dt><dd>apiKey, token y la firma <code>s</code></dd>
+        <dt>Responde</dt><dd>JSON con <code>status</code> (1 pendiente, 2 pagado, 3 rechazado, 4 anulado) y detalles del pago</dd>
+      </dl>
+    </div>
+    </div>
+    <p class="prose">Para ver en local que el webhook siempre responde 200, aunque no le mandes nada (no toca ningún pago):</p>
+<pre><code>curl -i -X POST http://localhost:8000/pagos/flow-confirm/
+<span class="c"># HTTP/1.1 200 OK … OK</span></code></pre>
+  </div>
+
+  <div class="aud">
+    <div class="aud-head"><span class="tag cli">Para el cliente</span><h3>Qué pasa cuando alguien paga una excursión</h3></div>
+    <p class="prose">Piensa en el sitio como una oficina con varias ventanillas, y en Flow como el banco de al lado. Cada ventanilla atiende una sola cosa. Esto es lo que pasa, en orden, cuando un cliente paga:</p>
+    <ol class="story">
+      <li><strong>El cliente aprieta «Reservar»</strong>El sitio anota la reserva (tour, fecha, pasajeros, datos de contacto) y le pide a Flow que prepare el cobro por el monto exacto. El precio lo calcula el sitio, no el navegador del cliente.<span class="tech">/pagos/checkout/ → payment/create</span></li>
+      <li><strong>El cliente paga en Flow</strong>El cliente pasa a una página segura de Flow para pagar con tarjeta o transferencia. Orange Travel nunca ve ni guarda los datos de la tarjeta.<span class="tech">página de pago de flow.cl</span></li>
+      <li><strong>Flow avisa al sitio</strong>Apenas se aprueba el pago, Flow avisa al sitio automáticamente. El sitio no se fía del aviso: le vuelve a preguntar a Flow si el pago está realmente aprobado, y solo entonces confirma la reserva, bloquea la fecha y envía los emails al cliente y al equipo.<span class="tech">/pagos/flow-confirm/ → payment/getStatus</span></li>
+      <li><strong>El cliente vuelve al sitio</strong>Flow devuelve al cliente al sitio, que le muestra «Reserva confirmada» en su idioma (español o inglés).<span class="tech">/pagos/flow-return/ → /pagos/vista_confirmacion_pago/</span></li>
+      <li><strong>Revisión cada 10 minutos</strong>Si el aviso de Flow se pierde, o el cliente cierra la ventana antes de volver, el sitio le pregunta a Flow por su cuenta cada 10 minutos y confirma los pagos que quedaron pendientes.<span class="tech">cron · conciliar_pagos_flow → payment/getStatus</span></li>
+    </ol>
+    <div class="benefits">
+      <div><strong>Tarjetas seguras</strong><span>Los datos de pago solo los maneja Flow.</span></div>
+      <div><strong>Sin cobros ni avisos dobles</strong><span>Aunque el aviso llegue dos veces, la reserva se confirma y los emails salen una sola vez.</span></div>
+      <div><strong>Nada se pierde</strong><span>Si falla el aviso, la revisión automática lo corrige en 10 minutos como máximo.</span></div>
+      <div><strong>En el idioma del cliente</strong><span>Quien reservó en inglés recibe su confirmación en inglés.</span></div>
+    </div>
+  </div>
+</section>
+
 <!-- 2 -->
 <section id="firma">
-  <div class="sec-head"><span class="num">02</span><h2>La firma: cómo Flow sabe que eres tú</h2></div>
-  <p class="prose">Cada llamada a la API lleva <code>apiKey</code> y un parámetro <code>s</code>: un HMAC-SHA256 calculado con <code>FLOW_SECRET_KEY</code> sobre todos los demás parámetros. Quien no tiene el secreto no puede crear órdenes a nombre de Orange Travel, y si alguien cambia el monto en el camino, la firma deja de calzar.</p>
+  <div class="sec-head"><span class="num">03</span><h2>La firma: cómo Flow sabe que eres tú</h2></div>
+  <p class="prose">Cada llamada a la <a class="term" href="#g-api">API</a> lleva <code>apiKey</code> y un parámetro <code>s</code>: un <a class="term" href="#g-hmac">HMAC-SHA256</a> calculado con <code>FLOW_SECRET_KEY</code> sobre todos los demás parámetros. Quien no tiene el secreto no puede crear órdenes a nombre de Orange Travel, y si alguien cambia el monto en el camino, la firma deja de calzar.</p>
   <figure>
     <div class="fig-scroll">
     <svg viewBox="0 0 760 210" role="img" aria-label="La firma: los parámetros se ordenan alfabéticamente, se concatenan como nombre y valor sin separadores, y el texto resultante se firma con HMAC-SHA256 usando la clave secreta para obtener el parámetro s.">
@@ -329,13 +575,13 @@ html { scroll-behavior: smooth; }
 <span class="k">def</span> sign_params(self, params):
     <span class="k">return</span> hmac.new(self.secret_key.encode(), self._string_to_sign(params).encode(),
                     hashlib.sha256).hexdigest()</code></pre>
-  <p class="prose sub">Ojo: Flow <strong>no firma el webhook</strong> que te manda. Solo trae un <code>token</code>. La seguridad sale de que el sitio no le cree al webhook: con ese token hace su propia llamada firmada a <code>getStatus</code>. Un POST falso a <code>/pagos/flow-confirm/</code> no logra nada, porque el estado lo dice Flow y no quien llamó.</p>
+  <p class="prose sub">Ojo: Flow <strong>no firma el webhook</strong> que te manda. Solo trae un <code>token</code>. La seguridad sale de que el sitio no le cree al webhook: con ese token hace su propia llamada firmada a <a class="term" href="#g-getstatus"><code>getStatus</code></a>. Un POST falso a <code>/pagos/flow-confirm/</code> no logra nada, porque el estado lo dice Flow y no quien llamó.</p>
 </section>
 
 <!-- 3 -->
 <section id="tres-vias">
-  <div class="sec-head"><span class="num">03</span><h2>Tres vías, un solo pago</h2></div>
-  <p class="prose">Ninguna vía es confiable por sí sola. El webhook puede no llegar (fue lo que pasó en int15 con los pagos de prueba 226 y 227), el cliente puede cerrar la pestaña antes de volver, y el cron tarda hasta 10 minutos. Por eso hay tres, y como pueden coincidir en el mismo segundo, el paso a pagado lo decide la base de datos.</p>
+  <div class="sec-head"><span class="num">04</span><h2>Tres vías, un solo pago</h2></div>
+  <p class="prose">Ninguna vía es confiable por sí sola. El webhook puede no llegar (fue lo que pasó en int15 con los pagos de prueba 226 y 227), el cliente puede cerrar la pestaña antes de volver, y el cron tarda hasta 10 minutos. Por eso hay tres, y como pueden coincidir en el mismo segundo (una <a class="term" href="#g-carrera">condición de carrera</a>), el paso a pagado lo decide la base de datos.</p>
   <figure>
     <div class="fig-scroll">
     <svg viewBox="0 0 760 320" role="img" aria-label="El webhook, el retorno y el cron llegan a aplicar_estado_flow. Un UPDATE condicional sobre paid_at deja que solo la primera vía actualice la fila y envíe los emails; las demás reciben ya_pagado.">
@@ -379,7 +625,7 @@ html { scroll-behavior: smooth; }
       <text x="594" y="258" class="t-m">no envía nada</text>
     </svg>
     </div>
-    <figcaption>La base de datos ejecuta el <code>UPDATE</code> de forma atómica: si dos vías lo intentan a la vez, solo una encuentra <code>paid_at</code> vacío. Esa vía envía los emails. A las demás el <code>update()</code> les devuelve 0. Esto es <strong>idempotencia</strong>: repetir la operación no cambia el resultado.</figcaption>
+    <figcaption>La base de datos ejecuta el <code>UPDATE</code> de forma <a class="term" href="#g-atomico">atómica</a>: si dos vías lo intentan a la vez, solo una encuentra <code>paid_at</code> vacío. Esa vía envía los emails. A las demás el <code>update()</code> les devuelve 0. Esto es <a class="term" href="#g-idempotencia"><strong>idempotencia</strong></a>: repetir la operación no cambia el resultado.</figcaption>
   </figure>
   <p class="code-label">payments/confirmacion.py</p>
 <pre><code><span class="k">if</span> estado == FLOW_PAGADO:
@@ -398,7 +644,7 @@ html { scroll-behavior: smooth; }
   <table>
     <thead><tr><th>Vía</th><th>Código</th><th>Quién la dispara</th><th>Cuándo falla</th></tr></thead>
     <tbody>
-      <tr><td>Webhook</td><td><code>FlowConfirmView</code></td><td>El servidor de Flow, con un POST que trae el <code>token</code>. Siempre responde 200, incluso si el token es desconocido.</td><td>Si no alcanza el server (firewall o ModSecurity) o recibe un 301 por http→https.</td></tr>
+      <tr><td>Webhook</td><td><code>FlowConfirmView</code></td><td>El servidor de Flow, con un POST que trae el <code>token</code>. Siempre responde <a class="term" href="#g-200">200</a>, incluso si el token es desconocido.</td><td>Si no alcanza el server (<a class="term" href="#g-modsecurity">firewall o ModSecurity</a>) o recibe un <a class="term" href="#g-301">301</a> por http→https.</td></tr>
       <tr><td>Retorno</td><td><code>FlowReturnView</code></td><td>El navegador del cliente, que llega desde flow.cl (acepta GET y POST).</td><td>Si el cliente cierra la pestaña, paga desde la app del banco o pierde la conexión.</td></tr>
       <tr><td>Cron</td><td><code>conciliar_pagos_flow</code></td><td>cPanel, cada 10 min. Revisa los pagos <code>pending</code> de los últimos 3 días (<code>--dias N</code>, <code>--simular</code>, <code>--sin-emails</code>).</td><td>Solo cubre la ventana de días que se le indique.</td></tr>
     </tbody>
@@ -408,7 +654,7 @@ html { scroll-behavior: smooth; }
 
 <!-- 4 -->
 <section id="estados">
-  <div class="sec-head"><span class="num">04</span><h2>Estados y qué provocan</h2></div>
+  <div class="sec-head"><span class="num">05</span><h2>Estados y qué provocan</h2></div>
   <p class="prose"><code>getStatus</code> devuelve un <code>status</code> numérico. <code>estado_flow()</code> lo traduce (también acepta el texto <code>"paid"</code>) y <code>aplicar_estado_flow</code> lo convierte en el estado local:</p>
   <div class="table-scroll">
   <table>
@@ -421,21 +667,102 @@ html { scroll-behavior: smooth; }
     </tbody>
   </table>
   </div>
-  <p class="prose sub"><code>tours/views.py::get_fechas_bloqueadas</code> solo cuenta pagos <code>paid</code>. Un pago que se queda en <code>pending</code> por no haberse confirmado deja la fecha libre y permite sobrevender, y por eso existe el cron. Al revés, si en el panel una reserva pasa a rechazada o cancelada, <code>tours/signals.py</code> cancela el <code>Payment</code> asociado y la fecha se libera.</p>
+  <p class="prose sub"><code>tours/views.py::get_fechas_bloqueadas</code> solo cuenta pagos <code>paid</code>. Un pago que se queda en <code>pending</code> por no haberse confirmado deja la fecha libre y permite sobrevender, y por eso existe el cron. Al revés, si en el panel una reserva pasa a rechazada o cancelada, <code>tours/signals.py</code> (una <a class="term" href="#g-signal">signal</a>) cancela el <code>Payment</code> asociado y la fecha se libera.</p>
+</section>
+
+<!-- cron -->
+<section id="cron">
+  <div class="sec-head"><span class="num">06</span><h2>Vigilar el cron</h2></div>
+  <p class="prose">El <a class="term" href="#g-cron">cron</a> de <a class="term" href="#g-conciliacion">conciliación</a> es la red de seguridad cuando el webhook no llega. Si deja de correr, nadie se entera: los pagos sin webhook quedan en <code>pending</code>, no salen los emails y la fecha no se bloquea. Por eso conviene revisarlo de vez en cuando con estos comandos, por SSH en int15.</p>
+  <div class="note"><strong>Antes de empezar:</strong> los comandos con <code>grep</code>, <code>tail</code>, <code>ls</code> y <code>crontab -l</code> solo leen archivos. En cambio, todo lo que pase por <code>manage.py</code> se conecta a la <strong>base de datos real de producción</strong> (regla 3 de CLAUDE.md). Con <code>--simular</code> solo consulta y no cambia nada.</div>
+
+  <div class="checks">
+    <div class="check">
+      <h3>1. ¿Está programado?</h3>
+<pre><code>crontab -l | grep conciliar</code></pre>
+      <p>Debería mostrar esta línea. Si no muestra nada, el cron no existe y hay que crearlo en cPanel → Cron Jobs, «Once Per Ten Minutes»:</p>
+<pre><code>*/10 * * * * cd ~/orangetravel &amp;&amp; ~/virtualenv/orangetravel/3.11/bin/python manage.py conciliar_pagos_flow &gt;&gt; ~/orangetravel/conciliar.log 2&gt;&amp;1</code></pre>
+    </div>
+
+    <div class="check">
+      <h3>2. ¿Corrió hace poco?</h3>
+<pre><code>date; ls -l --time-style='+%Y-%m-%d %H:%M' ~/orangetravel/conciliar.log</code></pre>
+      <p>El comando escribe una línea en cada corrida, así que la hora de modificación del archivo es la de la última corrida. Compárala con la hora que muestra <code>date</code>: la diferencia no debería pasar de 10 minutos.</p>
+    </div>
+
+    <div class="check">
+      <h3>3. Historial de corridas</h3>
+<pre><code>grep 'pendientes revisados' ~/orangetravel/conciliar.log | tail -n 30</code></pre>
+      <p class="code-label">salida de ejemplo</p>
+<pre class="out"><code>[2026-11-10 14:20] 0 pagos pendientes revisados (nada que revisar).
+[2026-11-10 14:30] 1 pagos pendientes revisados (pendiente: 1).
+[2026-11-10 14:40] 1 pagos pendientes revisados (pagado: 1).</code></pre>
+      <p>Una línea por corrida. <code>pendiente: N</code> son pagos que Flow todavía no da por pagados (normalmente checkouts abandonados), y <code>pagado: N</code> son pagos que el cron confirmó y por los que envió los emails. La hora entre corchetes se agregó el 10 nov 2026: las líneas anteriores no la tienen.</p>
+    </div>
+
+    <div class="check">
+      <h3>4. ¿Cuántas veces corrió hoy?</h3>
+<pre><code>grep 'pendientes revisados' ~/orangetravel/conciliar.log | grep -c "^\[$(date +%F)"</code></pre>
+      <p>Con un cron cada 10 minutos son unas 6 por hora, y cerca de 144 al final del día. Un número mucho menor significa que hubo horas sin corridas.</p>
+    </div>
+
+    <div class="check">
+      <h3>5. Pagos que resolvió el cron</h3>
+<pre><code>grep -E 'confirmado por Flow|: pagado|: fallido' ~/orangetravel/conciliar.log | tail -n 20</code></pre>
+      <p class="code-label">salida de ejemplo</p>
+<pre class="out"><code>[2026-11-10 14:40:02,118] INFO payments.confirmacion: Pago 231 (OT-XXXXXX) confirmado por Flow
+Pago 231 OT-XXXXXX (cliente@…): pagado [flow_status=2]</code></pre>
+      <p>Cada pago confirmado deja dos líneas: la del log (con fecha y hora) y la del resumen del comando. Si un pago aparece aquí, el webhook de ese pago no llegó o llegó tarde, y fue el cron el que lo salvó.</p>
+    </div>
+
+    <div class="check">
+      <h3>6. ¿Hubo problemas?</h3>
+<pre><code>grep -nE 'no está configurado|Traceback|error' ~/orangetravel/conciliar.log | tail -n 20</code></pre>
+      <ul class="plain">
+        <li><code>Flow no está configurado</code>: el cron no recibe las variables de cPanel (<code>FLOW_API_KEY</code>, <code>FLOW_SECRET_KEY</code>). Hay que revisar la línea del cron y el virtualenv.</li>
+        <li><code>error [Transaction not found]</code>: un token creado en sandbox consultado con las claves de producción. Es normal en los pagos de prueba y desaparece cuando pasan los 3 días de la ventana.</li>
+        <li><code>Traceback</code>: el comando se cayó. Las líneas de abajo dicen por qué; lo típico es una caída de la BD o de la red hacia Flow.</li>
+      </ul>
+    </div>
+
+    <div class="check">
+      <h3>7. Correrlo a mano, sin cambiar nada</h3>
+<pre><code>cd ~/orangetravel &amp;&amp; ~/virtualenv/orangetravel/3.11/bin/python manage.py conciliar_pagos_flow --simular</code></pre>
+      <p>Muestra lo que Flow dice de cada pago pendiente de los últimos 3 días (<code>--dias 7</code> para mirar más atrás), sin confirmar nada ni enviar emails.</p>
+    </div>
+
+    <div class="check">
+      <h3>8. Historial en la base de datos: cómo se confirmó cada pago</h3>
+<pre><code>cd ~/orangetravel &amp;&amp; ~/virtualenv/orangetravel/3.11/bin/python manage.py shell -c "
+from django.utils.timezone import localtime
+from payments.models import Payment
+for p in Payment.objects.order_by('-id')[:15]:
+    pagado = localtime(p.paid_at).strftime('%Y-%m-%d %H:%M') if p.paid_at else '-'
+    webhook = 'webhook: si' if p.raw_confirm_payload else 'webhook: no'
+    print(p.id, p.codigo, p.status, pagado, webhook)
+"</code></pre>
+      <p>Solo lee. Un pago <code>paid</code> con <code>webhook: no</code> se confirmó por el retorno del cliente o por el cron; para saber cuál, busca su número en <code>conciliar.log</code> (comando 5). Si casi todos dicen <code>webhook: no</code>, el webhook sigue sin llegar a int15.</p>
+    </div>
+  </div>
+
+  <div class="signs">
+    <div><h3>Funciona bien si…</h3><ul class="plain"><li>el log se modificó hace menos de 10 minutos;</li><li>hay unas 6 líneas «pendientes revisados» por hora;</li><li>no aparece «no está configurado» ni <code>Traceback</code>.</li></ul></div>
+    <div><h3>Algo anda mal si…</h3><ul class="plain"><li><code>conciliar.log</code> no existe o lleva horas sin cambiar;</li><li><code>crontab -l</code> no muestra la línea;</li><li>hay un pago en Flow como pagado que en el panel sigue pendiente después de 10 minutos.</li></ul></div>
+  </div>
 </section>
 
 <!-- 5 -->
 <section id="ingles">
-  <div class="sec-head"><span class="num">05</span><h2>Español e inglés: qué cambia y qué no</h2></div>
-  <p class="prose"><strong>El pago es idéntico:</strong> misma API, mismo monto en CLP y mismas URLs <code>/pagos/…</code>. Lo que cambia es cómo el idioma atraviesa un proceso que, a mitad de camino, pierde la URL y la sesión.</p>
+  <div class="sec-head"><span class="num">07</span><h2>Español e inglés: qué cambia y qué no</h2></div>
+  <p class="prose"><strong>El pago es idéntico:</strong> misma API, mismo monto en CLP y mismas URLs <code>/pagos/…</code>. Lo que cambia, en términos de <a class="term" href="#g-i18n">i18n</a>, es cómo el idioma atraviesa un proceso que, a mitad de camino, pierde la URL y la sesión.</p>
 
   <h3>Dónde vive cada URL</h3>
   <div class="split">
     <div>
-      <h3>Con prefijo de idioma (<code>i18n_patterns</code>)</h3>
+      <h3>Con <a class="term" href="#g-prefijo">prefijo de idioma</a> (<a class="term" href="#g-i18n-patterns"><code>i18n_patterns</code></a>)</h3>
       <dl>
         <dt>/tours/…  ·  /blog/…  ·  /</dt><dd>Español, sin prefijo (<code>prefix_default_language=False</code>).</dd>
-        <dt>/en/tours/…  ·  /en/blog/…</dt><dd>Inglés. Django saca el idioma de la URL. Los slugs son los mismos.</dd>
+        <dt>/en/tours/…  ·  /en/blog/…</dt><dd>Inglés. Django saca el idioma de la URL. Los <a class="term" href="#g-slug">slugs</a> son los mismos. Mientras las banderas estén apagadas, lleva <a class="term" href="#g-noindex">noindex</a> y no anuncia <a class="term" href="#g-hreflang">hreflang</a>.</dd>
         <dt>/i18n/setlang/</dt><dd>El selector de idioma. Va dentro para que «volver a español» traduzca bien la URL.</dd>
       </dl>
     </div>
@@ -501,7 +828,7 @@ html { scroll-behavior: smooth; }
     <thead><tr><th>Punto</th><th>Español</th><th>Inglés</th></tr></thead>
     <tbody>
       <tr><td>Ficha del tour</td><td><code>/tours/&lt;slug&gt;/</code></td><td><code>/en/tours/&lt;slug&gt;/</code></td></tr>
-      <tr><td>Textos de BookingApp.vue</td><td><code>textos_reserva()</code></td><td>Los mismos, pasados por gettext (<code>locale/en/…/django.po</code>)</td></tr>
+      <tr><td>Textos de BookingApp.vue</td><td><code>textos_reserva()</code></td><td>Los mismos, pasados por <a class="term" href="#g-gettext">gettext</a> (<code>locale/en/…/django.po</code>)</td></tr>
       <tr><td>Precio en Vue</td><td>$45.000</td><td>$45,000 CLP</td></tr>
       <tr><td><code>Payment.idioma</code></td><td><code>es</code></td><td><code>en</code></td></tr>
       <tr><td>Monto y moneda cobrados</td><td>CLP</td><td class="same">CLP, igual</td></tr>
@@ -509,7 +836,7 @@ html { scroll-behavior: smooth; }
       <tr><td>Página de pago de Flow</td><td>La de Flow</td><td class="same">La misma. El código no envía un parámetro de idioma y en <code>payment/create</code> no aparece uno.</td></tr>
       <tr><td>URLs de retorno y webhook</td><td><code>/pagos/…</code></td><td class="same"><code>/pagos/…</code>, iguales</td></tr>
       <tr><td>Mensajes y página de confirmación</td><td>Español</td><td>Inglés (<code>activate(payment.idioma)</code>)</td></tr>
-      <tr><td>Nombre del tour que ve el cliente</td><td><code>nombre_es</code></td><td><code>nombre_en</code> solo si <code>traduccion_en_aprobada</code>; si no, en español</td></tr>
+      <tr><td>Nombre del tour que ve el cliente</td><td><code>nombre_es</code></td><td><code>nombre_en</code> solo si <code>traduccion_en_aprobada</code>; si no, en español (<a class="term" href="#g-fallback">fallback</a>)</td></tr>
       <tr><td>Email al cliente</td><td>Español</td><td>Inglés (<code>translation.override(payment.idioma)</code>)</td></tr>
       <tr><td>Email al admin</td><td>Español</td><td class="same">Español, con la línea «Idioma del cliente: Inglés»</td></tr>
       <tr><td>A qué admin le llega (<code>EMAIL_POR_TOUR</code>)</td><td>Según <code>nombre_es</code></td><td class="same">Según <code>nombre_es</code>, igual</td></tr>
@@ -519,7 +846,7 @@ html { scroll-behavior: smooth; }
 
   <div class="trap">
     <h3>La regla de modeltranslation que hay que tener presente</h3>
-    <p><code>tour.nombre</code> devuelve el valor <strong>del idioma activo</strong>. Por eso hay dos usos distintos:</p>
+    <p>Con <a class="term" href="#g-modeltranslation">modeltranslation</a>, <code>tour.nombre</code> devuelve el valor <strong>del idioma activo</strong>. Por eso hay dos usos distintos:</p>
     <ul class="plain">
       <li>Para <strong>decidir</strong> algo con el texto (a qué admin va el email, <code>tour_nombre_al_pagar</code>, el <code>subject</code> de Flow) se usa <code>nombre_es</code>. Con <code>tour.nombre</code>, en inglés fallaría la palabra clave y todo terminaría en <code>info@orangetravel.cl</code>.</li>
       <li>Para <strong>mostrar</strong> algo al cliente se usan <code>texto(obj, campo, idioma)</code> (en los emails, donde no hay request) o <code>mostrar_aprobado(objs, request)</code> (en las vistas). Ambas respetan <code>traduccion_en_aprobada</code>.</li>
@@ -529,20 +856,20 @@ html { scroll-behavior: smooth; }
 
 <!-- 6 -->
 <section id="trampas">
-  <div class="sec-head"><span class="num">06</span><h2>Detalles finos que explican el código</h2></div>
+  <div class="sec-head"><span class="num">08</span><h2>Detalles finos que explican el código</h2></div>
   <div class="traps">
     <div class="trap"><h3>El monto lo calcula el servidor</h3><p>Vue manda <code>total</code>, pero al crear el pago <code>Payment.save()</code> lo recalcula con <code>tour.precio</code> (adultos × precio adulto + niños × precio niño). Además guarda una copia de cómo estaba el tour en ese momento: <code>tour_nombre_al_pagar</code>, <code>tour_precio_al_pagar</code> y <code>tour_precio_nino_al_pagar</code>. Así nadie puede bajar el precio desde las DevTools.</p></div>
     <div class="trap"><h3>Las URLs para Flow siempre van en https</h3><p><code>_coerce_https_if_forwarded</code> corrige <code>http://</code> a <code>https://</code>. Si Flow recibiera http, <code>SECURE_SSL_REDIRECT</code> respondería 301, y Flow no repite un POST después de una redirección: el webhook se perdería en silencio.</p></div>
-    <div class="trap"><h3>El modo mantención deja pasar la vuelta de Flow</h3><p><code>/pagos/flow-confirm/</code>, <code>/pagos/flow-return/</code> y <code>/pagos/vista_confirmacion_pago/</code> quedan exentos. El webhook llega sin cookies, y el retorno es un POST cross-site desde flow.cl en el que la cookie de sesión (<code>SameSite=Lax</code>) no viaja, así que ni siquiera el staff aparece logueado ahí. El checkout sí queda bloqueado.</p></div>
-    <div class="trap"><h3>Nada de <code>print()</code> antes de un email</h3><p>En int15, Passenger arranca Python con stdout en ASCII. Un <code>print</code> con emoji o tilde lanzaba <code>UnicodeEncodeError</code> y cortaba el envío. Entre el 15 oct y el 9 nov 2026 se perdieron así los emails de pago. Ahora se usa <code>logging</code>, y cada email (cliente y admin) va en su propio <code>try</code>.</p></div>
-    <div class="trap"><h3>Sandbox y producción: tres variables</h3><p><code>FLOW_API_KEY</code>, <code>FLOW_SECRET_KEY</code> y <code>FLOW_API_BASE</code> (<code>https://www.flow.cl/api</code> o <code>https://sandbox.flow.cl/api</code>). En producción vienen solo de cPanel → Setup Python App. El default del código es sandbox.</p></div>
+    <div class="trap"><h3>El modo mantención deja pasar la vuelta de Flow</h3><p><code>/pagos/flow-confirm/</code>, <code>/pagos/flow-return/</code> y <code>/pagos/vista_confirmacion_pago/</code> quedan exentos. El webhook llega sin cookies, y el retorno es un POST <a class="term" href="#g-cross-site">cross-site</a> desde flow.cl en el que la <a class="term" href="#g-cookie">cookie de sesión</a> (<a class="term" href="#g-samesite"><code>SameSite=Lax</code></a>) no viaja, así que ni siquiera el staff aparece logueado ahí. El checkout sí queda bloqueado.</p></div>
+    <div class="trap"><h3>Nada de <code>print()</code> antes de un email</h3><p>En int15, <a class="term" href="#g-passenger">Passenger</a> arranca Python con <a class="term" href="#g-stdout">stdout en ASCII</a>. Un <code>print</code> con emoji o tilde lanzaba <code>UnicodeEncodeError</code> y cortaba el envío. Entre el 15 oct y el 9 nov 2026 se perdieron así los emails de pago. Ahora se usa <code>logging</code>, y cada email (cliente y admin) va en su propio <code>try</code>.</p></div>
+    <div class="trap"><h3>Sandbox y producción: tres variables</h3><p><code>FLOW_API_KEY</code>, <code>FLOW_SECRET_KEY</code> y <code>FLOW_API_BASE</code> (<code>https://www.flow.cl/api</code> o <code>https://sandbox.flow.cl/api</code>). Son <a class="term" href="#g-env">variables de entorno</a>: en producción vienen solo de cPanel → Setup Python App. El default del código es <a class="term" href="#g-sandbox">sandbox</a>.</p></div>
     <div class="trap"><h3>Dónde mirar cuando algo falla</h3><p><code>~/orangetravel/stderr.log</code> registra «Webhook Flow recibido (token …)», el resultado de cada webhook y la <code>urlConfirmation</code> de cada checkout. En la BD, <code>raw_create_response</code>, <code>raw_confirm_payload</code> y <code>raw_status_response</code> guardan lo que dijo Flow en cada paso. Un pago sin <code>raw_confirm_payload</code> no recibió webhook.</p></div>
   </div>
 </section>
 
 <!-- 7 -->
 <section id="repo">
-  <div class="sec-head"><span class="num">07</span><h2>Leer el código en este orden</h2></div>
+  <div class="sec-head"><span class="num">09</span><h2>Leer el código en este orden</h2></div>
   <ol class="steps">
     <li><div><p><code>static/src/main.js</code> y <code>static/src/components/BookingApp.vue</code> (líneas ~210-260): de dónde sale el idioma, el payload y la redirección.</p></div></li>
     <li><div><p><code>payments/views.py</code>: las cuatro vistas (checkout, retorno, webhook y página de confirmación).</p></div></li>
@@ -551,14 +878,14 @@ html { scroll-behavior: smooth; }
     <li><div><p><code>payments/models.py</code>: <code>save()</code> y el cálculo del monto.</p></div></li>
     <li><div><p><code>payments/emails.py</code> (desde <code>_pax_detalle</code>) y <code>tours/signals.py</code>.</p></div></li>
     <li><div><p><code>payments/management/commands/conciliar_pagos_flow.py</code>.</p></div></li>
-    <li><div><p><code>config/urls.py</code>, <code>tours/traduccion.py</code> y <code>home/middleware.py</code> (<code>SitioInglesMiddleware</code>).</p></div></li>
+    <li><div><p><code>config/urls.py</code>, <code>tours/traduccion.py</code> y <code>home/middleware.py</code> (<code>SitioInglesMiddleware</code>, un <a class="term" href="#g-middleware">middleware</a>).</p></div></li>
     <li><div><p>Docs del repo: <code>docs/ARQUITECTURA.md</code> §6.1, <code>docs/INCIDENTE_EMAILS_INT15.md</code> («Webhook de Flow que no llega») y <code>docs/PROPUESTA_TRADUCCION_ES_EN.md</code> (Anexo técnico, §2 decisiones y §3 problemas conocidos).</p></div></li>
   </ol>
 </section>
 
 <!-- 8 -->
 <section id="probar">
-  <div class="sec-head"><span class="num">08</span><h2>Probarlo en local</h2></div>
+  <div class="sec-head"><span class="num">10</span><h2>Probarlo en local</h2></div>
   <p class="prose">El <code>.env</code> local tiene credenciales <strong>sandbox</strong>, así que puedes pagar con las tarjetas de prueba de la documentación de Flow sin cobrar nada.</p>
   <ol class="steps">
     <li><div><p>Haz una reserva en <code>/tours/&lt;slug&gt;/</code> y otra en <code>/en/tours/&lt;slug&gt;/</code>, y págalas en sandbox.</p></div></li>
@@ -574,7 +901,7 @@ enviar_confirmacion_pago(Payment.objects.get(id=<span class="k">&lt;ID&gt;</span
 
 <!-- 9 -->
 <section id="profundizar">
-  <div class="sec-head"><span class="num">09</span><h2>Para profundizar</h2></div>
+  <div class="sec-head"><span class="num">11</span><h2>Para profundizar</h2></div>
 
   <div class="res-group">
     <h3>Flow (la referencia oficial)</h3>
@@ -721,10 +1048,165 @@ enviar_confirmacion_pago(Payment.objects.get(id=<span class="k">&lt;ID&gt;</span
   </div>
 </section>
 
+<!-- glosario -->
+<section id="glosario">
+  <div class="sec-head"><span class="num">12</span><h2>Glosario</h2></div>
+  <p class="prose">Las definiciones que aparecen al pasar el mouse sobre las palabras subrayadas, todas juntas.</p>
+  <div class="gloss-group">
+    <h3>Pagos</h3>
+    <dl class="glossary">
+      <dt id="g-webhook">Webhook</dt>
+      <dd>Un aviso automático que un sistema le manda a otro cuando pasa algo. En vez de que Orange Travel le pregunte a Flow a cada rato «¿ya pagó?», Flow llama a una URL del sitio (/pagos/flow-confirm/) cuando termina el pago. Es como dejar tu número para que te llamen.</dd>
+      <dt id="g-token">Token</dt>
+      <dd>Un código único que Flow entrega al crear la orden y que identifica ese pago. Funciona como el número de ticket de un guardarropía: con él se pregunta por el pago sin repetir todos los datos.</dd>
+      <dt id="g-api">API</dt>
+      <dd>La «ventanilla» por la que un programa le pide cosas a otro. La API de Flow recibe pedidos como «crea esta orden» o «dime cómo va este pago» y responde con datos (JSON) en vez de páginas web.</dd>
+      <dt id="g-endpoint">Endpoint</dt>
+      <dd>Una dirección concreta (URL + método) que cumple una sola tarea. Hay endpoints del sitio, como /pagos/checkout/, que inicia el pago, y endpoints de Flow, como payment/getStatus, que responde el estado de un pago.</dd>
+      <dt id="g-payload">Payload</dt>
+      <dd>Los datos que viajan dentro de una petición. En el checkout, el payload lleva nombre, email, teléfono, fecha, pasajeros e idioma.</dd>
+      <dt id="g-sandbox">Sandbox</dt>
+      <dd>Un ambiente de prueba de Flow, separado del real. Se paga con tarjetas de prueba y no se cobra nada. Se elige con la variable FLOW_API_BASE.</dd>
+      <dt id="g-checkout">Checkout</dt>
+      <dd>El momento en que empieza el pago: se toman los datos de la reserva, se crea la orden en Flow y se manda al cliente a pagar.</dd>
+      <dt id="g-pagina-alojada">Página de pago alojada</dt>
+      <dd>La página donde el cliente escribe su tarjeta está en flow.cl, no en orangetravel.cl. Así el sitio nunca toca datos de tarjetas, y la seguridad de esa parte queda a cargo de Flow.</dd>
+      <dt id="g-hmac">Firma HMAC-SHA256</dt>
+      <dd>Un código que se calcula a partir de los datos y de una clave secreta. Si alguien cambia un solo dato (por ejemplo, el monto), la firma deja de coincidir. Solo quien tiene la clave puede generar una firma válida, como un sello lacrado.</dd>
+      <dt id="g-getstatus">getStatus</dt>
+      <dd>La consulta a la API de Flow que responde en qué estado está un pago: 1 pendiente, 2 pagado, 3 rechazado, 4 anulado. Es la única fuente que el sitio considera confiable.</dd>
+      <dt id="g-conciliacion">Conciliación</dt>
+      <dd>Comparar dos registros que deberían coincidir y corregir las diferencias. Aquí significa revisar los pagos que el sitio tiene como pendientes y preguntarle a Flow si en realidad ya se pagaron.</dd>
+      <dt id="g-idempotencia">Idempotencia</dt>
+      <dd>Una operación es idempotente si repetirla da el mismo resultado que hacerla una vez. Apretar diez veces el botón del ascensor no llama a diez ascensores, y confirmar tres veces el mismo pago no envía tres emails.</dd>
+      <dt id="g-carrera">Condición de carrera</dt>
+      <dd>Un error que aparece cuando dos procesos hacen lo mismo casi al mismo tiempo y el resultado depende de quién llega primero. Por ejemplo, el webhook y el retorno del cliente confirmando el mismo pago en el mismo segundo.</dd>
+      <dt id="g-atomico">UPDATE condicional (atómico)</dt>
+      <dd>Una orden a la base de datos que cambia una fila solo si se cumple una condición («solo si paid_at está vacío») y que se ejecuta de una vez, sin que otro proceso pueda meterse a la mitad. Por eso solo una de las vías puede «ganar».</dd>
+      <dt id="g-cron">Cron</dt>
+      <dd>El programador de tareas del servidor: ejecuta un comando cada cierto tiempo, como un despertador. El de Orange Travel corre conciliar_pagos_flow cada 10 minutos y anota el resultado en conciliar.log.</dd>
+    </dl>
+  </div>
+  <div class="gloss-group">
+    <h3>Web y servidor</h3>
+    <dl class="glossary">
+      <dt id="g-cookie">Cookie de sesión</dt>
+      <dd>Un dato pequeño que el navegador guarda y envía en cada visita para que el sitio sepa quién eres; por ejemplo, que alguien del staff inició sesión.</dd>
+      <dt id="g-samesite">SameSite</dt>
+      <dd>Una regla de las cookies que decide si viajan cuando la visita viene desde otro sitio. Con SameSite=Lax, la cookie no se envía en un POST que llega desde flow.cl, y por eso al volver de pagar el sitio no reconoce a nadie.</dd>
+      <dt id="g-cross-site">Cross-site</dt>
+      <dd>Cuando una página de un dominio (flow.cl) envía al navegador hacia otro dominio (orangetravel.cl). Los navegadores son más estrictos con las cookies en esos casos.</dd>
+      <dt id="g-https">HTTPS</dt>
+      <dd>La versión cifrada de HTTP: nadie en el camino puede leer ni cambiar los datos. El sitio obliga a usarla y redirige cualquier visita por http.</dd>
+      <dt id="g-301">Redirección 301</dt>
+      <dd>Una respuesta que dice «esto se movió, ve a esta otra dirección». El navegador la sigue sin problemas, pero Flow no repite el aviso del webhook después de una redirección, y el aviso se pierde.</dd>
+      <dt id="g-200">Código 200</dt>
+      <dd>La respuesta HTTP que significa «recibido, todo bien». Flow espera un 200 del webhook; si no lo recibe, lo considera un fallo.</dd>
+      <dt id="g-modsecurity">ModSecurity y firewall</dt>
+      <dd>Filtros del hosting que bloquean peticiones que parecen sospechosas. A veces bloquean también avisos legítimos, como un webhook.</dd>
+      <dt id="g-passenger">Passenger</dt>
+      <dd>El programa del hosting (cPanel) que arranca la aplicación Django y le entrega las visitas. Arranca desde passenger_wsgi.py.</dd>
+      <dt id="g-stdout">stdout y ASCII</dt>
+      <dd>stdout es la «salida estándar», donde escribe print(). En int15 estaba en ASCII, un juego de caracteres sin tildes ni emojis, así que imprimir una tilde hacía fallar el programa.</dd>
+      <dt id="g-env">Variables de entorno</dt>
+      <dd>Valores de configuración que el servidor le entrega a la aplicación desde fuera del código, como las claves de Flow. Así los secretos no quedan guardados en el repositorio.</dd>
+      <dt id="g-middleware">Middleware</dt>
+      <dd>Código que revisa cada visita antes de que llegue a la vista (y la respuesta al salir). El modo mantención y el control de /en/ son middleware.</dd>
+      <dt id="g-metodo">Método HTTP (GET y POST)</dt>
+      <dd>El verbo de una petición web. GET pide algo sin cambiar nada (como abrir una página); POST envía datos para que el servidor haga algo (como crear un pago). Un mismo endpoint puede aceptar uno o ambos.</dd>
+      <dt id="g-vista">Vista (view)</dt>
+      <dd>En Django, la función o clase que recibe la petición de un endpoint y devuelve la respuesta. Por ejemplo, TourCheckoutView atiende /pagos/checkout/.</dd>
+      <dt id="g-signal">Signal de Django</dt>
+      <dd>Un aviso interno de Django del tipo «cuando se guarde una Reserva, ejecuta esta función». tours/signals.py lo usa para enviar emails y liberar fechas cuando cambia el estado de una reserva.</dd>
+    </dl>
+  </div>
+  <div class="gloss-group">
+    <h3>Idiomas</h3>
+    <dl class="glossary">
+      <dt id="g-i18n">i18n</dt>
+      <dd>Abreviatura de «internationalization» (una i, 18 letras y una n): preparar un sitio para que funcione en varios idiomas.</dd>
+      <dt id="g-i18n-patterns">i18n_patterns</dt>
+      <dd>La función de Django que agrega el prefijo de idioma a las URLs. Con prefix_default_language=False, el español va sin prefijo y el inglés con /en/.</dd>
+      <dt id="g-prefijo">Prefijo de idioma</dt>
+      <dd>La parte inicial de la URL que indica el idioma, como /en/ en /en/tours/… Django la usa para decidir en qué idioma responder.</dd>
+      <dt id="g-gettext">gettext (.po y .mo)</dt>
+      <dd>El sistema estándar para traducir los textos fijos del sitio. El .po es el archivo editable con cada frase y su traducción; el .mo es la versión compilada que lee Django.</dd>
+      <dt id="g-modeltranslation">modeltranslation</dt>
+      <dd>Una librería que agrega una columna por idioma a los modelos (nombre_es, nombre_en). Al leer tour.nombre, entrega la del idioma activo.</dd>
+      <dt id="g-slug">Slug</dt>
+      <dd>La parte legible de una URL que identifica una página, como nombre-del-tour en /tours/nombre-del-tour/. En Orange Travel es el mismo en español y en inglés.</dd>
+      <dt id="g-fallback">Fallback</dt>
+      <dd>El valor de respaldo cuando falta el principal. Si un tour no tiene la traducción aprobada, en /en/ se muestra en español.</dd>
+      <dt id="g-hreflang">hreflang</dt>
+      <dd>Una etiqueta que le dice a Google que una página tiene una versión en otro idioma y dónde está.</dd>
+      <dt id="g-noindex">noindex</dt>
+      <dd>Una instrucción para que los buscadores no muestren la página en sus resultados. La página sigue funcionando para quien tenga el link.</dd>
+    </dl>
+  </div>
+</section>
+
 <footer>
   Escrito a partir del código de la rama <code>fix-orange</code> al 10 nov 2026 (<code>payments/</code>, <code>tours/</code>, <code>config/urls.py</code>). No incluye valores de variables ni secretos, solo sus nombres.
 </footer>
 
 </div>
+<div id="tip" role="tooltip" hidden></div>
+<script>
+(function () {
+  var tip = document.getElementById('tip');
+  var actual = null, armado = null;
+  var tactil = window.matchMedia && matchMedia('(hover: none)').matches;
+
+  function definicion(a) {
+    var dt = document.getElementById(a.getAttribute('href').slice(1));
+    if (!dt) return null;
+    var dd = dt.nextElementSibling;
+    return { titulo: dt.textContent, texto: dd ? dd.textContent : '' };
+  }
+  function ubicar(a) {
+    var r = a.getBoundingClientRect();
+    var w = tip.offsetWidth, h = tip.offsetHeight;
+    var vw = document.documentElement.clientWidth, vh = window.innerHeight;
+    var left = Math.min(Math.max(8, r.left + r.width / 2 - w / 2), vw - w - 8);
+    var top = r.bottom + 8;
+    if (top + h > vh - 8 && r.top - h - 8 > 8) top = r.top - h - 8;
+    tip.style.left = left + 'px';
+    tip.style.top = top + 'px';
+  }
+  function mostrar(a) {
+    var d = definicion(a);
+    if (!d) return;
+    tip.textContent = '';
+    var b = document.createElement('strong'); b.textContent = d.titulo;
+    var p = document.createElement('span'); p.textContent = d.texto;
+    tip.appendChild(b); tip.appendChild(p);
+    tip.hidden = false;
+    if (actual && actual !== a) actual.removeAttribute('aria-describedby');
+    a.setAttribute('aria-describedby', 'tip');
+    actual = a;
+    ubicar(a);
+  }
+  function ocultar() {
+    tip.hidden = true;
+    if (actual) actual.removeAttribute('aria-describedby');
+    actual = null; armado = null;
+  }
+  document.querySelectorAll('a.term').forEach(function (a) {
+    a.addEventListener('mouseenter', function () { mostrar(a); });
+    a.addEventListener('mouseleave', function () { if (document.activeElement !== a) ocultar(); });
+    a.addEventListener('focus', function () { mostrar(a); });
+    a.addEventListener('blur', ocultar);
+    a.addEventListener('click', function (e) {
+      // En pantallas táctiles: el primer toque muestra la definición, el segundo va al glosario.
+      if (tactil && armado !== a) { e.preventDefault(); mostrar(a); armado = a; }
+      else ocultar();
+    });
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') ocultar(); });
+  document.addEventListener('click', function (e) { if (actual && !e.target.closest('a.term')) ocultar(); });
+  window.addEventListener('scroll', function () { if (actual) ubicar(actual); }, { passive: true });
+  window.addEventListener('resize', function () { if (actual) ubicar(actual); });
+})();
+</script>
 </body>
 </html>
