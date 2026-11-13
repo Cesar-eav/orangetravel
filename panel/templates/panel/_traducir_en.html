@@ -1,0 +1,64 @@
+<div class="frow" id="traducir-en" data-url="{% url 'panel:traducir' %}" style="background:#f8fafc;border:1px solid var(--bd);border-radius:8px;padding:12px 14px">
+  <button type="button" class="btn sec" id="traducir-en-btn">Traducir al inglés con DeepL</button>
+  <span id="traducir-en-estado" class="help" role="status" style="margin-left:8px"></span>
+  <div class="help" style="margin-top:6px">Traduce lo que está escrito en español en este formulario{% if ayuda_traducir %} ({{ ayuda_traducir }}){% endif %}. No guarda nada: revisa el inglés, corrígelo si hace falta y pulsa Guardar.</div>
+</div>
+<script>
+(function(){
+  var caja = document.getElementById('traducir-en'), btn = document.getElementById('traducir-en-btn'),
+      estado = document.getElementById('traducir-en-estado'), form = caja.closest('form');
+  function aviso(txt, error){ estado.textContent = txt; estado.style.color = error ? '#991b1b' : ''; }
+  function editor(el){ return window.CKEDITOR && CKEDITOR.instances[el.id]; }
+  function leer(el){ var ed = editor(el); return ed ? ed.getData() : el.value; }
+  function escribir(el, valor){
+    var ed = editor(el);
+    if (ed) ed.setData(valor); else { el.value = valor; el.dispatchEvent(new Event('input', {bubbles: true})); }
+    var det = el.closest('details'); if (det) det.open = true;
+  }
+  function vacio(el){
+    var v = leer(el);
+    if (editor(el)) v = v.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ');
+    return !v.trim();
+  }
+  function pares(){
+    var lista = [];
+    form.querySelectorAll('input[name$="_en"], textarea[name$="_en"]').forEach(function(en){
+      if (en.type === 'hidden' || en.type === 'checkbox' || en.type === 'file') return;
+      var es = form.elements[en.name.slice(0, -3)];
+      if (!es || es instanceof RadioNodeList || vacio(es)) return;  // sin par en español, o vacío
+      var borrar = form.elements[en.name.replace(/[^-]*$/, '') + 'DELETE'];  // fila de formset marcada para quitar
+      if (borrar && borrar.checked) return;
+      lista.push({es: es, en: en});
+    });
+    return lista;
+  }
+  btn.addEventListener('click', function(){
+    var lista = pares();
+    if (!lista.length) { aviso('Escribe primero el texto en español.', true); return; }
+    var llenos = lista.filter(function(p){ return !vacio(p.en); }).length;
+    if (llenos && !confirm(llenos + (llenos === 1 ? ' campo en inglés ya tiene' : ' campos en inglés ya tienen') +
+        ' texto. ¿Reemplazarlo con la traducción nueva?\n\nAceptar: reemplaza todo.\nCancelar: solo llena los campos vacíos.')) {
+      lista = lista.filter(function(p){ return vacio(p.en); });
+      if (!lista.length) { aviso('No hay campos en inglés vacíos: no se cambió nada.'); return; }
+    }
+    btn.disabled = true; aviso('Traduciendo ' + lista.length + (lista.length === 1 ? ' campo…' : ' campos…'));
+    fetch(caja.dataset.url, {
+      method: 'POST', credentials: 'same-origin',
+      headers: {'Content-Type': 'application/json', 'X-CSRFToken': form.elements.csrfmiddlewaretoken.value},
+      body: JSON.stringify({textos: lista.map(function(p){ return {texto: leer(p.es), html: !!editor(p.es)}; })})
+    }).then(function(r){
+      if ((r.headers.get('Content-Type') || '').indexOf('application/json') < 0)
+        throw new Error('Tu sesión expiró: vuelve a entrar al panel (no pierdas lo escrito: ábrelo en otra pestaña).');
+      return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || 'Error ' + r.status); return d; });
+    }).then(function(d){
+      lista.forEach(function(p, i){ escribir(p.en, d.traducciones[i]); });
+      var msg = 'Listo: ' + lista.length + (lista.length === 1 ? ' campo traducido' : ' campos traducidos') + '. Revisa el inglés y guarda.';
+      var ok = form.querySelector('input[name$="traduccion_en_aprobada"]');
+      if (ok && ok.checked) { ok.checked = false; msg += ' Se desmarcó «aprobada»: márcala de nuevo cuando esté revisado.'; }
+      aviso(msg);
+    }).catch(function(e){
+      aviso(e instanceof TypeError ? 'Sin conexión con el servidor. Intenta de nuevo.' : e.message, true);
+    }).finally(function(){ btn.disabled = false; });
+  });
+})();
+</script>

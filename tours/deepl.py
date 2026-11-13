@@ -47,7 +47,7 @@ def traducir(textos, es_html=False):
         raise DeepLError('Falta DEEPL_API_KEY: cárgala en cPanel (producción) o en el .env (local).')
     resultado = []
     for i in range(0, len(textos), LOTE):
-        lote = [_proteger(t if es_html else html.escape(t, quote=False)) for t in textos[i:i + LOTE]]
+        lote = [_proteger(t if es_html else _a_html(t)) for t in textos[i:i + LOTE]]
         r = requests.post(
             _url(clave),
             headers={'Authorization': f'DeepL-Auth-Key {clave}'},
@@ -68,5 +68,15 @@ def traducir(textos, es_html=False):
             raise DeepLError(f'DeepL respondió {r.status_code}: {r.text[:200]}')
         for t in r.json()['translations']:
             texto = re.sub(r'</?x>', '', t['text'])
-            resultado.append(texto if es_html else html.unescape(texto))
+            resultado.append(texto if es_html else _de_html(texto))
     return resultado
+
+
+def _a_html(texto):
+    """Texto plano → HTML para DeepL. Los saltos de línea van como <br>: en modo HTML,
+    DeepL trata «\\n» como un espacio y juntaría los párrafos (días, zonas)."""
+    return html.escape(texto, quote=False).replace('\r\n', '\n').replace('\n', '<br>')
+
+
+def _de_html(texto):
+    return html.unescape(re.sub(r'[ \t]*<br\s*/?>[ \t]*\n?', '\n', texto))

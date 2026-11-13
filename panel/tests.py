@@ -761,3 +761,86 @@ class ReservaEstadoDesdeListaTests(PanelBase):
         r = self.client.get(reverse('panel:reservas'))
         self.assertContains(r, f'action="{self.url}"')
         self.assertContains(r, 'class="estado-reserva b-PENDIENTE"')
+
+
+class TraducirTests(PanelBase):
+    """Botón «Traducir al inglés con DeepL»: endpoint panel:traducir y dónde aparece."""
+    url = reverse('panel:traducir')
+
+    def post(self, data):
+        import json
+        body = data if isinstance(data, str) else json.dumps(data)
+        return self.client.post(self.url, body, content_type='application/json')
+
+    def test_exige_staff_y_post(self):
+        self.assertEqual(self.post({'textos': [{'texto': 'Hola'}]}).status_code, 302)
+        self.client.force_login(self.normal)
+        self.assertEqual(self.post({'textos': [{'texto': 'Hola'}]}).status_code, 403)
+        self.client.force_login(self.staff)
+        self.assertEqual(self.client.get(self.url).status_code, 405)
+
+    @patch('panel.views.traducir')
+    def test_agrupa_por_html_y_respeta_el_orden(self, traducir):
+        traducir.side_effect = lambda textos, es_html: [('H:' if es_html else 'P:') + t for t in textos]
+        self.client.force_login(self.staff)
+        r = self.post({'textos': [
+            {'texto': '<p>Uno</p>', 'html': True}, {'texto': 'Dos', 'html': False}, {'texto': '<p>Tres</p>', 'html': True},
+        ]})
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json(), {'traducciones': ['H:<p>Uno</p>', 'P:Dos', 'H:<p>Tres</p>']})
+        self.assertEqual(traducir.call_count, 2)
+        traducir.assert_any_call(['Dos'], es_html=False)
+        traducir.assert_any_call(['<p>Uno</p>', '<p>Tres</p>'], es_html=True)
+
+    @patch('panel.views.traducir')
+    def test_error_de_deepl_devuelve_el_mensaje(self, traducir):
+        from tours.deepl import DeepLError
+        traducir.side_effect = DeepLError('Se agotó la cuota mensual de caracteres de DeepL.')
+        self.client.force_login(self.staff)
+        r = self.post({'textos': [{'texto': 'Hola'}]})
+        self.assertEqual(r.status_code, 502)
+        self.assertEqual(r.json()['error'], 'Se agotó la cuota mensual de caracteres de DeepL.')
+
+    @patch('panel.views.traducir')
+    def test_error_inesperado_no_rompe(self, traducir):
+        traducir.side_effect = ConnectionError('timeout')
+        self.client.force_login(self.staff)
+        with self.assertLogs('panel.views', level='ERROR'):
+            r = self.post({'textos': [{'texto': 'Hola'}]})
+        self.assertEqual(r.status_code, 502)
+        self.assertIn('DeepL', r.json()['error'])
+
+    @patch('panel.views.traducir')
+    def test_solicitudes_invalidas(self, traducir):
+        from panel.views import TRADUCIR_MAX_CHARS, TRADUCIR_MAX_TEXTOS
+        self.client.force_login(self.staff)
+        for data in ('no es json', {'otra': 1}, {'textos': 'x'}, {'textos': []},
+                     {'textos': [{'texto': 'a'}] * (TRADUCIR_MAX_TEXTOS + 1)},
+                     {'textos': [{'texto': 'a' * (TRADUCIR_MAX_CHARS + 1)}]}):
+            self.assertEqual(self.post(data).status_code, 400, data if isinstance(data, str) else list(data))
+        traducir.assert_not_called()
+
+    def test_boton_en_formularios_con_ingles(self):
+        from tours.models import Zona
+        self.client.force_login(self.staff)
+        zona = Zona.objects.create(nombre='Norte X', slug='norte-x')
+        for url in (reverse('panel:tour_editar', args=[self.tour.pk]), reverse('panel:tour_nuevo'),
+                    reverse('panel:post_nuevo'), reverse('panel:tipo_nuevo'), reverse('panel:zona_editar', args=[zona.pk]),
+                    reverse('panel:nosotros'), reverse('panel:tercera_edad')):
+            self.assertContains(self.client.get(url), 'Traducir al inglés con DeepL', msg_prefix=url)
+        for url in (reverse('panel:mantencion'), reverse('panel:sitio_ingles')):
+            self.assertNotContains(self.client.get(url), 'Traducir al inglés con DeepL', msg_prefix=url)
+
+
+class DeepLTextoPlanoTests(TestCase):
+    """Los saltos de línea del texto plano viajan como <br> y vuelven como \\n."""
+
+    @override_settings(DEEPL_API_KEY='k:fx')
+    @patch('tours.deepl.requests.post')
+    def test_saltos_de_linea(self, post):
+        from tours.deepl import traducir
+        post.return_value.status_code = 200
+        post.return_value.json.return_value = {'translations': [{'text': 'One &amp; two <br>\n<br> <x>Putre</x>'}]}
+        self.assertEqual(traducir(['Uno & dos\n\nPutre'])[0], 'One & two\n\nPutre')
+        enviado = post.call_args.kwargs['json']['text'][0]
+        self.assertEqual(enviado, 'Uno &amp; dos<br><br><x>Putre</x>')

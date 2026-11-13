@@ -7,6 +7,7 @@
 {{ form.non_field_errors }}
 {% if zona.imagen %}<p><img src="{{ zona.imagen.url }}" alt="" style="max-height:80px"></p>{% endif %}
 {% for f in form %}{% include 'panel/_campo.html' %}{% endfor %}
+{% include 'panel/_traducir_en.html' %}
 <button class="btn">Guardar</button>
 </form>
 {% endblock %}

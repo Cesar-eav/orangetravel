@@ -24,6 +24,7 @@
   <h3>Versión en inglés</h3>
   <p class="help">Se muestra en orangetravel.cl/en/. Un campo vacío muestra el texto en español.
     Mientras no marques «Traducción al inglés aprobada», el público ve esta reseña en español; los usuarios staff ven el borrador para revisarlo.</p>
+  {% include 'panel/_traducir_en.html' with ayuda_traducir='también los pies de foto' %}
   {% for f in form %}{% if f.name|slice:"-3:" == '_en' %}
   <div class="frow"><label for="{{ f.id_for_label }}"><b>{{ f.label }}</b></label><br>{{ f }}{{ f.errors }}</div>
   {% endif %}{% endfor %}

@@ -1,10 +1,12 @@
+import json
+import logging
 import re
 from datetime import timedelta
 
 from django.contrib import messages
 from django.contrib.auth.views import LoginView, redirect_to_login
 from django.db.models import Count, F, OuterRef, Q, Subquery, Sum
-from django.http import Http404, QueryDict
+from django.http import Http404, JsonResponse, QueryDict
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
@@ -23,6 +25,7 @@ from payments.models import Payment
 from django.db import transaction
 from django.db.models import ProtectedError
 from tours.calendario import contexto_calendario
+from tours.deepl import DeepLError, traducir
 from tours.models import TIPO_CON_PRECIO_ID, BloqueoTour, Cotizacion, GaleriaTour, PrecioTour, Reserva, TerceraEdad, TipoTour, Tour, Venta, Zona
 
 from .forms import (
@@ -31,6 +34,8 @@ from .forms import (
     PrecioTourForm, ReservaGestionForm, SitioInglesForm, TipoTourForm, TourForm, VentaForm, ZonaForm,
 )
 from .mixins import StaffRequiredMixin
+
+logger = logging.getLogger(__name__)
 
 PAGE_SIZE = 25
 LOGIN_URL = reverse_lazy('panel:login')
@@ -852,7 +857,8 @@ class SingletonFormView(PanelView, TemplateView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx.setdefault('form', self.form_class(instance=self.model.get_solo()))
-        ctx.update(titulo=self.titulo, ayuda=self.ayuda)
+        ctx.update(titulo=self.titulo, ayuda=self.ayuda,
+                   traducible=any(n.endswith('_en') for n in ctx['form'].fields))
         return ctx
 
     def post(self, request, *args, **kwargs):
@@ -887,6 +893,44 @@ class SitioInglesView(SingletonFormView):
     ayuda = ('«/en/ accesible»: cualquiera con el link puede ver el sitio en inglés (apagado, solo el staff). '
              '«Mostrar banderas»: aparece el selector ES | EN para todos y Google puede indexar /en/; '
              'mientras esté apagado, el sitio en español no muestra ningún cambio.')
+
+
+TRADUCIR_MAX_TEXTOS = 200
+TRADUCIR_MAX_CHARS = 50_000
+
+
+@_staff_only
+@require_POST
+def traducir_en(request):
+    """Botón «Traducir al inglés con DeepL» de los formularios del panel.
+
+    Recibe {"textos": [{"texto": "...", "html": bool}, ...]} con lo escrito en el
+    formulario (aún sin guardar) y devuelve {"traducciones": [...]} en el mismo orden.
+    No guarda nada: la persona revisa el inglés y guarda el formulario.
+    """
+    try:
+        textos = json.loads(request.body)['textos']
+        pares = [(str(t['texto']), bool(t.get('html'))) for t in textos]
+    except (ValueError, KeyError, TypeError, AttributeError):
+        return JsonResponse({'error': 'Solicitud inválida.'}, status=400)
+    if not pares:
+        return JsonResponse({'error': 'No hay textos en español para traducir.'}, status=400)
+    if len(pares) > TRADUCIR_MAX_TEXTOS or sum(len(t) for t, _ in pares) > TRADUCIR_MAX_CHARS:
+        return JsonResponse({'error': 'Es demasiado texto para traducir de una vez.'}, status=400)
+
+    traducciones = [None] * len(pares)
+    try:
+        for es_html in (False, True):
+            indices = [i for i, (_, h) in enumerate(pares) if h == es_html]
+            if indices:
+                for i, t in zip(indices, traducir([pares[i][0] for i in indices], es_html=es_html)):
+                    traducciones[i] = t
+    except DeepLError as e:
+        return JsonResponse({'error': str(e)}, status=502)
+    except Exception:
+        logger.exception('Falló la traducción con DeepL desde el panel')
+        return JsonResponse({'error': 'No se pudo conectar con DeepL. Intenta de nuevo en un rato.'}, status=502)
+    return JsonResponse({'traducciones': traducciones})
 
 
 def _eliminar_pagos(pagos):

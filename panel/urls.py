@@ -47,6 +47,7 @@ urlpatterns = [
     path('tercera-edad/', views.TerceraEdadView.as_view(), name='tercera_edad'),
     path('mantencion/', views.MantencionView.as_view(), name='mantencion'),
     path('sitio-ingles/', views.SitioInglesView.as_view(), name='sitio_ingles'),
+    path('traducir/', views.traducir_en, name='traducir'),
     path('pagos/', views.PagoListView.as_view(), name='pagos'),
     path('pagos/eliminar/', views.pagos_eliminar, name='pagos_eliminar'),
     path('pagos/<int:pk>/', views.PagoDetailView.as_view(), name='pago_detalle'),

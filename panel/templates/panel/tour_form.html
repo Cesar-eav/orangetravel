@@ -127,6 +127,7 @@
   <p class="help">Se muestra en orangetravel.cl/en/. Un campo vacío muestra el texto en español.
     Mientras no marques «Traducción al inglés aprobada», el público ve este tour en español; los usuarios staff ven el borrador para revisarlo.
     Los días del itinerario en inglés se editan en cada día, arriba.</p>
+  {% include 'panel/_traducir_en.html' with ayuda_traducir='también los días del itinerario' %}
   {% include 'panel/_campo.html' with f=form.nombre_en %}
   {% include 'panel/_campo.html' with f=form.itinerario_en %}
   {% include 'panel/_campo.html' with f=form.incluye_en %}
