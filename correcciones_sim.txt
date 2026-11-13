@@ -1,0 +1,103 @@
+24 objects imported automatically (use -v 2 for details).
+
+OK     Zona {'pk': 1} nombre_en: 'Greater North' -> 'Far North'
+OK     Zona {'pk': 2} nombre_en: 'Central Region' -> 'Central Chile'
+OK     Zona {'pk': 3} nombre_en: 'Southern Region' -> 'Southern Chile'
+OK     Zona {'pk': 4} nombre_en: 'Southern Region' -> 'Patagonia'
+OK     TipoTour {'pk': 2} nombre_en: 'Hiking and Expeditions' -> 'Trekking & Expeditions'
+OK     TipoTour {'pk': 3} descripcion_en: 'tours lasting more than one day' -> 'Tours lasting more than one day'
+FALTA  TerceraEdad (único) contenido_en: 0 coincidencias de 'Program(?:\\s|&nbsp;|\\xa0|<br\\s*/?>)+Information'
+OK     TerceraEdad (único) contenido_en
+       antes:   ...>\n\n<br /><span style="font-size:36px">What is Vacaciones Tercera Edad?</span><br />\nIt is a <strong>Sernatur</...
+       despues: ...>\n\n<br /><span style="font-size:36px">What is Vacaciones Tercera Edad (Senior Vacation Program)?</span><br />\nIt is a <strong>Sernatur</...
+OK     TerceraEdad (único) contenido_en
+       antes:   ...gned for seniors, retirees, pensioners, Montepiado members, and people with disabilities over the ...
+       despues: ...gned for seniors, retirees, pensioners, survivor pension recipients, and people with disabilities over the ...
+OK     TerceraEdad (único) contenido_en
+       antes:   ...nefits that tourism provides.</p>\n\n<p>Travel through the Senior Vacation Program and discover this unique opportunity to...
+       despues: ...nefits that tourism provides.</p>\n\n<p>Travel through the Vacaciones Tercera Edad program and discover this unique opportunity to...
+OK     TerceraEdad (único) contenido_en
+       antes:   ... border-y border-gray-200">\n<h2>Who is eligible for the Senior Vacation Program?</h2>\n\n<p><img alt="" class="h-full ob...
+       despues: ... border-y border-gray-200">\n<h2>Who is eligible for the Vacaciones Tercera Edad program?</h2>\n\n<p><img alt="" class="h-full ob...
+OK     TerceraEdad (único) contenido_en
+       antes:   ...ho are retired, receiving a pension, or receiving disability benefits from any social security system. They must provi...
+       despues: ...ho are retired, receiving a pension, or receiving a survivor pension from any social security system. They must provi...
+OK     TerceraEdad (único) contenido_en
+       antes:   ...ho have a disability. These individuals may travel alone, accompanied by a person who assists them in accessing all travel ac...
+       despues: ...ho have a disability. These individuals may travel with a companion who assists them in accessing all travel ac...
+OK     ItinerarioDia {'tour_id': 4, 'orden': 2} titulo_en: 'Included' -> "What's Included?"
+FALTA  Tour {'pk': 8} itinerario_en: 0 coincidencias de 'Chinchorro Slope'
+OK     ItinerarioDia {'tour_id': 8, 'orden': 1} descripcion_en
+       antes:   ... the tour, we’ll make a stop to see the **Mummies of the Wind, as well as enjoy the scenery and take ...
+       despues: ... the tour, we’ll make a stop to see the Mummies of the Wind, as well as enjoy the scenery and take ...
+OK     Tour {'pk': 10} itinerario_en
+       antes:   ...<h2><strong>Northern Chile Altiplano Trek – 5 Days / 4 Nights</strong></h2>\n\n<p...
+       despues: ...<h2><strong>Northern Chile Altiplano Journey – 5 Days / 4 Nights</strong></h2>\n\n<p...
+OK     ItinerarioDia {'tour_id': 10, 'orden': 1} descripcion_en
+       antes:   ...r—will lead you to the Surire Salt Flat (4,245 m a. ), which owes its name to the presence of...
+       despues: ...r—will lead you to the Surire Salt Flat (4,245 m a.s.l.), which owes its name to the presence of...
+OK     ItinerarioDia {'tour_id': 10, 'orden': 1} descripcion_en
+       antes:   ... which owes its name to the presence of Andean ostriches (suri in Aymara). You’ll be able to obs...
+       despues: ... which owes its name to the presence of lesser rheas (suri in Aymara). You’ll be able to obs...
+OK     Tour {'pk': 11} nombre_en: 'Trekking to the Montaña de Colores Suriplaza from Putre' -> 'Suriplaza Rainbow Mountain Trek from Putre'
+OK     Tour {'pk': 11} itinerario_en
+       antes:   ...<h2><strong>Suriplaza – Mountains of Colors</strong></h2>\n\n<p><em>There are place...
+       despues: ...<h2><strong>Suriplaza – Rainbow Mountain</strong></h2>\n\n<p><em>There are place...
+OK     Tour {'pk': 12} nombre_en: 'Cotacotani Lakes Hike from Putre' -> 'Cotacotani Lagoons Hike from Putre'
+OK     ItinerarioDia {'tour_id': 13, 'orden': 1} descripcion_en
+       antes:   ... the trip to the Camarones district.\n\n*Guardian Presences | First stop to enjoy a light breakfast b...
+       despues: ... the trip to the Camarones district.\n\n*Presencias Tutelares (sculptures) | First stop to enjoy a light breakfast b...
+OK     ItinerarioDia {'tour_id': 13, 'orden': 3} descripcion_en
+       antes:   ...t. The itinerary is subject to weather, trail conditions, and operational circumstances.\nRecomm...
+       despues: ...t. The itinerary is subject to weather, road conditions, and operational circumstances.\nRecomm...
+OK     ItinerarioDia {'tour_id': 14, 'orden': 1} descripcion_en
+       antes:   ...on: From your hotel or meeting point in downtown Arica From your hotel in Arica\n\nTour Duration: 8 hours\n\nPrice: 60,...
+       despues: ...on: From your hotel or meeting point in downtown Arica\n\nTour Duration: 8 hours\n\nPrice: 60,...
+OK     Tour {'pk': 15} itinerario_en
+       antes:   ...\n<p><strong>Return from Tacna:</strong> 5:30 p<br />.m.\n<strong>Estimated arrival in Arica:</st...
+       despues: ...\n<p><strong>Return from Tacna:</strong> 5:30 p.m.\n<strong>Estimated arrival in Arica:</st...
+OK     Tour {'pk': 17} itinerario_en
+       antes:   ...ute 5 South, with a stop at the <strong>Presencia Tutelares</strong> sculptures located in the hear...
+       despues: ...ute 5 South, with a stop at the <strong>Presencias Tutelares</strong> sculptures located in the hear...
+OK     ItinerarioDia {'tour_id': 20, 'orden': 1} descripcion_en
+       antes:   ...DAY 1 — ARICA · FIRST ENCOUNTER WITH THE PACIFIC Ocean\n\nArrival in Arica and passenger check...
+       despues: ...DAY 1 — ARICA · FIRST ENCOUNTER WITH THE PACIFIC\n\nArrival in Arica and passenger check...
+FALTA  Tour {'pk': 22} itinerario_en: 0 coincidencias de 'Ascent of Mount Guane Guane'
+OK     ItinerarioDia {'tour_id': 22, 'orden': 1} descripcion_en
+       antes:   ... lodging and transfer to Parinacota and the base of Guane Guane Mountain.\nAscent of Guane Guane\nGradual trek t...
+       despues: ... lodging and transfer to Parinacota and the base of Cerro Guane Guane.\nAscent of Guane Guane\nGradual trek t...
+OK     ItinerarioDia {'tour_id': 23, 'orden': 2} descripcion_en
+       antes:   ...1. Suriplaza Mountain of Colors – 5,250 m\nOne of the most photogenic t...
+       despues: ...1. Suriplaza Rainbow Mountain – 5,250 m\nOne of the most photogenic t...
+OK     ItinerarioDia {'tour_id': 23, 'orden': 3} descripcion_en
+       antes:   ...2. Cotacotani Lakes – 4,500 m\nHike through one of the most...
+       despues: ...2. Cotacotani Lagoons – 4,500 m\nHike through one of the most...
+OK     ItinerarioDia {'tour_id': 23, 'orden': 3} descripcion_en
+       antes:   ...ular landscapes in Lauca National Park, surrounded by lakes, high-Andean wildlife, and views of the...
+       despues: ...ular landscapes in Lauca National Park, surrounded by lagoons, high-Andean wildlife, and views of the...
+OK     Post {'pk': 4} contenido_en
+       antes:   ...<p>The event is part of the work of the Peru–Chile Committee for Integration and Border Development (CIDF). This body promotes initiatives ...
+       despues: ...<p>The event is part of the work of the Peru–Chile Border Integration and Development Committee (CIDF). This body promotes initiatives ...
+APRUEBO Tour 3
+APRUEBO Tour 4
+NO APRUEBO Tour 8: falló una corrección
+APRUEBO Tour 9
+APRUEBO Tour 10
+APRUEBO Tour 11
+APRUEBO Tour 12
+APRUEBO Tour 13
+APRUEBO Tour 14
+APRUEBO Tour 15
+APRUEBO Tour 17
+APRUEBO Tour 19
+APRUEBO Tour 20
+NO APRUEBO Tour 22: falló una corrección
+APRUEBO Tour 23
+APRUEBO Post 2
+APRUEBO Post 4
+APRUEBO Post 5
+APRUEBO Post 6
+APRUEBO Post 7
+
+Correcciones OK: 31 | FALTA: 3
+SIMULACIÓN: no se guardó nada.
