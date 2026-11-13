@@ -1,5 +1,11 @@
-<div class="frow" id="traducir-en" data-url="{% url 'panel:traducir' %}" style="background:#f8fafc;border:1px solid var(--bd);border-radius:8px;padding:12px 14px">
-  <button type="button" class="btn sec" id="traducir-en-btn">Traducir al inglés con DeepL</button>
+<style>
+#traducir-en{background:#eff6ff;border:1px solid #bfdbfe;border-left:4px solid var(--navy);border-radius:8px;padding:14px 16px}
+#traducir-en-btn{background:var(--navy);font-weight:600;box-shadow:0 1px 3px rgba(41,61,84,.35)}
+#traducir-en-btn:hover{background:#1d2d40}
+#traducir-en-btn:disabled{opacity:.6;cursor:wait}
+</style>
+<div class="frow" id="traducir-en" data-url="{% url 'panel:traducir' %}">
+  <button type="button" class="btn" id="traducir-en-btn">🌐 Traducir al inglés con DeepL</button>
   <span id="traducir-en-estado" class="help" role="status" style="margin-left:8px"></span>
   <div class="help" style="margin-top:6px">Traduce lo que está escrito en español en este formulario{% if ayuda_traducir %} ({{ ayuda_traducir }}){% endif %}. No guarda nada: revisa el inglés, corrígelo si hace falta y pulsa Guardar.</div>
 </div>
