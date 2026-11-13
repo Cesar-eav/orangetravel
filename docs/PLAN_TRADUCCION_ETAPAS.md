@@ -30,6 +30,7 @@ Al desplegar no hay que configurar nada: el registro se crea solo con los valore
 - **Contenido de producción traducido, revisado y casi todo aprobado** (pasos 3 a 5 de la sección siguiente, 5 y 6 nov). Server en `85a65de`.
 - Después del merge, `fix-orange` sumó cambios del panel (Google Calendar, estado de pago Flow, eliminar reservas, `/admin/` solo para usuarios). `TabbedTranslationAdmin` ya no existe: los campos en inglés de «Nosotros» y «Tercera edad» se editan en `/panel/nosotros/` y `/panel/tercera-edad/`.
 - Tests: pasan los 18 de `tours`, `payments`, `home` y `blog` (6 nov). `test_listado_muestra_a_cotizar` ya pasa: espera `$20.000`.
+- **Contenido nuevo (13 nov):** el cliente traduce desde el panel con el botón «Traducir al inglés con DeepL» de cada formulario con inglés (tour, reseña, categoría, zona, Nosotros, Tercera edad). Llena los campos `_en` sin guardar; la persona revisa, guarda y marca «aprobada». `traducir_contenido` por SSH queda para traducciones masivas. Deploy: `git pull` + restart (sin migraciones ni build).
 - Las secciones «Merge con los cambios de `fix-orange` del 23 oct» y «Merge con ventas manuales, 26 oct» quedan como registro: ya se aplicaron en `cbcadac`.
 
 ## Para cerrar la entrega 1 (6 nov)

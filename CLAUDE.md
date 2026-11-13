@@ -87,6 +87,7 @@ En producción desde el 2 nov 2026 (merge `cbcadac` de la rama `traduccion` en `
 - `idioma` en `Reserva`, `Cotizacion` y `Payment` decide el idioma de los emails al cliente; los del admin van siempre en español.
 - Textos de templates públicos con `{% trans %}`; los de Vue salen de `tours/views.py::textos_reserva`. Catálogo `locale/en/LC_MESSAGES/django.po` y `.mo` versionados: `makemessages -l en --ignore='node_modules/*' --ignore='static/*' --ignore='staticfiles/*'` y `compilemessages` en local, nunca en el server.
 - Traducción automática del contenido: `python manage.py traducir_contenido --simular` y luego sin `--simular` (requiere `DEEPL_API_KEY`). Solo llena los `_en` vacíos (`--sobrescribir` para retraducir) y lo traducido queda sin aprobar. Términos protegidos: `tours/glosario.py`.
+- **Contenido nuevo que carga el cliente**: botón «Traducir al inglés con DeepL» en cada formulario del panel con campos `_en` (tour con sus días, reseña con sus pies de foto, categoría, zona, Nosotros, Tercera edad). Es el partial `panel/_traducir_en.html` (JS inline, sin `collectstatic`), que envía el español escrito en el formulario a `panel:traducir` (`panel/views.py::traducir_en`, solo staff, máximo 200 textos o 50.000 caracteres) y llena los `_en` **sin guardar**. Si un `_en` ya tiene texto, pregunta antes de reemplazarlo, y desmarca «aprobada». En texto plano, los saltos de línea viajan a DeepL como `<br>` (`tours/deepl.py`).
 
 ## Producción y deploy
 
