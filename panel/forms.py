@@ -173,12 +173,13 @@ class PrecioTourForm(forms.ModelForm):
     class Meta:
         model = PrecioTour
         fields = ('valor_adulto', 'tiene_precio_nino', 'valor_nino')
+        help_texts = {'valor_adulto': '0 = el tour se cotiza (sin pago en línea), aunque sea de «Excursiones de un Día».'}
 
     def clean(self):
         data = super().clean()
         adulto, nino = data.get('valor_adulto'), data.get('valor_nino')
-        if adulto is not None and adulto <= 0:
-            self.add_error('valor_adulto', 'El precio debe ser mayor que 0.')
+        if adulto is not None and adulto < 0:
+            self.add_error('valor_adulto', 'El precio no puede ser negativo.')
         if data.get('tiene_precio_nino'):
             if not nino or nino < 0:
                 self.add_error('valor_nino', 'Indica el precio del niño o desmarca la opción.')

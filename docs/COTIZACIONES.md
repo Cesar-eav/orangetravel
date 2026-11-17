@@ -4,13 +4,14 @@ Desde octubre de 2026, según la categoría del tour, el sitio permite **pagar e
 
 | Categoría (`TipoTour`) | id | Qué ve el cliente |
 |---|---|---|
-| Excursiones de un Día | 1 | Precio, botón «RESERVAR AHORA» y pago con Flow (igual que antes) |
+| Excursiones de un Día | 1 | Precio, botón «RESERVAR AHORA» y pago con Flow (igual que antes). Con precio 0: como las demás, «A cotizar» |
 | Trekking y Expediciones | 2 | «A cotizar», botón «COTIZAR AHORA» y formulario de cotización |
 | Viajes Multidía | 3 | «A cotizar», botón «COTIZAR AHORA» y formulario de cotización |
 
 ## Regla
 
-- `tours/models.py`: constante `TIPO_CON_PRECIO_ID = 1` y propiedad `Tour.con_precio` (`tipo_id == TIPO_CON_PRECIO_ID`).
+- `tours/models.py`: constante `TIPO_CON_PRECIO_ID = 1` y propiedad `Tour.con_precio`: `tipo_id == TIPO_CON_PRECIO_ID` **y** `precio.valor_adulto > 0`.
+- Precio 0 (desde noviembre de 2026 el panel lo permite) o un tour sin `PrecioTour` = cotización, aunque sea de la categoría 1. Sirve para pasar una excursión a cotización sin cambiarle la categoría. En `/panel/tours/` sale como «A cotizar ($0)».
 - La regla está **fija por id**. Si la categoría 1 se borra y se recrea con otro id, ningún tour volverá a mostrar precio. Para cambiar qué categoría se vende con precio, hay que editar la constante.
 - Los ids de las categorías son los mismos en producción y en local.
 
@@ -38,7 +39,8 @@ Desde octubre de 2026, según la categoría del tour, el sitio permite **pagar e
 - En las tarjetas de `tours/templates/tours/tours_home.html` y `home/templates/home/index.html`, los tours de cotización muestran «A cotizar» en lugar del monto.
 - La vista `tour` lleva `@ensure_csrf_cookie`. Antes, si el cliente entraba directo a un tour sin pasar por la portada, no tenía cookie CSRF y el POST fallaba.
 - La vista `tour` usa `getattr(tour, 'precio', None)`, así que un tour de cotización sin `PrecioTour` ya no da error 500.
-- Pendiente: el formulario de tours del panel sigue pidiendo precio para todos los tours. En los de cotización ese precio simplemente no se muestra.
+- El formulario de tours del panel pide precio para todos los tours, pero acepta 0 (rechaza negativos). En los de cotización ese precio no se muestra.
+- El filtro por tour de `/panel/cotizaciones/` lista todos los tours que se cotizan, incluidos los de la categoría 1 con precio 0.
 
 ## Archivos
 
@@ -65,6 +67,7 @@ touch tmp/restart.txt
 
 - `/tours/`: los tours de la categoría 1 muestran precio y el resto muestra «A cotizar».
 - Tour de la categoría 1: «RESERVAR AHORA» con precio y total.
+- Tour de la categoría 1 con precio 0: «COTIZAR AHORA» y `/pagos/checkout/<id>/` responde 400. Al volver a poner un precio > 0 vuelve «RESERVAR AHORA».
 - Tour de la categoría 2 o 3: «COTIZAR AHORA» → enviar → mensaje de éxito; la cotización aparece en `/panel/cotizaciones/` y llegan los dos emails.
 - Tests en local. La base de prueba va en SQLite porque el usuario de Postgres local no puede crear bases:
   ```bash

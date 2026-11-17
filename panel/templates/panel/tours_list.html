@@ -20,7 +20,7 @@
 <input type="hidden" name="next" value="{{ request.get_full_path }}">
 <select name="zona" onchange="this.form.submit()" style="padding:4px 6px"><option value="">— Sin zona —</option>{% for z in zonas %}<option value="{{ z.pk }}"{% if z.pk == t.zona_id %} selected{% endif %}>{{ z.nombre }}</option>{% endfor %}</select>
 <noscript><button class="btn">Guardar</button></noscript></form></td>
-<td>{% if t.precio %}${{ t.precio.valor_adulto }}{% else %}<small>Sin precio</small>{% endif %}</td>
+<td>{% if t.precio and t.precio.valor_adulto %}${{ t.precio.valor_adulto }}{% elif t.precio %}<small>A cotizar ($0)</small>{% else %}<small>Sin precio</small>{% endif %}</td>
 <td>{% if t.activo %}<span class="badge b-paid">Activo</span>{% else %}<span class="badge b-canceled">Inactivo</span>{% endif %}
 {% if t.destacado %}<span class="badge b-pending">Destacado</span>{% endif %}
 {% if t.es_prueba %}<span class="badge b-pending">Prueba</span>{% endif %}</td></tr>

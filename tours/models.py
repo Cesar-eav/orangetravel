@@ -103,7 +103,10 @@ class Tour(models.Model):
 
     @property
     def con_precio(self):
-        return self.tipo_id == TIPO_CON_PRECIO_ID
+        # Se paga con Flow solo si es de la categoría 1 y tiene precio adulto > 0.
+        # Precio 0 (o sin PrecioTour) = se cotiza, aunque sea de la categoría 1.
+        precio = getattr(self, 'precio', None)
+        return self.tipo_id == TIPO_CON_PRECIO_ID and precio is not None and precio.valor_adulto > 0
 
 
 class GaleriaTour(models.Model):

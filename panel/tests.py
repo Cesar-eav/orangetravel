@@ -216,6 +216,19 @@ class CatalogoTests(PanelBase):
         self.assertEqual(r.status_code, 302)
         self.assertEqual(list(self.tour.dias.values_list('orden', 'titulo')), [(1, 'Llegada'), (2, 'Valles')])
 
+    def test_precio_0_permitido_y_negativo_no(self):
+        from tours.models import PrecioTour
+        Tour.objects.filter(pk=self.tour.pk).update(imagen_principal='tours/principales/x.jpg')
+        datos = {
+            't-nombre': 'Tour A', 't-slug': 'tour-a', 't-tipo': self.tour.tipo_id,
+            't-itinerario': 'x', 't-incluye': 'y', 't-activo': 'on',
+            'd-TOTAL_FORMS': '0', 'd-INITIAL_FORMS': '0', 'p-valor_nino': '0',
+        }
+        url = reverse('panel:tour_editar', args=[self.tour.pk])
+        self.assertEqual(self.client.post(url, {**datos, 'p-valor_adulto': '-1'}).status_code, 200)
+        self.assertEqual(self.client.post(url, {**datos, 'p-valor_adulto': '0'}).status_code, 302)
+        self.assertEqual(PrecioTour.objects.get(tour=self.tour).valor_adulto, 0)
+
     def test_precio_nino_obligatorio_si_activado(self):
         r = self.client.post(reverse('panel:tour_editar', args=[self.tour.pk]), {
             't-nombre': 'Tour A', 't-slug': 'tour-a', 't-tipo': self.tour.tipo_id,

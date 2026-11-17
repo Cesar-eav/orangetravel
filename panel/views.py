@@ -307,7 +307,7 @@ class CotizacionListView(PanelView, ListView):
         params = self.request.GET.copy()
         params.pop('page', None)
         ctx.update(
-            tours=Tour.objects.exclude(tipo_id=TIPO_CON_PRECIO_ID).order_by('nombre'),
+            tours=Tour.objects.exclude(tipo_id=TIPO_CON_PRECIO_ID, precio__valor_adulto__gt=0).order_by('nombre'),
             querystring=params.urlencode(),
         )
         return ctx

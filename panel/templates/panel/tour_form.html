@@ -31,7 +31,8 @@
   {{ precio_form.non_field_errors }}
   {% for f in precio_form %}
   <div class="frow" id="row-p-{{ f.name }}">{% if f.name == 'tiene_precio_nino' %}<label>{{ f }} <b>{{ f.label }}</b></label>
-    {% else %}<label for="{{ f.id_for_label }}"><b>{{ f.label }}</b>{% if f.field.required and f.name == 'valor_adulto' %} <span class="req">*</span>{% endif %}</label><br>{{ f }}{% endif %}{{ f.errors }}</div>
+    {% else %}<label for="{{ f.id_for_label }}"><b>{{ f.label }}</b>{% if f.field.required and f.name == 'valor_adulto' %} <span class="req">*</span>{% endif %}</label><br>{{ f }}{% endif %}{{ f.errors }}
+    {% if f.help_text %}<div class="help">{{ f.help_text }}</div>{% endif %}</div>
   {% endfor %}
 </div>
 <div class="card">

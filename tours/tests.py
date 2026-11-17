@@ -35,6 +35,27 @@ class CotizacionTests(TestCase):
         self.assertTrue(self.tour_precio.con_precio)
         self.assertFalse(self.tour_cotizar.con_precio)
 
+    def _tour_cat1(self, valor=None, slug='gratis'):
+        tour = Tour.objects.create(tipo_id=TIPO_CON_PRECIO_ID, nombre='Gratis', slug=slug, imagen_principal='tours/principales/c.jpg')
+        if valor is not None:
+            PrecioTour.objects.create(tour=tour, valor_adulto=valor)
+        return Tour.objects.get(pk=tour.pk)
+
+    def test_categoria_1_con_precio_0_o_sin_precio_se_cotiza(self):
+        self.assertFalse(self._tour_cat1(0).con_precio)
+        self.assertFalse(self._tour_cat1(None, slug='sin-precio').con_precio)
+
+    @patch('tours.views.threading.Thread')
+    def test_precio_0_acepta_cotizacion_y_rechaza_checkout(self, thread):
+        tour = self._tour_cat1(0)
+        self.assertEqual(self._post(tour_id=tour.pk).status_code, 201)
+        r = self.client.get(reverse('tour', args=[tour.slug]))
+        self.assertContains(r, 'data-con-precio="0"')
+        r = self.client.post(reverse('tour_checkout', args=[tour.pk]),
+                             {'email': 'ana@x.cl', 'fecha': (date.today() + timedelta(days=3)).isoformat()},
+                             content_type='application/json')
+        self.assertEqual(r.status_code, 400)
+
     @patch('tours.views.threading.Thread')
     def test_crea_cotizacion_y_envia_emails(self, thread):
         fecha = date.today() + timedelta(days=10)
