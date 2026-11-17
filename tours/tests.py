@@ -10,6 +10,8 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import translation
 
+from home.tests import CACHE_REAL, respuesta_turnstile, ts_valido
+
 from .models import TIPO_CON_PRECIO_ID, Cotizacion, PrecioTour, Reserva, TipoTour, Tour
 
 
@@ -25,7 +27,7 @@ class CotizacionTests(TestCase):
 
     def _post(self, **datos):
         payload = {'tour_id': self.tour_cotizar.pk, 'nombre': 'Ana Pérez', 'email': 'ana@x.cl',
-                   'telefono': '+56912345678', 'adultos': 2, 'ninos': 1, 'mensaje': 'Hola'}
+                   'telefono': '+56912345678', 'adultos': 2, 'ninos': 1, 'mensaje': 'Hola', 'ts': ts_valido()}
         payload.update(datos)
         return self.client.post(reverse('crear_cotizacion'), json.dumps(payload), content_type='application/json')
 
@@ -56,6 +58,52 @@ class CotizacionTests(TestCase):
         self.assertEqual(self._post(fecha=date.today().isoformat()).status_code, 400)
         self.assertEqual(self._post(tour_id=999).status_code, 404)
         self.assertFalse(Cotizacion.objects.exists())
+
+    @patch('tours.views.threading.Thread')
+    def test_honeypot_o_sin_marca_no_guarda_pero_responde_exito(self, thread):
+        self.assertEqual(self._post(sitio_web='spam').status_code, 201)
+        self.assertEqual(self._post(ts='').status_code, 201)
+        self.assertFalse(Cotizacion.objects.exists())
+        thread.assert_not_called()
+
+    @override_settings(TURNSTILE_SECRET_KEY='secreto')
+    @patch('home.antispam.requests.post', return_value=respuesta_turnstile(False))
+    def test_turnstile_rechazado_no_guarda(self, post):
+        self.assertEqual(self._post(turnstile_token='falso').status_code, 400)
+        self.assertFalse(Cotizacion.objects.exists())
+
+    @override_settings(TURNSTILE_SECRET_KEY='secreto')
+    @patch('tours.views.threading.Thread')
+    @patch('home.antispam.requests.post', return_value=respuesta_turnstile(True))
+    def test_turnstile_ok_guarda(self, post, thread):
+        self.assertEqual(self._post(turnstile_token='bueno').status_code, 201)
+        self.assertEqual(post.call_args.kwargs['data']['response'], 'bueno')
+        self.assertTrue(Cotizacion.objects.exists())
+
+    @override_settings(CACHES=CACHE_REAL)
+    @patch('tours.views.threading.Thread')
+    def test_limite_por_ip(self, thread):
+        for _ in range(10):
+            self.assertEqual(self._post().status_code, 201)
+        self.assertEqual(self._post().status_code, 429)
+        self.assertEqual(Cotizacion.objects.count(), 10)
+
+    def test_endpoint_reserva_sin_pago_ya_no_existe(self):
+        self.assertEqual(self.client.post('/tours/api/reserva/crear/', '{}', content_type='application/json').status_code, 404)
+
+    def test_pagina_tour_lleva_datos_antispam(self):
+        with self.settings(TURNSTILE_SITE_KEY='clave-publica'):
+            r = self.client.get(reverse('tour', args=[self.tour_cotizar.slug]))
+        self.assertContains(r, 'data-turnstile-sitekey="clave-publica"')
+        self.assertContains(r, 'data-antispam-ts="')
+
+    def test_checkout_honeypot_no_crea_pago(self):
+        from payments.models import Payment
+        r = self.client.post(reverse('tour_checkout', args=[self.tour_precio.pk]),
+                             {'email': 'ana@x.cl', 'fecha': (date.today() + timedelta(days=3)).isoformat(),
+                              'sitio_web': 'spam'}, content_type='application/json')
+        self.assertEqual(r.status_code, 400)
+        self.assertFalse(Payment.objects.exists())
 
     def test_checkout_rechaza_tour_de_cotizacion(self):
         r = self.client.post(reverse('tour_checkout', args=[self.tour_cotizar.pk]),

@@ -37,6 +37,8 @@ Para reiniciar la app después de un cambio:
 | `FLOW_API_BASE` | `https://www.flow.cl/api` |
 | `DATABASE_URL` | `mysql://cor116358_admin:...@localhost/cor116358_orangetravel` |
 | `DEBUG` | `False` |
+| `TURNSTILE_SITE_KEY` | clave pública del widget Turnstile de Cloudflare (antispam, nov 2026; no es secreta) |
+| `TURNSTILE_SECRET_KEY` | clave secreta del mismo widget |
 
 `EMAIL_BACKEND = anymail.backends.mailgun.EmailBackend` está hardcodeado en `config/settings.py`.
 
@@ -96,9 +98,11 @@ El mismo diccionario se importa en `payments/emails.py`.
 ## Flujo completo de emails
 
 ### Reserva sin pago (formulario web)
-`tours/views.py` → `crear_reserva` → thread → `enviar_notificaciones_reserva`
-- Cliente: "Solicitud Recibida" → `reserva.email_cliente`
-- Admin: "NUEVA RESERVA" → según tour + CC si corresponde
+**Desactivado (nov 2026).** El endpoint `/tours/api/reserva/crear/` (`crear_reserva`) no lo usaba ningún frontend y permitía mandar emails a cualquier dirección, así que se eliminó. `enviar_notificaciones_reserva` sigue en `tours/views.py`.
+
+### Formulario de contacto
+`home/views.py` → `contacto_send_email` (protegido con `home/antispam.py`) → `templates/emails/contacto_admin.html`
+- Admin: "CONTACTO WEB" → `info@orangetravel.cl`, con `reply_to` = email del cliente.
 
 ### Pago confirmado (webhook Flow)
 `payments/views.py` → `FlowConfirmView` → `enviar_confirmacion_pago`

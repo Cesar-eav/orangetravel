@@ -1312,3 +1312,55 @@ msgstr "🍊 Quote request: %(tour)s"
 #: tours/views.py:295
 msgid "Solicitud de cotización recibida."
 msgstr "Quote request received."
+
+#: home/templates/home/_antispam.html:3
+msgid "No llenar este campo"
+msgstr "Do not fill in this field"
+
+#: home/views.py
+msgid "¡Gracias! Recibimos tu mensaje y te responderemos a la brevedad."
+msgstr "Thank you! We received your message and will get back to you shortly."
+
+#: home/views.py
+msgid ""
+"La página estuvo abierta mucho tiempo. Recárgala y vuelve a enviar tu "
+"mensaje."
+msgstr ""
+"This page was open for a long time. Please reload it and send your message "
+"again."
+
+#: home/views.py
+msgid ""
+"Recibimos varios mensajes desde tu conexión. Intenta más tarde o escríbenos "
+"por WhatsApp."
+msgstr ""
+"We received several messages from your connection. Please try again later or "
+"write to us on WhatsApp."
+
+#: home/views.py tours/views.py
+msgid "No pudimos verificar que no eres un robot. Inténtalo de nuevo."
+msgstr "We couldn't verify that you're not a robot. Please try again."
+
+#: home/views.py
+msgid "Completa tu nombre y tu mensaje."
+msgstr "Please fill in your name and your message."
+
+#: home/views.py
+msgid ""
+"Hubo un problema al enviar tu mensaje. Inténtalo de nuevo o escríbenos por "
+"WhatsApp."
+msgstr ""
+"There was a problem sending your message. Please try again or write to us on "
+"WhatsApp."
+
+#: tours/views.py
+msgid "La página estuvo abierta mucho tiempo. Recárgala y vuelve a intentarlo."
+msgstr "This page was open for a long time. Please reload it and try again."
+
+#: tours/views.py payments/views.py
+msgid ""
+"Recibimos varias solicitudes desde tu conexión. Intenta más tarde o "
+"escríbenos por WhatsApp."
+msgstr ""
+"We received several requests from your connection. Please try again later or "
+"write to us on WhatsApp."

@@ -1,0 +1,12 @@
+<div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 2px solid #FF8C00; border-radius: 10px; padding: 20px;">
+    <h2 style="color: #FF8C00;">NUEVO CONTACTO DESDE LA WEB</h2>
+    <table style="width: 100%; border-collapse: collapse;">
+        <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Cliente:</strong></td><td>{{ nombre }}</td></tr>
+        <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Email:</strong></td><td>{{ email }}</td></tr>
+        <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Teléfono:</strong></td><td>{{ telefono|default:"—" }}</td></tr>
+        <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Asunto:</strong></td><td>{{ asunto }}</td></tr>
+        <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Mensaje:</strong></td><td>{{ mensaje|linebreaksbr }}</td></tr>
+        {% if idioma == 'en' %}<tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;"><strong>Idioma:</strong></td><td>Inglés (escribió desde el sitio en inglés)</td></tr>{% endif %}
+    </table>
+    <p style="color: #888; font-size: 12px; margin-top: 16px;">Puedes responder directamente a este email: la respuesta le llega al cliente.</p>
+</div>

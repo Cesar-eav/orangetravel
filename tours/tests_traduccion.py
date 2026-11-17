@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.utils import translation
 
 from home.models import SitioIngles
+from home.tests import ts_valido
 from payments.emails import get_email_admin_pago
 from payments.models import Payment
 
@@ -101,6 +102,7 @@ class EmailsIdiomaTests(TestCase):
         r = self.client.post(reverse('crear_cotizacion'), json.dumps({
             'tour_id': self.tour.pk, 'nombre': 'John Smith', 'email': 'john@example.com',
             'telefono': '+15550100', 'fecha': (date.today() + timedelta(days=5)).isoformat(), 'idioma': 'en',
+            'ts': ts_valido(),
         }), content_type='application/json')
         self.assertEqual(r.status_code, 201)
         self.assertIn('Request received', r.json()['mensaje'])

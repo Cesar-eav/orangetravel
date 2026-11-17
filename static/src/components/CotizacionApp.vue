@@ -107,12 +107,18 @@
               class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition-all"></textarea>
           </div>
 
+          <!-- Antispam: campo trampa oculto (home/antispam.py) y widget de Cloudflare Turnstile -->
+          <div aria-hidden="true" style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;">
+            <input type="text" v-model="sitioWeb" tabindex="-1" autocomplete="off" />
+          </div>
+          <div v-if="turnstileSiteKey" ref="turnstile"></div>
+
           <p v-if="error" class="text-red-500 text-sm">{{ error }}</p>
 
           <div class="pt-2">
-            <button @click="enviarCotizacion" :disabled="!formularioValido || cargando"
+            <button @click="enviarCotizacion" :disabled="!formularioValido || !verificado || cargando"
               class="w-full py-4 rounded-2xl font-black text-lg transition-all active:scale-95 shadow-xl disabled:opacity-50 disabled:grayscale"
-              :class="formularioValido ? 'bg-orange-500 text-white hover:bg-orange-600' : 'bg-slate-200 text-slate-400 cursor-not-allowed'">
+              :class="formularioValido && verificado ? 'bg-orange-500 text-white hover:bg-orange-600' : 'bg-slate-200 text-slate-400 cursor-not-allowed'">
               {{ cargando ? t.enviando : t.solicitarCotizacion }}
             </button>
           </div>
@@ -130,11 +136,30 @@ import { DatePicker } from 'v-calendar';
 import 'v-calendar/style.css';
 import axios from 'axios';
 
+const TURNSTILE_SCRIPT = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+let turnstileCargado = null;
+// Carga el script de Turnstile una sola vez (aunque se abra y cierre el modal varias veces).
+function cargarTurnstile() {
+  if (window.turnstile) return Promise.resolve(window.turnstile);
+  if (!turnstileCargado) {
+    turnstileCargado = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = TURNSTILE_SCRIPT;
+      s.async = true;
+      s.onload = () => resolve(window.turnstile);
+      s.onerror = () => { turnstileCargado = null; reject(new Error('turnstile')); };
+      document.head.appendChild(s);
+    });
+  }
+  return turnstileCargado;
+}
+
 const formularioVacio = () => ({ nombre: '', email: '', telefono: '', fecha: '', adultos: 1, ninos: 0, mensaje: '' });
 
 export default {
   // t: textos ya traducidos por Django (tours/views.py::textos_reserva).
-  props: ['tourId', 't', 'idioma'],
+  // turnstileSiteKey / antispamTs: antispam (home/antispam.py), desde data-* en tours/tour.html.
+  props: ['tourId', 't', 'idioma', 'turnstileSiteKey', 'antispamTs'],
 
   components: {
     DatePicker,
@@ -148,7 +173,19 @@ export default {
       mensajeExito: '',
       error: '',
       form: formularioVacio(),
+      sitioWeb: '',          // honeypot: una persona nunca lo llena
+      turnstileToken: '',
+      turnstileId: null,
+      turnstileFallo: false, // si Cloudflare no carga, se deja enviar (el servidor decide)
     }
+  },
+
+  watch: {
+    // El widget vive dentro del modal: se dibuja al abrirlo y se descarta al cerrarlo.
+    isModalOpen(abierto) {
+      if (abierto) this.$nextTick(this.montarTurnstile);
+      else this.desmontarTurnstile();
+    },
   },
 
   computed: {
@@ -156,6 +193,9 @@ export default {
       const d = new Date();
       d.setDate(d.getDate() + 1);
       return d;
+    },
+    verificado() {
+      return !this.turnstileSiteKey || this.turnstileFallo || !!this.turnstileToken;
     },
     formularioValido() {
       return (
@@ -194,6 +234,9 @@ export default {
         ninos: this.form.ninos,
         mensaje: this.form.mensaje,
         idioma: this.idioma, // decide el idioma de los emails al cliente
+        sitio_web: this.sitioWeb,
+        ts: this.antispamTs,
+        turnstile_token: this.turnstileToken,
       };
 
       axios.post('/tours/api/cotizacion/crear/', payload, {
@@ -210,6 +253,7 @@ export default {
         })
         .catch(error => {
           this.error = error.response?.data?.mensaje || this.t.errorEnvio;
+          this.reiniciarTurnstile(); // el token es de un solo uso
         })
         .finally(() => {
           this.cargando = false;
@@ -221,6 +265,37 @@ export default {
       this.isModalOpen = false;
       this.enviada = false;
       this.error = '';
+    },
+
+    montarTurnstile() {
+      if (!this.turnstileSiteKey || !this.$refs.turnstile) return;
+      cargarTurnstile()
+        .then(turnstile => {
+          if (!this.isModalOpen || !this.$refs.turnstile) return;
+          this.turnstileId = turnstile.render(this.$refs.turnstile, {
+            sitekey: this.turnstileSiteKey,
+            language: this.idioma,
+            size: 'flexible',
+            callback: token => { this.turnstileToken = token; },
+            'expired-callback': () => { this.turnstileToken = ''; },
+            'error-callback': () => { this.turnstileToken = ''; },
+          });
+        })
+        .catch(() => { this.turnstileFallo = true; });
+    },
+    desmontarTurnstile() {
+      // Tras un envío exitoso el contenedor ya no existe: remove() puede fallar y da igual.
+      try {
+        if (this.turnstileId !== null && window.turnstile) window.turnstile.remove(this.turnstileId);
+      } catch (e) { /* widget ya descartado */ }
+      this.turnstileId = null;
+      this.turnstileToken = '';
+    },
+    reiniciarTurnstile() {
+      try {
+        if (this.turnstileId !== null && window.turnstile) window.turnstile.reset(this.turnstileId);
+      } catch (e) { /* widget ya descartado */ }
+      this.turnstileToken = '';
     },
 
     increment(tipo) { this.form[tipo]++; },

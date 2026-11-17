@@ -26,6 +26,7 @@ from django.utils import translation
 from django.utils.translation import gettext as _
 
 from tours.models import Tour  # Asegúrate de que esta ruta sea correcta
+from home import antispam
 from .flow import FlowClient
 
 from .confirmacion import aplicar_estado_flow
@@ -58,6 +59,13 @@ class TourCheckoutView(APIView):
         translation.activate(idioma)  # mensajes de respuesta en el idioma de la página
         if not tour.con_precio:
             return Response({"detail": _("Este tour se reserva por cotización.")}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Antispam sin fricción (sin Turnstile ni tiempo mínimo: no estorbar el pago).
+        motivo = antispam.revisar(request, data, clave='checkout', maximo=20, ventana=3600, turnstile=False, tiempo=False)
+        if motivo == 'limite':
+            return Response({"detail": _("Recibimos varias solicitudes desde tu conexión. Intenta más tarde o escríbenos por WhatsApp.")}, status=status.HTTP_429_TOO_MANY_REQUESTS)
+        if motivo:
+            return Response({"detail": _("Error al generar el link de pago.")}, status=status.HTTP_400_BAD_REQUEST)
 
         # El email debe venir en el POST ya que el usuario no está registrado
         email = request.data.get("email")

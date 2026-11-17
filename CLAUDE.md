@@ -33,7 +33,7 @@ Leer completo antes de modificar nada. Este archivo **no debe contener valores s
 
 ## Variables de entorno (nombres)
 
-`DEBUG`, `DJANGO_SECRET_KEY`, `DATABASE_URL`, `FLOW_API_KEY`, `FLOW_SECRET_KEY`, `FLOW_API_BASE`, `MAILGUN_API_KEY`, `MAILGUN_SENDER_DOMAIN`, `DEFAULT_FROM_EMAIL`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `DEEPL_API_KEY` (traducción ES/EN; cuenta a nombre de Orange Travel), `GOOGLE_CALENDAR_EMAIL` (Gmail sugerido en el botón de Google Calendar; no es secreto, opcional).
+`DEBUG`, `DJANGO_SECRET_KEY`, `DATABASE_URL`, `FLOW_API_KEY`, `FLOW_SECRET_KEY`, `FLOW_API_BASE`, `MAILGUN_API_KEY`, `MAILGUN_SENDER_DOMAIN`, `DEFAULT_FROM_EMAIL`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `DEEPL_API_KEY` (traducción ES/EN; cuenta a nombre de Orange Travel), `GOOGLE_CALENDAR_EMAIL` (Gmail sugerido en el botón de Google Calendar; no es secreto, opcional), `TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` (Cloudflare Turnstile, antispam de formularios; la site key no es secreta).
 
 - Local: se leen del `.env` (ignorado por git).
 - Producción: cPanel Python App (ver regla 1). Detalle y valores no secretos en `docs/PRODUCCION_VARS_EMAIL.md`.
@@ -59,11 +59,22 @@ Leer completo antes de modificar nada. Este archivo **no debe contener valores s
 
 ## Emails de notificación
 
-- Flujo 1, reserva sin pago: `tours/views.py` → `enviar_notificaciones_reserva(reserva)` (cliente + admin).
+- Flujo 1, reserva sin pago: desactivado (nov 2026, se eliminó `/tours/api/reserva/crear/`). `tours/views.py::enviar_notificaciones_reserva(reserva)` sigue existiendo (cliente + admin).
+- Contacto: `home/views.py::contacto_send_email` → `templates/emails/contacto_admin.html` a `info@orangetravel.cl` con `reply_to` del cliente.
 - Flujo 2, pago Flow: `FlowConfirmView` → `payments/emails.py::enviar_confirmacion_pago(payment)` (cliente + admin).
 - Flujo 3, cotización: solo los tours de la categoría `TIPO_CON_PRECIO_ID = 1` (Excursiones de un Día, `tours/models.py`, propiedad `Tour.con_precio`) muestran precio y pagan con Flow. El resto muestra «A cotizar» y monta `CotizacionApp.vue` en vez de `BookingApp.vue` → `tours/views.py::crear_cotizacion` guarda una `Cotizacion` y llama a `enviar_notificaciones_cotizacion` (cliente + admin). Se gestionan en `/panel/cotizaciones/`. `TourCheckoutView` rechaza los tours sin precio.
 - Enrutamiento del admin: `EMAIL_POR_TOUR` en `tours/views.py`, matching por palabra clave en **`tour.nombre`** (no slug). Sin match → `EMAIL_ADMIN_DEFAULT` (`info@orangetravel.cl`). CC en `CC_RESERVAS`. `payments/emails.py` importa ese mismo diccionario.
 - FROM: `noreply@mg.orangetravel.cl` (dominio verificado en Mailgun). Ver `docs/email-deliverability.md`.
+
+## Antispam de formularios públicos
+
+- `home/antispam.py::revisar` protege el contacto (`home/views.py::contacto_send_email`), la cotización (`crear_cotizacion`) y el checkout (`TourCheckoutView`). Capas: honeypot `sitio_web`, marca de tiempo firmada `ts` (mínimo 3 s, máximo 1 día), límite por IP (contacto 5/h, cotización 10/h, checkout 20/h) y **Cloudflare Turnstile**. El checkout solo usa honeypot + límite (sin fricción en el pago).
+- Formularios Django: `{% load antispam %}{% antispam_campos %}` dentro del `<form>`. Vue (`CotizacionApp.vue`): `data-turnstile-sitekey` y `data-antispam-ts` en `tours/tour.html`, widget en modo explícito al abrir el modal.
+- Honeypot o `ts` inválido → se responde como éxito sin guardar ni enviar nada (no dar pistas al bot). Turnstile, límite o página vencida → mensaje de error visible.
+- Turnstile **falla abierto**: sin `TURNSTILE_SECRET_KEY` o si Cloudflare no responde, el envío pasa (quedan las otras capas). Los rechazos quedan en `stderr.log` como «Antispam: envío rechazado en <form> (motivo=…, ip=…)».
+- Contadores del límite en `tmp/cache_antispam/` (cache `antispam`, `FileBasedCache`): sin tablas en la BD. En tests el cache es `DummyCache` y Turnstile está apagado; cada test lo activa con `override_settings`.
+- Widget creado en el dashboard de Cloudflare para `orangetravel.cl` y `www.orangetravel.cl`. En local, `.env` con las claves de prueba de Cloudflare (siempre pasan).
+- El endpoint `/tours/api/reserva/crear/` se eliminó (no lo usaba nadie y permitía mandar emails a cualquier dirección).
 
 ## Google Calendar
 
@@ -122,5 +133,5 @@ En producción desde el 2 nov 2026 (merge `cbcadac` de la rama `traduccion` en `
 - `docs/PRODUCCION_VARS_EMAIL.md`: variables en cPanel, por qué no hay `.env`, DNS y enrutamiento de emails.
 - `docs/COTIZACIONES.md`: tours con precio (categoría 1) vs. tours con cotización; flujo, modelo, panel y deploy.
 - `docs/email-deliverability.md`: SPF/DKIM/DMARC y Mailgun.
-- `docs/INCIDENTE_EMAILS_INT15.md`: por qué no salieron emails del 15 oct al 9 nov 2026 (stdout ASCII en int15), el arreglo y los pendientes.
+- `docs/INCIDENTE_EMAILS_INT15.md`: incidente de pagos y emails en int15 (15 oct – 9 nov 2026): stdout ASCII, webhook de Flow que no llega, mantención; bitácora de lo hecho y pendientes.
 - `docs/PROPUESTA_TRADUCCION_ES_EN.md`: sitio bilingüe ES/EN; el anexo técnico tiene las decisiones (modeltranslation, URLs, idioma en emails/webhook), los problemas conocidos y el deploy de cada entrega. Orden de ejecución y checklists: `docs/PLAN_TRADUCCION_ETAPAS.md`.

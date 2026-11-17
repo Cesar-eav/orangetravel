@@ -1,4 +1,5 @@
 import os
+import sys
 # import pymysql
 # pymysql.install_as_MySQLdb()
 import dj_database_url
@@ -315,7 +316,27 @@ FLOW_API_BASE = os.getenv("FLOW_API_BASE", "https://sandbox.flow.cl/api")
 # 13 Traducción automática (DeepL, cuenta de Orange Travel). En producción viene de cPanel.
 DEEPL_API_KEY = os.getenv("DEEPL_API_KEY")
 
-# 14 Logging: los logger de payments y tours escriben en stderr, que en int15 queda en
+# 13b Antispam de formularios públicos (home/antispam.py). Cloudflare Turnstile:
+# claves de producción en cPanel; en local, las de prueba de Cloudflare en el .env.
+# Sin TURNSTILE_SECRET_KEY la verificación se salta (quedan honeypot, tiempo y límite por IP).
+TURNSTILE_SITE_KEY = os.getenv("TURNSTILE_SITE_KEY", "")
+TURNSTILE_SECRET_KEY = os.getenv("TURNSTILE_SECRET_KEY", "")
+# Contadores del límite por IP: en archivos (tmp/ está en .gitignore) para que los
+# compartan todos los procesos de Passenger sin crear tablas en la BD.
+CACHES = {
+    'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'},
+    'antispam': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': os.path.join(BASE_DIR, 'tmp', 'cache_antispam'),
+    },
+}
+# En los tests: sin Turnstile real ni contadores que sobrevivan entre corridas
+# (los tests del antispam activan cada capa con override_settings).
+if len(sys.argv) > 1 and sys.argv[1] == 'test':
+    TURNSTILE_SITE_KEY = TURNSTILE_SECRET_KEY = ''
+    CACHES['antispam'] = {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}
+
+# 14 Logging: los logger de payments, tours y home escriben en stderr, que en int15 queda en
 # ~/orangetravel/stderr.log. Sin esto, logger.info() no se ve (solo WARNING o más).
 LOGGING = {
     'version': 1,
@@ -329,5 +350,6 @@ LOGGING = {
     'loggers': {
         'payments': {'handlers': ['stderr'], 'level': 'INFO', 'propagate': False},
         'tours': {'handlers': ['stderr'], 'level': 'INFO', 'propagate': False},
+        'home': {'handlers': ['stderr'], 'level': 'INFO', 'propagate': False},
     },
 }

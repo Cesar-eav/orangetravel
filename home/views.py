@@ -1,14 +1,23 @@
+import logging
+
 from django.shortcuts import render, redirect
+from django.urls import reverse
+from django.views.decorators.http import require_POST
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+from django.template.loader import render_to_string
+from django.utils.translation import gettext as _, get_language
 from tours.models import Tour
 from blog.models import Post
 from .models import Nosotros
 from tours.traduccion import mostrar_aprobado
 from django.conf import settings
-from django.core.mail import send_mail
 from django.contrib import messages
+from django.core.mail import EmailMultiAlternatives
 
-from django.core.mail import EmailMessage
-from django.core.mail import EmailMultiAlternatives # Importante para enviar HTML
+from . import antispam
+
+logger = logging.getLogger(__name__)
 
 # Create your views here.
 
@@ -38,47 +47,68 @@ def devoluciones(request):
 def otros_servicios(request):
     return render(request, 'home/otros_servicios.html')
 
-#FORMULARIO DE CONTACTO
+# FORMULARIO DE CONTACTO (home y /contacto/): email a info@, protegido con home/antispam.py
+ASUNTOS_CONTACTO = {
+    'consulta': 'Consulta General',
+    'reserva': 'Problemas con una Reserva',
+    'tour_especial': 'Tour Personalizado / Grupal',
+    'otro': 'Otro',
+}
+ORIGENES_CONTACTO = {'home': 'home', 'contacto': 'contacto'}  # lista blanca para el redirect
+
+
+@require_POST
 def contacto_send_email(request):
-    if request.method == 'POST':
+    destino = reverse(ORIGENES_CONTACTO.get(request.POST.get('origen'), 'contacto')) + '#formulario-contacto'
+    exito = _("¡Gracias! Recibimos tu mensaje y te responderemos a la brevedad.")
 
-        tel_limpio = request.POST.get('phone').replace('+', '').replace(' ', '')
-        nombre = request.POST.get('nombre')
-        email = request.POST.get('email')
-        phone = request.POST.get('phone')
-        asunto_tipo = request.POST.get('asunto')
-        mensaje_user = request.POST.get('mensaje')
+    motivo = antispam.revisar(request, request.POST, clave='contacto', maximo=5, ventana=3600)
+    if motivo in antispam.MOTIVOS_SILENCIOSOS:
+        messages.success(request, exito)  # al bot se le responde igual que a una persona
+        return redirect(destino)
+    if motivo == 'expirado':
+        messages.error(request, _("La página estuvo abierta mucho tiempo. Recárgala y vuelve a enviar tu mensaje."))
+        return redirect(destino)
+    if motivo == 'limite':
+        messages.error(request, _("Recibimos varios mensajes desde tu conexión. Intenta más tarde o escríbenos por WhatsApp."))
+        return redirect(destino)
+    if motivo == 'turnstile':
+        messages.error(request, _("No pudimos verificar que no eres un robot. Inténtalo de nuevo."))
+        return redirect(destino)
 
+    nombre = (request.POST.get('nombre') or '').strip()[:100]
+    email = (request.POST.get('email') or '').strip()[:254]
+    telefono = (request.POST.get('phone') or '').strip()[:20]
+    asunto = ASUNTOS_CONTACTO.get(request.POST.get('asunto'), ASUNTOS_CONTACTO['otro'])
+    mensaje = (request.POST.get('mensaje') or '').strip()[:3000]
+    try:
+        validate_email(email)
+    except ValidationError:
+        messages.error(request, _("Email inválido."))
+        return redirect(destino)
+    if len(nombre) < 2 or not mensaje:
+        messages.error(request, _("Completa tu nombre y tu mensaje."))
+        return redirect(destino)
 
-        html_admin = f"""
-        <div style="border: 2px solid #FF8C00; padding: 20px; font-family: sans-serif;">
-            <h2 style="color: #FF8C00;">Gracias por contactarnos</h2>
-            <p><strong>Cliente:</strong> {nombre}</p>
-            <p><strong>Email:</strong> {email}</p>
-            <p><strong>Telefono:</strong> {phone}</p>
-
-            <p><strong>Asunto:</strong> {asunto_tipo}</p>
-            <p><strong>Mensaje:</strong> {mensaje_user}</p>
-    
-            
-        </div>
-        """
-        #<p><a href="https://wa.me/{tel_limpio}" style="color: #25D366; font-weight: bold;">📱 Contactar por WhatsApp</a></p>
-        try:
-            msg_adm = EmailMultiAlternatives(
+    # Template con autoescape: el HTML o los links que mande alguien salen como texto.
+    html_admin = render_to_string('emails/contacto_admin.html', {
+        'nombre': nombre, 'email': email, 'telefono': telefono, 'asunto': asunto,
+        'mensaje': mensaje, 'idioma': (get_language() or 'es')[:2],
+    })
+    try:
+        msg_adm = EmailMultiAlternatives(
             subject=f"🥳 CONTACTO WEB - {nombre}",
-            body="Nuevo contacto",
+            body=f"Nuevo contacto de {nombre} <{email}>:\n\n{mensaje}",
             from_email=settings.DEFAULT_FROM_EMAIL,
-            to=["info@orangetravel.cl"] # Tu correo autorizado en Sandbox
-            )
-            msg_adm.attach_alternative(html_admin, "text/html")
-            msg_adm.send()
-            
-        except Exception as e:
+            to=["info@orangetravel.cl"],
+            reply_to=[email],
+        )
+        msg_adm.attach_alternative(html_admin, "text/html")
+        msg_adm.send()
+    except Exception:
+        logger.exception("No se pudo enviar el email del formulario de contacto")
+        messages.error(request, _("Hubo un problema al enviar tu mensaje. Inténtalo de nuevo o escríbenos por WhatsApp."))
+        return redirect(destino)
 
-            print(f"DEBUG ERROR EMAIL: {e}")
-            messages.error(request, f"Hubo un problema al enviar el emial.")
-        
-        return redirect('home')
-    
-    return render(request, 'home/index.html') 
+    messages.success(request, exito)
+    return redirect(destino)

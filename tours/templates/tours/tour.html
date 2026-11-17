@@ -17,7 +17,9 @@
                     data-precio-adulto="{{ precios.valor_adulto }}"
                     data-precio-nino="{{ precios.valor_nino }}"
                     data-tour-id="{{ tour.id }}"
-                    data-con-precio="{{ con_precio|yesno:'1,0' }}">
+                    data-con-precio="{{ con_precio|yesno:'1,0' }}"
+                    data-turnstile-sitekey="{{ turnstile_site_key }}"
+                    data-antispam-ts="{{ antispam_ts }}">
                 <booking-app>
                 </booking-app>
             </div> 

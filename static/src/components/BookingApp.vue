@@ -95,6 +95,11 @@
             </div>
           </div>
 
+          <!-- Antispam: campo trampa oculto (home/antispam.py); una persona nunca lo llena -->
+          <div aria-hidden="true" style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;">
+            <input type="text" v-model="sitioWeb" tabindex="-1" autocomplete="off" />
+          </div>
+
           <div class="pt-4">
             <div class="flex justify-between items-end mb-4">
               <span class="text-slate-500 text-sm font-medium">{{ t.totalAPagar }}</span>
@@ -133,6 +138,7 @@ export default {
       diasBloqueados: [],
       isModalOpen: false,
       cargando: false,
+      sitioWeb: '', // honeypot (antispam)
       form: {
         nombre: '',
         email: '',
@@ -217,6 +223,7 @@ enviarReserva() {
         ninos: this.form.ninos,
         total: this.totalReserva, // Enviamos el total calculado
         idioma: this.idioma, // decide el idioma de los emails al cliente
+        sitio_web: this.sitioWeb,
       };
 
       console.log("🚀 Iniciando Checkout...");

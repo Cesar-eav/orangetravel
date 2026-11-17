@@ -20,6 +20,7 @@ from django.utils.html import strip_tags, escape # Par
 from django.utils import translation
 from django.utils.translation import gettext as _
 from .traduccion import mostrar_aprobado, texto
+from home import antispam
 from datetime import date
 import os
 
@@ -125,6 +126,9 @@ def tour(request, slug):
                 'categoria': tipo_de_tour,
                 'con_precio': tour.con_precio,
                 'textos_reserva': textos_reserva(),
+                # Antispam del formulario de cotización (home/antispam.py, CotizacionApp.vue)
+                'turnstile_site_key': settings.TURNSTILE_SITE_KEY,
+                'antispam_ts': antispam.marca_tiempo(),
                 'sin_version_en': not tour.traduccion_en_aprobada,  # sin hreflang en (base.html)
                 # Enviamos una bandera para saber que estamos en modo aprendizaje
                 'debug_mode': True 
@@ -134,57 +138,6 @@ def tour(request, slug):
     
     except Tour.DoesNotExist:
         return redirect('home')
-
-@require_POST
-def crear_reserva(request):
-    try:
-        data = json.loads(request.body)
-        idioma = idioma_cliente(data)
-        translation.activate(idioma)  # mensajes de respuesta en el idioma de la página
-        
-        # 1. Validación del Tour
-        try:
-            tour = Tour.objects.get(id=data.get('tour_id'))
-        except Tour.DoesNotExist:
-            return JsonResponse({'status': 'error', 'mensaje': _('El tour no existe.')}, status=404)
-
-        # 2. Validación de anticipación mínima: solo desde mañana (no se reserva para el mismo día)
-        try:
-            fecha_reserva = date.fromisoformat(data.get('fecha'))
-        except (TypeError, ValueError):
-            return JsonResponse({'status': 'error', 'mensaje': _('Fecha inválida.')}, status=400)
-        if fecha_reserva <= date.today():
-            return JsonResponse({'status': 'error', 'mensaje': _('Las reservas deben hacerse a partir del día siguiente.')}, status=400)
-
-        # 3. Creación de la Reserva
-        reserva = Reserva.objects.create(
-            tour=tour,
-            nombre_cliente=data.get('nombre'),
-            email_cliente=data.get('email'),
-            telefono_cliente=data.get('telefono'),
-            fecha=data.get('fecha'),
-            adultos=int(data.get('adultos', 1)),
-            ninos=int(data.get('ninos', 0)),
-            notas_internas=f"Solicitud web: {data.get('adultos')} ADL, {data.get('ninos')} CHD.",
-            idioma=idioma,
-        )
-
-        # --- CAMBIO CLAVE AQUÍ ---
-        # En lugar de llamar a la función directo, creamos un hilo (thread)
-        # Esto dispara la función 'enviar_notificaciones_reserva' de fondo
-        # y permite que el código siga a la siguiente línea (el return) al instante.
-        email_thread = threading.Thread(target=enviar_notificaciones_reserva, args=(reserva,))
-        email_thread.start() 
-        # -------------------------
-        
-        return JsonResponse({
-            'status': 'success',
-            'mensaje': _('¡Solicitud recibida! Revisa tu correo.'),
-            'reserva_id': reserva.id
-        }, status=201)
-        
-    except Exception as e:
-        return JsonResponse({'status': 'error', 'mensaje': str(e)}, status=500)
 
 def enviar_notificaciones_reserva(reserva):
     # --- 1. CONFIGURACIÓN PARA EL CLIENTE (en su idioma) ---
@@ -239,6 +192,17 @@ def crear_cotizacion(request):
         return JsonResponse({'status': 'error', 'mensaje': _('El tour no existe.')}, status=404)
     if tour.con_precio:
         return JsonResponse({'status': 'error', 'mensaje': _('Este tour se reserva con pago en línea, no por cotización.')}, status=400)
+
+    motivo = antispam.revisar(request, data, clave='cotizacion', maximo=10, ventana=3600)
+    if motivo in antispam.MOTIVOS_SILENCIOSOS:
+        # Al bot se le responde igual que a una persona, sin guardar ni enviar nada.
+        return JsonResponse({'status': 'success', 'mensaje': _('¡Solicitud recibida! Te enviaremos tu cotización a la brevedad.')}, status=201)
+    if motivo == 'expirado':
+        return JsonResponse({'status': 'error', 'mensaje': _('La página estuvo abierta mucho tiempo. Recárgala y vuelve a intentarlo.')}, status=400)
+    if motivo == 'limite':
+        return JsonResponse({'status': 'error', 'mensaje': _('Recibimos varias solicitudes desde tu conexión. Intenta más tarde o escríbenos por WhatsApp.')}, status=429)
+    if motivo == 'turnstile':
+        return JsonResponse({'status': 'error', 'mensaje': _('No pudimos verificar que no eres un robot. Inténtalo de nuevo.')}, status=400)
 
     nombre = (data.get('nombre') or '').strip()
     email = (data.get('email') or '').strip()

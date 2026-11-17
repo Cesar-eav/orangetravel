@@ -23,7 +23,10 @@ if (root) {
         const precioNino = parseInt(root.dataset.precioNino) || 0;
         app = createApp(BookingApp, { precioAdulto, precioNino, tourId, t, idioma });
     } else {
-        app = createApp(CotizacionApp, { tourId, t, idioma });
+        // Antispam (home/antispam.py): clave pública de Turnstile y marca de tiempo firmada.
+        const turnstileSiteKey = root.dataset.turnstileSitekey || '';
+        const antispamTs = root.dataset.antispamTs || '';
+        app = createApp(CotizacionApp, { tourId, t, idioma, turnstileSiteKey, antispamTs });
     }
     app.mount('#reservation-widget');
 }
