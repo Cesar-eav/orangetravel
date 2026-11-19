@@ -120,3 +120,14 @@ class ContactoAntispamTests(TestCase):
         with self.settings(TURNSTILE_SITE_KEY='clave-publica'):
             r = self.client.get(reverse('contacto'))
         self.assertContains(r, 'data-sitekey="clave-publica"')
+
+
+class RobotsTxtTests(TestCase):
+    def test_robots_txt_en_texto_plano(self):
+        r = self.client.get('/robots.txt')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r['Content-Type'], 'text/plain')
+        contenido = r.content.decode()
+        self.assertIn('User-agent: GPTBot\nDisallow: /\n', contenido)
+        self.assertIn('Disallow: /panel/', contenido)
+        self.assertNotIn('ChatGPT-User', contenido)

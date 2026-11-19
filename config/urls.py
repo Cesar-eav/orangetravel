@@ -19,11 +19,13 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
+from django.views.generic import TemplateView
 
 
 # Sin prefijo de idioma: admin/panel en español, URLs fijas para Flow
 # (pagos/) y APIs que Vue llama con rutas absolutas (tours/api/).
 urlpatterns = [
+    path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
     path('admin/', admin.site.urls),
     path('panel/', include('panel.urls')),
     path('ckeditor/', include('ckeditor_uploader.urls')),

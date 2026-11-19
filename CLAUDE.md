@@ -123,6 +123,7 @@ En producción desde el 2 nov 2026 (merge `cbcadac` de la rama `traduccion` en `
 - Error "Incomplete response received from application" = Django no arrancó. Revisar `passenger.log`; causa típica: una vista referenciada en `urls.py` que no existe en `views.py`.
 - **Modo mantención**: toggle en `/panel/mantencion/` (modelo `MaintenanceMode` en `home/models.py`, `home/middleware.py`). Los no-staff reciben 503; los staff ven el sitio. Usarlo antes de deploys riesgosos.
   - La vuelta de Flow (`/pagos/flow-confirm/`, `/pagos/flow-return/`, `/pagos/vista_confirmacion_pago/`) queda exenta: el webhook llega sin cookies y el return es un POST desde flow.cl donde la sesión (`SameSite=Lax`) no viaja, así que ni el staff se ve logueado. El checkout sigue bloqueado.
+- **Bots de IA**: LiteSpeed responde 403 a varios bots de IA por User-Agent (ChatGPT-User, OAI-SearchBot, GPTBot, ClaudeBot, PerplexityBot, CCBot, etc.; comprobado el 18 nov 2026). Es del servidor, no de Django. Se quiere dejar pasar a los de búsqueda (ChatGPT-User, OAI-SearchBot, ClaudeBot, PerplexityBot) y bloquear a los de entrenamiento. `robots.txt` lo sirve Django desde `templates/robots.txt` (`config/urls.py`).
 - Jailshell de cPanel: no soporta process substitution (`<(...)`); usar archivos temporales.
 - Archivos ocultos en el File Manager de cPanel: Settings → Show Hidden Files.
 

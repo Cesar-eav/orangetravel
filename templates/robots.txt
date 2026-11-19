@@ -1,0 +1,27 @@
+# Orange Travel
+# Los bots de búsqueda (Google, Bing, ChatGPT, Claude, Perplexity) pueden indexar el sitio.
+# Los que solo copian contenido para entrenar modelos de IA no.
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: meta-externalagent
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: *
+Disallow: /panel/
+Disallow: /admin/
+Disallow: /pagos/
+Disallow: /ckeditor/
+Disallow: /tours/api/
+Disallow: /i18n/
+Disallow: /en/i18n/
